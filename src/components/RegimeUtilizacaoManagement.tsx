@@ -1,0 +1,117 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Box, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import ManagementDialog from './ManagementDialog';
+
+const API_URL = "http://localhost:3001/api/regimeutilizacao";
+
+interface Regime {
+  id: number;
+  descricao: string;
+}
+
+export default function RegimeUtilizacaoManagement() {
+  const [regimes, setRegimes] = useState<Regime[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<Regime | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const { data } = await axios.get(API_URL);
+      setRegimes(data);
+    } catch (error) {
+      toast.error("Falha ao carregar regimes de utilização.");
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleOpenDialog = (item: Regime | null = null) => {
+    setCurrentItem(item);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setCurrentItem(null);
+  };
+
+  const handleSave = async (item: Regime) => {
+    const isEditing = !!item.id;
+    const url = isEditing ? `${API_URL}/${item.id}` : API_URL;
+    const method = isEditing ? 'put' : 'post';
+
+    try {
+      await axios[method](url, { descricao: item.descricao });
+      toast.success("Regime salvo com sucesso!");
+      handleCloseDialog();
+      fetchData();
+    } catch (error) {
+      toast.error("Falha ao salvar regime.");
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm("Tem certeza que deseja excluir este regime?")) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        toast.success("Regime excluído com sucesso!");
+        fetchData();
+      } catch (error) {
+        toast.error("Falha ao excluir regime. Verifique se não está em uso.");
+      }
+    }
+  };
+
+  return (
+    <>
+      <Paper variant="outlined">
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">Gerenciar Regimes de Utilização</Typography>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+            Adicionar Novo
+          </Button>
+        </Box>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Descrição</TableCell>
+                <TableCell align="right">Ações</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {regimes.map((regime) => (
+                <TableRow key={regime.id}>
+                  <TableCell>{regime.id}</TableCell>
+                  <TableCell>{regime.descricao}</TableCell>
+                  <TableCell align="right">
+                    <IconButton onClick={() => handleOpenDialog(regime)}><EditIcon /></IconButton>
+                    <IconButton onClick={() => handleDelete(regime.id)}><DeleteIcon /></IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      {/* Aqui especificamos o tipo <Regime> */}
+      <ManagementDialog<Regime>
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        onSave={handleSave}
+        item={currentItem}
+        title={currentItem ? 'Editar Regime de Utilização' : 'Novo Regime de Utilização'}
+        label="Descrição do Regime"
+        fieldName="descricao"
+      />
+    </>
+  );
+}

@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    overflow: hidden;
+  }
+
+  :root {
+    --blue-dark: 210 100% 12%;
+    --blue-primary: 211 100% 50%;
+    --blue-light: 208 79% 66%;
+    --gray-light: 220 13% 95%;
+    --gray-medium: 210 14% 88%;
+    --gray-dark: 0 0% 20%;
+    --text-light: 0 0% 100%;
+    --accent-orange: 30 100% 50%;
+
+    --background: var(--gray-light);
+    --foreground: var(--gray-dark);
+    --card: var(--text-light);
+    --card-foreground: var(--gray-dark);
+    --popover: var(--text-light);
+    --popover-foreground: var(--gray-dark);
+    --primary: var(--blue-primary);
+    --primary-foreground: var(--text-light);
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 215 20.2% 65.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: var(--accent-orange);
+    --accent-foreground: var(--text-light);
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--text-light);
+    --border: var(--gray-medium);
+    --input: var(--gray-medium);
+    --ring: var(--blue-primary);
+    --radius: 0.5rem;
+    --chart-1: var(--blue-primary);
+    --chart-2: var(--blue-light);
+    --chart-3: 200 80% 70%;
+    --chart-4: 220 80% 70%;
+    --chart-5: var(--accent-orange);
+    --color-vencido: 0 100% 50%; 
+    --color-emDia: 120 100% 40%;
+    --color-aVencer: 54 100% 47.3%; 
+  }
+
+  .dark {
+    --background: var(--blue-dark);
+    --foreground: var(--text-light);
+    --card: 210 100% 18%;
+    --card-foreground: var(--text-light);
+    --popover: var(--blue-dark);
+    --popover-foreground: var(--text-light);
+    --primary: var(--blue-light);
+    --primary-foreground: var(--blue-dark);
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 20.2% 65.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: var(--blue-light);
+    --accent-foreground: var(--blue-dark);
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 210 40% 98%;
+    --color-vencido: 0 100% 50%; 
+    --color-emDia: 120 100% 40%;
+    --color-aVencer: 54 100% 47.3%; 
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  min-height: 300px;
+}
+
+.leaflet-tile-container img,
+.leaflet-marker-icon {
+  max-width: none !important;
+}
+
+.leaflet-marker-icon {
+  width: auto !important;
+  height: auto !important;
+}
