@@ -4,6 +4,7 @@ import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [react()],
+  base: "/monitoraspu",
   resolve: {
     alias: {
       // Aqui está a mágica: estamos dizendo ao Vite
