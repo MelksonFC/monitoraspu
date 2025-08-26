@@ -25,7 +25,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-router.post("/api/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
   const emailLower = email.toLowerCase();
   try {
@@ -57,7 +57,7 @@ router.post("/api/login", async (req, res) => {
   }
 });
 
-router.post("/api/reset-solicitar", async (req, res) => {
+router.post("/reset-solicitar", async (req, res) => {
   const { email } = req.body;
   const emailLower = email.toLowerCase();
   const token = crypto.randomBytes(32).toString("hex");
@@ -78,7 +78,7 @@ router.post("/api/reset-solicitar", async (req, res) => {
   res.json({ message: "Email de redefinição enviado." });
 });
 
-router.post("/api/reset-redefinir", async (req, res) => {
+router.post("/reset-redefinir", async (req, res) => {
   const { token, novaSenha } = req.body;
   if (!validaSenha(novaSenha)) {
     return res.status(400).json({ message: "Senha não atende aos requisitos de força." });
@@ -97,7 +97,7 @@ router.post("/api/reset-redefinir", async (req, res) => {
   res.json({ message: "Senha redefinida com sucesso." });
 });
 
-router.get("/api/ativar", async (req, res) => {
+router.get("/ativar", async (req, res) => {
   const { token } = req.query;
   const usuario = await pool.query(
     "SELECT * FROM dbo.usuarios WHERE ativacao_token=$1 AND ativacao_token_expira > NOW()",
