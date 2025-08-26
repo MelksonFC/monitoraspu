@@ -7,6 +7,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
+import logoSpuPng from '/public/assets/LogoSPU.png';
+
 const Header: React.FC = () => {
   const { usuario, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -59,7 +61,7 @@ const Header: React.FC = () => {
           </Typography>
           <Box
             component="img"
-            src="/assets/LogoSPU.png"
+            src={logoSpuPng}
             alt="Logo SPU"
             sx={{ height: 28, position: 'relative', top: '2px' }}
           />

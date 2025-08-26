@@ -9,6 +9,10 @@ import { useAuth } from "../AuthContext";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
+import fundoJpg from '/public/assets/fundo.jpg';
+import logoSpuPng from '/public/assets/LogoSPU.png';
+import logoGovPng from '/public/assets/gov.png';
+
 interface LoginPageProps {
   setAutenticado: (auth: boolean) => void;
 }
@@ -71,7 +75,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
           left: 0,
           width: '100vw',
           height: '100vh',
-          backgroundImage: `url(/assets/fundo.jpg)`,
+          backgroundImage:  `url(${fundoJpg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'blur(4px)',
@@ -194,7 +198,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box
                   component="img"
-                  src="/assets/LogoSPU.png"
+                  src={logoSpuPng}
                   alt="Logo SPU"
                   sx={{ height: 30 }}
                 />
@@ -239,7 +243,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
                 </Box>
                 <Box
                   component="img"
-                  src="/assets/gov.png"
+                  src={logoGovPng}
                   alt="Logo Governo Federal"
                   sx={{ height: 55 }}
                 />
