@@ -15,7 +15,7 @@ import Header from "../components/Header";
 import axios from "axios";
 import Papa from "papaparse";
 
-const apiUrl = process.env.REACT_APP_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const PERMISSOES = [
   { id: 1, label: "Admin" },

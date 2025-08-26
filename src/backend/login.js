@@ -8,7 +8,7 @@ const nodemailer = require("nodemailer");
 
 const router = express.Router();
 
-const apiUrl = process.env.REACT_APP_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // A lógica interna das suas rotas não precisa de NENHUMA alteração.
 // ... (função validaSenha, transporter, router.post('/login'), etc. permanecem iguais) ...

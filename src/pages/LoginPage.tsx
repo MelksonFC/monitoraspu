@@ -30,7 +30,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
 
   const { setUsuario } = useAuth();
 
-  const apiUrl = process.env.REACT_APP_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();

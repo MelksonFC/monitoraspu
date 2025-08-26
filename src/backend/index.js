@@ -39,7 +39,7 @@ app.use(express.json());
 // FUNÇÕES E CONFIGURAÇÕES AUXILIARES
 // ===================================================================
 
- const apiUrl = process.env.REACT_APP_API_URL;
+ const apiUrl = import.meta.env.VITE_API_URL;
 
 // Função de validação de força de senha
 function validaSenha(senha) {
@@ -184,7 +184,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
     
     const userResult = await pool.query("SELECT * FROM dbo.usuarios WHERE id=$1", [id]);
     const userAtual = userResult.rows[0];
-    if (!userAtual) return res.status(404).json({ error: "Usuário não encontrado." });
+    if (!userAtual) return res.status(404).json({ error: "Usuário Invalido." });
 
     let sendActivation = email && email !== userAtual.email;
     let ativacao_token = sendActivation ? crypto.randomBytes(32).toString("hex") : null;

@@ -67,7 +67,7 @@ const dialogTitles: Record<DialogType, string> = {
   hstregimeutilizacao: 'Histórico de Regime de Utilização',
 };
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 const defaultImovel: Imovel = { nome: "", matricula: "", dataimovel: "", valorimovel: "", ripimovel: "", riputilizacao: "", situacao: true, idpais: 1, idestado: undefined, idmunicipio: undefined, cep: "", endereco: "", numero: "", complemento: "", latitude: -15.793889, longitude: -47.882778, email: "", nomecartorio: "", nprocesso: "", ocupante: "", idregimeutilizacao: undefined, idunidadegestora: undefined, areaconstruida: "", areaterreno: "", imagens: [], };
 
 function safeSelectValue(val: number | undefined, arr: LookupItem[]): string { if (typeof val !== "number") return ""; return arr.some(a => a.id === val) ? String(val) : ""; }

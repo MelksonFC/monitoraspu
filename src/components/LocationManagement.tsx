@@ -7,7 +7,7 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import LocationDialog from './LocationDialog';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Pais { idpais: number; nome: string; }
 interface Estado { idestado: number; nome: string; idpais: number; uf: string; idibge?: number; }
