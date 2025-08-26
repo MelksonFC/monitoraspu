@@ -1,32 +1,34 @@
 'use strict';
 
 // ===================================================================
-// IMPORTAÇÕES CONVERTIDAS PARA O PADRÃO REQUIRE
+// IMPORTAÇÕES CONVERTIDAS PARA O PADRÃO "IMPORT"
 // ===================================================================
-const express = require("express");
-const cors = require("cors");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+import express from "express";
+import cors from "cors";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 // Carregando a conexão com o banco e os routers
-const pool = require("./db.js"); // Assumindo que db.js também usa module.exports
-const loginRouter = require("./login.js"); // Assumindo que login.js também usa module.exports
+// IMPORTANTE: Adicionamos a extensão .js no final dos arquivos
+import pool from "./db.js";
+import loginRouter from "./login.js"; 
 
 // Carregando os routers que corrigimos
-const imoveisRouter = require("../routes/imoveis.js");
-const municipiosRouter = require("../routes/municipio.js");
-const estadoRouter = require("../routes/estado.js");
-const paisRouter = require("../routes/pais.js");
-const fiscalizacaoRouter = require("../routes/fiscalizacao.js");
-const hstregimeutilizacaoRouter = require("../routes/hstregimeutilizacao.js");
-const hstunidadegestoraRouter = require("../routes/hstunidadegestora.js");
-const avaliacaoRouter = require("../routes/avaliacao.js");
-const regimeutilizacaoRouter = require("../routes/regimeutilizacao.js");
-const unidadegestoraRouter = require("../routes/unidadegestora.js");
+import imoveisRouter from "../routes/imoveis.js";
+import municipiosRouter from "../routes/municipio.js";
+import estadoRouter from "../routes/estado.js";
+import paisRouter from "../routes/pais.js";
+import fiscalizacaoRouter from "../routes/fiscalizacao.js";
+import hstregimeutilizacaoRouter from "../routes/hstregimeutilizacao.js";
+import hstunidadegestoraRouter from "../routes/hstunidadegestora.js";
+import avaliacaoRouter from "../routes/avaliacao.js";
+import regimeutilizacaoRouter from "../routes/regimeutilizacao.js";
+import unidadegestoraRouter from "../routes/unidadegestora.js";
+import lookupsRouter from "../routes/lookups.js"; // Convertido de require para import
 
 // Sequelize não é mais usado diretamente aqui, mas mantido caso alguma rota futura precise
-const sequelize = require('../models/sequelize.js');
+import sequelize from '../models/sequelize.js';
 
 // ===================================================================
 // CONFIGURAÇÃO DO SERVIDOR EXPRESS
