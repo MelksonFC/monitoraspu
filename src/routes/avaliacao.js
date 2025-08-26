@@ -1,7 +1,8 @@
 import express from "express";
 import sequelize from "../models/sequelize.js";
 import { Op } from "sequelize"; 
-import { Avaliacao, Imovel } from '../models/index.js'; // Adicionado /index.js
+import db from '../models/index.js';
+const { Avaliacao, Imovel } = db;
 
 
 const router = express.Router();

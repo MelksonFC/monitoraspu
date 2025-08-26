@@ -2,7 +2,8 @@
 
 import express from "express";
 import multer from "multer";
-import { Imovel, Municipio, Estado, Imagem, UnidadeGestora, RegimeUtilizacao, HstUnidadeGestora, HstRegimeUtilizacao } from "../models/index.js";
+import db from "../models/index.js";
+const { Imovel, Municipio, Estado, Imagem, UnidadeGestora, RegimeUtilizacao, HstUnidadeGestora, HstRegimeUtilizacao } = db;
 import sequelize from "../models/sequelize.js";
 import { Op } from "sequelize";
 

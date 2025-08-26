@@ -1,5 +1,6 @@
 import express from "express";
-import { UnidadeGestora } from "../models/index.js";
+import db from "../models/index.js";
+const { UnidadeGestora } = db;
 
 const router = express.Router();
 

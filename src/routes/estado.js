@@ -1,5 +1,6 @@
 import express from "express";
-import { Estado, Municipio } from "../models/index.js";
+import db from "../models/index.js";
+const { Estado, Municipio } = db;
 import { Op } from "sequelize";
 
 const router = express.Router();

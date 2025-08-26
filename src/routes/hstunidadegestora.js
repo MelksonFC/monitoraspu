@@ -1,5 +1,6 @@
 import express from "express";
-import { HstUnidadeGestora } from "../models/index.js";
+import db from "../models/index.js";
+const { HstUnidadeGestora } = db;
 
 const router = express.Router();
 

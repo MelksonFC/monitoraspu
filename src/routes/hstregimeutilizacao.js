@@ -1,5 +1,6 @@
 import express from "express";
-import { HstRegimeUtilizacao } from "../models/index.js";
+import db from "../models/index.js";
+const { HstRegimeUtilizacao } = db;
 
 const router = express.Router();
 

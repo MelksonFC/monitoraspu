@@ -1,7 +1,8 @@
 'use strict';
 import express from "express";
 import { Op } from "sequelize";
-import { Pais, Estado, Municipio, UnidadeGestora, RegimeUtilizacao, Imovel } from "../models/index.js";
+import db from "../models/index.js";
+const { Pais, Estado, Municipio, UnidadeGestora, RegimeUtilizacao, Imovel } = db;
 
 
 const router = express.Router();

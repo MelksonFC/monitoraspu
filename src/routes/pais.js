@@ -1,5 +1,6 @@
 import express from "express";
-import { Pais, Estado } from "../models/index.js"; 
+import db from "../models/index.js";
+const { Pais, Estado } = db;
 import { Op } from "sequelize"; 
 
 const router = express.Router();

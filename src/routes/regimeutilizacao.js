@@ -1,5 +1,6 @@
 import express from "express";
-import { RegimeUtilizacao } from "../models/index.js";
+import db from "../models/index.js";
+const { RegimeUtilizacao } = db;
 
 const router = express.Router();
 

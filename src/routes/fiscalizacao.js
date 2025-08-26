@@ -1,5 +1,6 @@
 import express from "express";
-import { Fiscalizacao } from "../models/index.js";
+import db from "../models/index.js";
+const { Fiscalizacao } = db;
 
 const router = express.Router();
 
