@@ -25,7 +25,7 @@ import hstunidadegestoraRouter from "../routes/hstunidadegestora.js";
 import avaliacaoRouter from "../routes/avaliacao.js";
 import regimeutilizacaoRouter from "../routes/regimeutilizacao.js";
 import unidadegestoraRouter from "../routes/unidadegestora.js";
-import lookupsRouter from "../routes/lookups.js"; // Convertido de require para import
+import lookupsRouter from "../routes/lookups.js";
 
 // Sequelize não é mais usado diretamente aqui, mas mantido caso alguma rota futura precise
 import sequelize from '../models/sequelize.js';
@@ -77,7 +77,7 @@ app.use("/api/hstunidadegestora", hstunidadegestoraRouter);
 app.use("/api/avaliacoes", avaliacaoRouter);
 app.use("/api/regimeutilizacao", regimeutilizacaoRouter);
 app.use("/api/unidadegestora", unidadegestoraRouter);
-app.use('/api/lookups', require('../routes/lookups'));
+app.use('/api/lookups', lookupsRouter);
 
 // Rota de teste de conexão ao banco
 app.get('/api/ping', async (req, res) => {
