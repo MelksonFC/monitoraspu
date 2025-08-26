@@ -1,6 +1,6 @@
-const express = require("express");
-const { Pais, Estado } = require("../models"); 
-const { Op } = require("sequelize"); 
+import express from "express";
+import { Pais, Estado } from "../models/index.js"; 
+import { Op } from "sequelize"; 
 
 const router = express.Router();
 
@@ -88,4 +88,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

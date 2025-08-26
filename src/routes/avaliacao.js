@@ -1,7 +1,7 @@
-const express = require("express");
-const sequelize = require("../models/sequelize");
-const { Op } = require("sequelize"); 
-const { Avaliacao, Imovel } = require('../models'); 
+import express from "express";
+import sequelize from "../models/sequelize.js";
+import { Op } from "sequelize"; 
+import { Avaliacao, Imovel } from '../models/index.js'; // Adicionado /index.js
 
 
 const router = express.Router();
@@ -208,4 +208,4 @@ router.put("/:id", async (req, res) => {
 });
 
 
-module.exports = router;
+export default router;

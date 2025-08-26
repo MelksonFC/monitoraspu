@@ -1,5 +1,5 @@
-const express = require("express");
-const { RegimeUtilizacao } = require("../models");
+import express from "express";
+import { RegimeUtilizacao } from "../models/index.js";
 
 const router = express.Router();
 
@@ -15,4 +15,4 @@ router.delete("/:id", async (req, res) => {
   res.json({ deleted: true });
 });
 
-module.exports = router;
+export default router;

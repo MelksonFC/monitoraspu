@@ -1,5 +1,5 @@
-const express = require("express");
-const { HstUnidadeGestora } = require("../models");
+import express from "express";
+import { HstUnidadeGestora } from "../models/index.js";
 
 const router = express.Router();
 
@@ -25,4 +25,4 @@ router.delete("/:id", async (req, res) => {
   res.json({ deleted: true });
 });
 
-module.exports = router;
+export default router;
