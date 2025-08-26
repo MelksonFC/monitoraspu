@@ -71,7 +71,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
           left: 0,
           width: '100vw',
           height: '100vh',
-          backgroundImage: `url(${process.env.PUBLIC_URL}/assets/fundo.jpg)`,
+          backgroundImage: `url(/assets/fundo.jpg)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'blur(4px)',
@@ -194,7 +194,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box
                   component="img"
-                  src={`${process.env.PUBLIC_URL}/assets/LogoSPU.png`}
+                  src="/assets/LogoSPU.png"
                   alt="Logo SPU"
                   sx={{ height: 30 }}
                 />
@@ -239,7 +239,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
                 </Box>
                 <Box
                   component="img"
-                  src={`${process.env.PUBLIC_URL}/assets/gov.png`}
+                  src="/assets/gov.png"
                   alt="Logo Governo Federal"
                   sx={{ height: 55 }}
                 />
