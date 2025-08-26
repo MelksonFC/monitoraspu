@@ -59,7 +59,7 @@ const Header: React.FC = () => {
           </Typography>
           <Box
             component="img"
-            src="https://MelksonFC.github.io/assets/LogoSPU.png"
+            src={`${process.env.PUBLIC_URL}/assets/LogoSPU.png`}
             alt="Logo SPU"
             sx={{ height: 28, position: 'relative', top: '2px' }}
           />
