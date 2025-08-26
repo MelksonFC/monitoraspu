@@ -2,7 +2,7 @@ import React from "react";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from "./AuthContext";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import Configuracoes from "./pages/Configuracoes";
@@ -32,6 +32,7 @@ const App: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <AuthProvider>
+        <BrowserRouter basename="/monitoraspu">
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -106,6 +107,7 @@ const App: React.FC = () => {
             } 
           />
         </Routes>
+        </BrowserRouter>
       </AuthProvider>
     </LocalizationProvider>
   );
