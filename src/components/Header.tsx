@@ -59,7 +59,7 @@ const Header: React.FC = () => {
           </Typography>
           <Box
             component="img"
-            src="/assets/LogoSPU.png"
+            src="https://MelksonFC.github.io/assets/LogoSPU.png"
             alt="Logo SPU"
             sx={{ height: 28, position: 'relative', top: '2px' }}
           />

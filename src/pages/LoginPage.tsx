@@ -71,7 +71,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
           left: 0,
           width: '100vw',
           height: '100vh',
-          backgroundImage: 'url(/assets/fundo.jpg)',
+          backgroundImage: 'url(https://MelksonFC.github.io/assets/fundo.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'blur(4px)',
@@ -194,7 +194,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box
                   component="img"
-                  src="/assets/LogoSPU.png"
+                  src="https://MelksonFC.github.io/assets/LogoSPU.png"
                   alt="Logo SPU"
                   sx={{ height: 30 }}
                 />
@@ -239,7 +239,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
                 </Box>
                 <Box
                   component="img"
-                  src="/assets/gov.png"
+                  src="https://MelksonFC.github.io/assets/gov.png"
                   alt="Logo Governo Federal"
                   sx={{ height: 55 }}
                 />
