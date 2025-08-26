@@ -41,7 +41,7 @@ app.use(express.json());
 // FUNÇÕES E CONFIGURAÇÕES AUXILIARES
 // ===================================================================
 
- const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = process.env.VITE_API_URL;
 
 // Função de validação de força de senha
 function validaSenha(senha) {
