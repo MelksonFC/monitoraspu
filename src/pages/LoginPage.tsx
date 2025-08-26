@@ -26,12 +26,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
 
   const { setUsuario } = useAuth();
 
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
     setIsLoading(true);
     try {
-      const resp = await fetch("http://localhost:3001/api/login", {
+      const resp = await fetch(`${apiUrl}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.toLowerCase(), senha })

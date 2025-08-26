@@ -164,11 +164,13 @@ export default function ImoveisTable() {
 
     const showLoading = isLoading || !isLayoutReady;
 
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     async function fetchImoveis() {
     setIsLoading(true);
     setIsLayoutReady(false);
     try {
-      const res = await axios.get("http://localhost:3001/api/imoveis");
+      const res = await axios.get(`${apiUrl}/api/imoveis`);
       setImoveis(Array.isArray(res.data) ? res.data : []);
       setSelectedRows([]);
     } catch (err) {
@@ -180,22 +182,22 @@ export default function ImoveisTable() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/paises").then(res => res.json()).then(arr => {
+    fetch(`${apiUrl}/api/paises`).then(res => res.json()).then(arr => {
       setPaises(Array.isArray(arr) ? arr.map((p: any) => ({ id: p.idpais ?? p.id, nome: p.nome })) : []);
     });
-    fetch("http://localhost:3001/api/estados").then(res => res.json()).then(arr => {
+    fetch(`${apiUrl}/api/estados`).then(res => res.json()).then(arr => {
       setEstados(Array.isArray(arr) ? arr.map((e: any) => ({ id: e.idestado ?? e.id, nome: e.nome })) : []);
     });
-    fetch("http://localhost:3001/api/municipios").then(res => res.json()).then(arr => {
+    fetch(`${apiUrl}/api/municipios`).then(res => res.json()).then(arr => {
       setMunicipios(Array.isArray(arr) ? arr.map((m: any) => ({ id: m.idmunicipio ?? m.id, nome: m.nome })) : []);
     });
-    fetch("http://localhost:3001/api/unidadegestora").then(res => res.json()).then(arr => {
+    fetch(`${apiUrl}/api/unidadegestora`).then(res => res.json()).then(arr => {
       setUnidadesGestoras(Array.isArray(arr) ? arr.map((u: any) => ({ id: u.idunidadegestora ?? u.id, nome: u.nome })) : []);
     });
-    fetch("http://localhost:3001/api/regimeutilizacao").then(res => res.json()).then(arr => {
+    fetch(`${apiUrl}/api/regimeutilizacao`).then(res => res.json()).then(arr => {
       setRegimes(Array.isArray(arr) ? arr.map((r: any) => ({ id: r.idregimeutilizacao ?? r.id, nome: r.nome, descricao: r.descricao })) : []);
     });
-    fetch("http://localhost:3001/api/usuarios").then(res => res.json()).then(arr => {
+    fetch(`${apiUrl}/api/usuarios`).then(res => res.json()).then(arr => {
       setUsuarios(Array.isArray(arr) ? arr.map((u: any) => ({ id: u.idusuario ?? u.id, nome: u.nome, descricao: u.descricao ?? u.nome })) : []);
     });
   }, []);
@@ -349,7 +351,7 @@ export default function ImoveisTable() {
   const displayedImovelIds = useMemo(() => sorted.map(imovel => imovel.idimovel), [sorted]);
   const handleNavigate = async (newId: number) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/imoveis/${newId}`);
+      const response = await axios.get(`${apiUrl}/api/imoveis/${newId}`);
       setEditingImovel(response.data);
     } catch (error) {
       toast.error("Erro ao carregar dados do imóvel para navegação.");
@@ -419,7 +421,7 @@ export default function ImoveisTable() {
     if (!editingImovel?.idimovel) return;
 
     try {
-        const res = await axios.get(`http://localhost:3001/api/imoveis/${editingImovel.idimovel}`);
+        const res = await axios.get(`${apiUrl}/api/imoveis/${editingImovel.idimovel}`);
         setEditingImovel(res.data);
     } catch (error) {
         console.error("Erro ao recarregar dados do imóvel para o formulário.", error);
@@ -430,7 +432,7 @@ export default function ImoveisTable() {
     try {
       await Promise.all(
         selectedRows.map(async (row) => {
-          await fetch(`http://localhost:3001/api/imoveis/${row.idimovel}`, {
+          await fetch(`${apiUrl}/api/imoveis/${row.idimovel}`, {
             method: "DELETE"
           });
         })
@@ -451,7 +453,7 @@ export default function ImoveisTable() {
   async function handleOpenForm(item?: any) {
     if (item?.idimovel) {
       try {
-        const response = await axios.get(`http://localhost:3001/api/imoveis/${item.idimovel}`);
+        const response = await axios.get(`${apiUrl}/api/imoveis/${item.idimovel}`);
         setEditingImovel(response.data);
       } catch (error) {
         toast.error("Não foi possível carregar os dados completos do imóvel.");
@@ -510,8 +512,8 @@ export default function ImoveisTable() {
       };
       
       const url = imovelData.idimovel 
-        ? `http://localhost:3001/api/imoveis/${imovelData.idimovel}`
-        : "http://localhost:3001/api/imoveis";
+        ? `${apiUrl}/api/imoveis/${imovelData.idimovel}`
+        : `${apiUrl}/api/imoveis`;
       const method = imovelData.idimovel ? 'put' : 'post';
   
       await axios[method](url, formData, config);

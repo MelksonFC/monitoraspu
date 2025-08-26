@@ -6,7 +6,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axios from 'axios';
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = process.env.REACT_APP_API_URL;
 
 export interface FiltrosState {
   selectedPais: Pais | null;
@@ -59,9 +59,9 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
           try {
             // --- INÍCIO DA CORREÇÃO: Chama as novas rotas ---
             const [paisesRes, ugsRes, regimesRes] = await Promise.all([
-              axios.get(`${API_URL}/lookups/paises-com-imoveis`), // <--- MUDANÇA AQUI
-              axios.get(`${API_URL}/lookups/unidades-gestoras`),
-              axios.get(`${API_URL}/lookups/regimes-utilizacao`),
+              axios.get(`${API_URL}/api/lookups/paises-com-imoveis`), // <--- MUDANÇA AQUI
+              axios.get(`${API_URL}/api/lookups/unidades-gestoras`),
+              axios.get(`${API_URL}/api/lookups/regimes-utilizacao`),
             ]);
             setPaises(paisesRes.data);
             setUnidades(ugsRes.data);
@@ -82,7 +82,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
       handleFiltroChange('selectedEstado', null);
       handleFiltroChange('selectedMunicipio', null);
       // --- INÍCIO DA CORREÇÃO: Chama as novas rotas ---
-      axios.get(`${API_URL}/lookups/estados-com-imoveis?paisId=${filtros.selectedPais.idpais}`) // <--- MUDANÇA AQUI
+      axios.get(`${API_URL}/api/lookups/estados-com-imoveis?paisId=${filtros.selectedPais.idpais}`) // <--- MUDANÇA AQUI
         .then(res => setEstados(res.data))
         .finally(() => setLoadingEstados(false));
     } else {
@@ -97,7 +97,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
       setLoadingMunicipios(true);
       handleFiltroChange('selectedMunicipio', null); 
       // --- INÍCIO DA CORREÇÃO: Chama as novas rotas ---
-      axios.get(`${API_URL}/lookups/municipios-com-imoveis?estadoId=${filtros.selectedEstado.idestado}`) // <--- MUDANÇA AQUI
+      axios.get(`${API_URL}/api/lookups/municipios-com-imoveis?estadoId=${filtros.selectedEstado.idestado}`) // <--- MUDANÇA AQUI
         .then(res => setMunicipios(res.data))
         .finally(() => setLoadingMunicipios(false));
     } else {

@@ -7,7 +7,7 @@ import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
 import LocationDialog from './LocationDialog';
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = process.env.REACT_APP_API_URL;
 
 interface Pais { idpais: number; nome: string; }
 interface Estado { idestado: number; nome: string; idpais: number; uf: string; idibge?: number; }
@@ -29,21 +29,21 @@ export default function LocationManagement() {
 
   const fetchPaises = useCallback(async () => {
     try {
-      const { data } = await axios.get(`${API_URL}/paises`);
+      const { data } = await axios.get(`${API_URL}/api/paises`);
       setPaises(data);
     } catch (error) { toast.error("Falha ao buscar países."); }
   }, []);
 
   const fetchEstados = useCallback(async (idpais: number) => {
     try {
-      const { data } = await axios.get(`${API_URL}/estados?pais=${idpais}`);
+      const { data } = await axios.get(`${API_URL}/api/estados?pais=${idpais}`);
       setEstados(data);
     } catch (error) { toast.error("Falha ao buscar estados."); }
   }, []);
 
   const fetchMunicipios = useCallback(async (idestado: number) => {
     try {
-      const { data } = await axios.get(`${API_URL}/municipios?estado=${idestado}`);
+      const { data } = await axios.get(`${API_URL}/api/municipios?estado=${idestado}`);
       setMunicipios(data);
     } catch (error) { toast.error("Falha ao buscar municípios."); }
   }, []);
@@ -89,7 +89,7 @@ export default function LocationManagement() {
     const isEditing = !!id;
     
     const endpointMap = { pais: 'paises', estado: 'estados', municipio: 'municipios' };
-    const url = `${API_URL}/${endpointMap[dialogType]}${isEditing ? `/${id}` : ''}`;
+    const url = `${API_URL}/api/${endpointMap[dialogType]}${isEditing ? `/${id}` : ''}`;
     const method = isEditing ? 'put' : 'post';
     
     // Limpa o ID principal do corpo da requisição para evitar confusão no backend
@@ -117,7 +117,7 @@ export default function LocationManagement() {
 
     const endpointMap = { pais: 'paises', estado: 'estados', municipio: 'municipios' };
     try {
-      await axios.delete(`${API_URL}/${endpointMap[type]}/${id}`);
+      await axios.delete(`${API_URL}/api/${endpointMap[type]}/${id}`);
       toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} excluído com sucesso!`);
       if (type === 'pais') {
         fetchPaises();

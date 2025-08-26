@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
 const AtivarConta: React.FC = () => {
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [msg, setMsg] = useState("");
@@ -11,7 +13,7 @@ const AtivarConta: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     if (token) {
-      fetch(`http://localhost:3001/api/ativar?token=${token}`)
+      fetch(`${apiUrl}/api/ativar?token=${token}`)
         .then(res => res.json())
         .then(data => {
           if (data.message && data.message.toLowerCase().includes("sucesso")) {

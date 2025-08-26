@@ -15,6 +15,8 @@ import Header from "../components/Header";
 import axios from "axios";
 import Papa from "papaparse";
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
 const PERMISSOES = [
   { id: 1, label: "Admin" },
   { id: 2, label: "Editor" },
@@ -237,7 +239,7 @@ const Configuracoes: React.FC = () => {
   const novoUsuarioBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/usuarios")
+    axios.get(`${apiUrl}/api/usuarios`)
       .then(res => setUsuarios(res.data));
   }, []);
 
@@ -246,15 +248,15 @@ const Configuracoes: React.FC = () => {
     const userToSend = { ...user, email: user.email.toLowerCase() };
     let res;
     if (editUser) {
-      res = await axios.put(`http://localhost:3001/api/usuarios/${editUser.id}`, userToSend);
+      res = await axios.put(`${apiUrl}/api/usuarios/${editUser.id}`, userToSend);
     } else {
-      res = await axios.post("http://localhost:3001/api/usuarios", userToSend);
+      res = await axios.post(`${apiUrl}/api/usuarios`, userToSend);
     }
     setDialogOpen(false);
     setEditUser(null);
     // Após fechar dialog, retorna o foco para o botão "Novo Usuário" (acessibilidade)
     novoUsuarioBtnRef.current?.focus();
-    const updated = await axios.get(`http://localhost:3001/api/usuarios`);
+    const updated = await axios.get(`${apiUrl}/api/usuarios`);
     setUsuarios(updated.data);
     setStatusMsg(res.data.message || "");
     return { message: res.data.message };
@@ -263,15 +265,15 @@ const Configuracoes: React.FC = () => {
   // Reenviar ativação
 async function handleReenviarAtivacao(user: any) {
   // Chama rota exclusiva para reenvio, não depende de editar nada
-  const res = await axios.put(`http://localhost:3001/api/usuarios/${user.id}/reenviar-ativacao`);
+  const res = await axios.put(`${apiUrl}/api/usuarios/${user.id}/reenviar-ativacao`);
   setStatusMsg(res.data.message || "Email de ativação reenviado.");
-  const updated = await axios.get(`http://localhost:3001/api/usuarios`);
+  const updated = await axios.get(`${apiUrl}/api/usuarios`);
   setUsuarios(updated.data);
 }
 
   const handleDelete = async (id: number) => {
-    await axios.delete(`http://localhost:3001/api/usuarios/${id}`);
-    const res = await axios.get("http://localhost:3001/api/usuarios");
+    await axios.delete(`${apiUrl}/api/usuarios/${id}`);
+    const res = await axios.get(`${apiUrl}/api/usuarios`);
     setUsuarios(res.data);
   };
 
@@ -320,8 +322,8 @@ async function handleReenviarAtivacao(user: any) {
                   <Switch
                     checked={user.ativo === 1}
                     onChange={async () => {
-                      await axios.put(`http://localhost:3001/api/usuarios/${user.id}`, { ...user, ativo: user.ativo === 1 ? 0 : 1 });
-                      const res = await axios.get("http://localhost:3001/api/usuarios");
+                      await axios.put(`${apiUrl}/api/usuarios/${user.id}`, { ...user, ativo: user.ativo === 1 ? 0 : 1 });
+                      const res = await axios.get(`${apiUrl}/api/usuarios`);
                       setUsuarios(res.data);
                     }}
                   />

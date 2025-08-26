@@ -7,7 +7,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import ManagementDialog from './ManagementDialog';
 
-const API_URL = "http://localhost:3001/api/unidadegestora";
+const apiUrl = process.env.REACT_APP_API_URL;
+const API_URL = `${apiUrl}/api/unidadegestora`;
 
 interface Unidade {
   id: number;

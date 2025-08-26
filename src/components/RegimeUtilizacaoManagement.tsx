@@ -7,7 +7,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import ManagementDialog from './ManagementDialog';
 
-const API_URL = "http://localhost:3001/api/regimeutilizacao";
+const apiUrl = process.env.REACT_APP_API_URL;
+const API_URL = `${apiUrl}/api/regimeutilizacao`;
 
 interface Regime {
   id: number;

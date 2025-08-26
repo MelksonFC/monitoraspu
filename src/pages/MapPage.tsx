@@ -29,7 +29,8 @@ export interface ImovelComCoordenadas {
   imagens?: { url: string; isdefault: boolean; }[];
 }
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = process.env.REACT_APP_API_URL;
+
 
 const estadoInicialFiltros: FiltrosState = {
   selectedPais: null,
@@ -74,7 +75,7 @@ export default function MapPage() {
     // Remove a seleção ao fazer uma nova busca para evitar inconsistências
     setSelectedImovel(null); 
     try {
-      const response = await axios.get(`${API_URL}/imoveis/com-relacoes`, {
+      const response = await axios.get(`${API_URL}/api/imoveis/com-relacoes`, {
         params: {
           pais: currentFilters.selectedPais?.idpais,
           estado: currentFilters.selectedEstado?.idestado,

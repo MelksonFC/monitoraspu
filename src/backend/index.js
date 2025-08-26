@@ -39,6 +39,8 @@ app.use(express.json());
 // FUNÇÕES E CONFIGURAÇÕES AUXILIARES
 // ===================================================================
 
+ const apiUrl = process.env.REACT_APP_API_URL;
+
 // Função de validação de força de senha
 function validaSenha(senha) {
   return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$!%&*]).{6,}$/.test(senha);
@@ -135,7 +137,7 @@ app.post('/api/usuarios', async (req, res) => {
       from: "naoresponda@monitoraspu.com",
       to: email,
       subject: "Ativação de conta",
-      text: `Olá ${nome},\n\nClique para ativar sua conta:\nhttp://localhost:3001/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
+      text: `Olá ${nome},\n\nClique para ativar sua conta:\n${apiUrl}/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
     });
     
     res.status(201).json({ message: "Usuário criado! Email de ativação enviado.", usuario: result.rows[0] });
@@ -162,7 +164,7 @@ app.put("/api/usuarios/:id/reenviar-ativacao", async (req, res) => {
       from: "naoresponda@monitoraspu.com",
       to: usuario.email,
       subject: "Ativação de conta",
-      text: `Olá ${usuario.nome},\n\nClique para ativar sua conta:\nhttp://localhost:3001/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
+      text: `Olá ${usuario.nome},\n\nClique para ativar sua conta:\n${apiUrl}/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
     });
     
     res.json({ message: "Email de ativação reenviado!" });
@@ -217,7 +219,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
         from: "naoresponda@monitoraspu.com",
         to: email,
         subject: "Ativação de conta",
-        text: `Olá ${nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\nhttp://localhost:3001/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
+        text: `Olá ${nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\n${apiUrl}/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
       });
     }
     

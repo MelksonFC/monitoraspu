@@ -7,6 +7,8 @@ import axios from "axios";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
+const apiUrl = process.env.REACT_APP_API_URL;
+
 const PERMISSOES = [
   { id: 1, label: "Admin" },
   { id: 2, label: "Editor" },
@@ -73,7 +75,7 @@ const PerfilUsuario: React.FC = () => {
     if (form.senha) toSend.senha = form.senha;
 
     try {
-      const res = await axios.put(`http://localhost:3001/api/usuarios/${usuario?.id}`, toSend);
+      const res = await axios.put(`${apiUrl}/api/usuarios/${usuario?.id}`, toSend);
       setMsg(res.data.message || "Salvo com sucesso!");
       // Atualiza contexto se mudou nome
       setUsuario({ ...usuario, ...toSend });

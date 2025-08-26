@@ -14,7 +14,7 @@ import SafePdfButton from '../components/SafePdfButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 
-const API_URL = "http://localhost:3001";
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Definição explícita dos tipos para lookups
 interface LookupItem {
