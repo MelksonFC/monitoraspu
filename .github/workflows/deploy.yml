@@ -38,6 +38,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build
+        env:
+            VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: npm run build
       
       # --- ESTE É O PASSO QUE CORRIGE O ERRO 404 ---
