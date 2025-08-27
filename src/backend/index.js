@@ -144,6 +144,45 @@ app.get("/api/usuarios/:id", async (req, res) => {
   }
 });
 
+// Rota para ativar a conta do usuário
+app.get("/api/ativar", async (req, res) => {
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).json({ message: "Token de ativação não fornecido." });
+  }
+
+  try {
+    // 1. Encontra o usuário pelo token e verifica se não expirou
+    const userResult = await pool.query(
+      "SELECT * FROM dbo.usuarios WHERE ativacao_token = $1 AND ativacao_token_expira > NOW()",
+      [token]
+    );
+
+    const usuario = userResult.rows[0];
+    if (!usuario) {
+      return res.status(400).json({ message: "Token de ativação inválido ou expirado. Por favor, solicite um novo." });
+    }
+    
+    // 2. Se o usuário já estiver ativado, apenas informa
+    if (usuario.ativado) {
+        return res.status(200).json({ message: "Esta conta já foi ativada. Você já pode fazer o login."});
+    }
+
+    // 3. Ativa o usuário e limpa os campos de ativação no banco
+    await pool.query(
+      "UPDATE dbo.usuarios SET ativado = true, ativacao_token = NULL, ativacao_token_expira = NULL WHERE id = $1",
+      [usuario.id]
+    );
+
+    // 4. Envia resposta de sucesso para o frontend
+    res.status(200).json({ message: "Conta ativada com sucesso! Você já pode fazer o login." });
+
+  } catch (err) {
+    console.error("Erro na rota de ativação:", err);
+    res.status(500).json({ message: "Ocorreu um erro interno ao ativar a conta." });
+  }
+});
+
 // POST novo usuário
 app.post('/api/usuarios', async (req, res) => {
   try {
