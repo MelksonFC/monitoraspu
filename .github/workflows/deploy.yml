@@ -1,0 +1,57 @@
+# Workflow para fazer o deploy de conteúdo estático para o GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Roda em pushes para a branch 'main'
+  push:
+    branches: ["main"]
+
+  # Permite que você rode este workflow manualmente pela aba Actions
+  workflow_dispatch:
+
+# Define as permissões do GITHUB_TOKEN para permitir o deploy no GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Permite apenas um deploy concorrente
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Job único de deploy
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      
+      # --- ESTE É O PASSO QUE CORRIGE O ERRO 404 ---
+      - name: Prepare 404.html for GitHub Pages SPA
+        run: cp dist/index.html dist/404.html
+      # --- FIM DA CORREÇÃO ---
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Faz o upload do diretório 'dist' que o 'npm run build' cria
+          path: './dist'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
