@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -45,7 +45,13 @@ const AtivarConta: React.FC = () => {
         <Typography align="center" color={status === "ok" ? "primary" : "error"}>{msg}</Typography>
       )}
       {status === "ok" && (
-        <Button href="/login" variant="contained" sx={{ mt: 2 }} fullWidth>
+        <Button 
+          component={Link} 
+          to="/login" 
+          variant="contained" 
+          sx={{ mt: 2 }} 
+          fullWidth
+        >
           Ir para Login
         </Button>
       )}
