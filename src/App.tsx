@@ -16,6 +16,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import './styles/globals.css'
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AtivarConta from "./pages/AtivarConta"; 
 
 
 // MUDANÇA: Importando a nova página de edição de imóvel
@@ -49,6 +50,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<LoginPage setAutenticado={setAutenticado} />} />
           <Route path="/reset-senha" element={<ResetPasswordPage />} />
+          <Route path="/ativar-conta" element={<AtivarConta />} />
           <Route
             path="/dashboard"
             element={
