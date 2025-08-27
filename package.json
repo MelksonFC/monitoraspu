@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "node src/backend/index.js",
-    "build": "tsc -b && vite build",
+    "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
