@@ -41,6 +41,15 @@ type FormUsuario = {
   confirmarSenha?: string;
 };
 
+const formInicialVazio: FormUsuario = {
+  nome: "",
+  email: "",
+  idpermissao: 3, // Padrão para 'Visualizador', mais seguro
+  ativo: 1,
+  senha: "",
+  confirmarSenha: "",
+};
+
 const UsuarioDialog: React.FC<{
   open: boolean;
   onClose: () => void;
@@ -49,14 +58,7 @@ const UsuarioDialog: React.FC<{
 }> = ({ open, onClose, onSave, editUser }) => {
   // Estado do formulário
   const isEdit = !!editUser;
-  const [form, setForm] = useState<FormUsuario>({
-    nome: editUser?.nome ?? "",
-    email: editUser?.email ?? "",
-    idpermissao: editUser?.idpermissao ?? 1,
-    ativo: editUser?.ativo ?? 1,
-    senha: "",
-    confirmarSenha: "",
-  });
+  const [form, setForm] = useState<FormUsuario>(formInicialVazio);
   const [erroSenha, setErroSenha] = useState("");
   const [msg, setMsg] = useState("");
   const [showSenha, setShowSenha] = useState(false);
@@ -66,16 +68,25 @@ const UsuarioDialog: React.FC<{
   const nomeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setForm({
-      nome: editUser?.nome ?? "",
-      email: editUser?.email ?? "",
-      idpermissao: editUser?.idpermissao ?? 1,
-      ativo: editUser?.ativo ?? 1,
-      senha: "",
-      confirmarSenha: "",
-    });
-    setErroSenha("");
-    setMsg("");
+    if (open) {
+      if (editUser) {
+        // Se está editando, preenche com os dados do usuário
+        setForm({
+          nome: editUser.nome,
+          email: editUser.email,
+          idpermissao: editUser.idpermissao,
+          ativo: editUser.ativo,
+          senha: "",
+          confirmarSenha: "",
+        });
+      } else {
+        // Se é novo usuário, reseta para o formulário vazio
+        setForm(formInicialVazio);
+      }
+      // Limpa mensagens de erro e status anteriores
+      setErroSenha("");
+      setMsg("");
+    }
   }, [editUser, open]);
 
   // Foca no campo nome ao abrir Dialog (acessibilidade)

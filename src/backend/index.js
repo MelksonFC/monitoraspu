@@ -70,6 +70,7 @@ app.use(express.json());
 // ===================================================================
 
 const apiUrl = process.env.VITE_API_URL;
+const frontendUrl = process.env.FRONTEND_URL; 
 
 // Função de validação de força de senha
 function validaSenha(senha) {
@@ -163,11 +164,11 @@ app.post('/api/usuarios', async (req, res) => {
       [nome, emailLower, senha_hash, idpermissao, ativo ?? 1, false, ativacao_token, ativacao_token_expira]
     );
     
-    await transporter.sendMail({
+     await transporter.sendMail({
       from: "naoresponda@monitoraspu.com",
       to: email,
       subject: "Ativação de conta",
-      text: `Olá ${nome},\n\nClique para ativar sua conta:\n${apiUrl}/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
+      text: `Olá ${nome},\n\nClique para ativar sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
     });
     
     res.status(201).json({ message: "Usuário criado! Email de ativação enviado.", usuario: result.rows[0] });
@@ -194,7 +195,7 @@ app.put("/api/usuarios/:id/reenviar-ativacao", async (req, res) => {
       from: "naoresponda@monitoraspu.com",
       to: usuario.email,
       subject: "Ativação de conta",
-      text: `Olá ${usuario.nome},\n\nClique para ativar sua conta:\n${apiUrl}/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
+      text: `Olá ${usuario.nome},\n\nClique para ativar sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
     });
     
     res.json({ message: "Email de ativação reenviado!" });
@@ -249,7 +250,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
         from: "naoresponda@monitoraspu.com",
         to: email,
         subject: "Ativação de conta",
-        text: `Olá ${nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\n${apiUrl}/api/ativar?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
+        text: `Olá ${nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
       });
     }
     
