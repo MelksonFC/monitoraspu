@@ -24,8 +24,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetMsg, setResetMsg] = useState("");
+  const [resetError, setResetError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const navigate = useNavigate();
 
   const { setUsuario } = useAuth();
@@ -60,8 +62,42 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
 
   async function handleResetSenha() {
     setResetMsg("");
-    // Lógica para enviar email de redefinição...
+    setResetError("");
+    setIsResetting(true);
+
+    try {
+      const resp = await fetch(`${apiUrl}/api/reset-solicitar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail.toLowerCase() })
+      });
+      
+      const dados = await resp.json();
+
+      if (!resp.ok) {
+        // Mesmo em caso de erro (ex: email não encontrado), mostramos uma mensagem genérica
+        // para não informar a um possível atacante se um email existe ou não no sistema.
+        console.error("Falha na solicitação:", dados.message);
+      }
+      
+      // Mensagem de sucesso genérica
+      setResetMsg("Se uma conta com este e-mail existir, um link para redefinição de senha foi enviado.");
+
+    } catch (err) {
+      console.error("Erro de rede na redefinição:", err);
+      setResetError("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
+    } finally {
+      setIsResetting(false);
+    }
   }
+
+  const handleOpenResetDialog = () => {
+    // Limpa estados anteriores ao abrir o dialog
+    setResetEmail("");
+    setResetMsg("");
+    setResetError("");
+    setShowReset(true);
+  };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -262,19 +298,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
       <Dialog open={showReset} onClose={() => setShowReset(false)}>
         <DialogTitle>Redefinir senha</DialogTitle>
         <DialogContent>
-          <TextField
-            label="E-mail cadastrado"
-            type="email"
-            fullWidth
-            value={resetEmail}
-            onChange={e => setResetEmail(e.target.value)}
-            margin="normal"
-          />
-          {resetMsg && <Alert sx={{ mt: 2 }} severity="info">{resetMsg}</Alert>}
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            Digite seu e-mail abaixo. Se ele estiver cadastrado em nosso sistema, enviaremos um link para você criar uma nova senha.
+          </Typography>
+          <TextField autoFocus label="E-mail cadastrado" type="email" fullWidth value={resetEmail} onChange={e => setResetEmail(e.target.value)} margin="normal" />
+          {resetMsg && <Alert sx={{ mt: 2 }} severity="success">{resetMsg}</Alert>}
+          {resetError && <Alert sx={{ mt: 2 }} severity="error">{resetError}</Alert>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowReset(false)}>Cancelar</Button>
-          <Button onClick={handleResetSenha} variant="contained">Enviar</Button>
+          <Button onClick={() => setShowReset(false)} disabled={isResetting}>Cancelar</Button>
+          <Button onClick={handleResetSenha} variant="contained" disabled={isResetting}>
+            {isResetting ? <CircularProgress size={24} /> : 'Enviar'}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

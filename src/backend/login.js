@@ -20,8 +20,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: "melkso@gmail.com",
-    pass: "lloe hxnt vwyv fpyk",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -60,22 +60,49 @@ router.post("/login", async (req, res) => {
 router.post("/reset-solicitar", async (req, res) => {
   const { email } = req.body;
   const emailLower = email.toLowerCase();
-  const token = crypto.randomBytes(32).toString("hex");
-  const expira = new Date(Date.now() + 3600 * 1000);
-  const usuario = await pool.query("SELECT * FROM dbo.usuarios WHERE email=$1", [emailLower]);
-  if (!usuario.rows[0]) return res.status(404).json({ message: "Usuário inválido." });
 
-  await pool.query(
-    "UPDATE dbo.usuarios SET reset_token=$1, reset_token_expira=$2 WHERE email=$3",
-    [token, expira, emailLower]
-  );
-  await transporter.sendMail({
-    from: "no-reply@seusistema.com",
-    to: email,
-    subject: "Redefinir senha",
-    text: `Clique no link para redefinir sua senha: ${apiUrl}/reset?token=${token}`
-  });
-  res.json({ message: "Email de redefinição enviado." });
+  const frontendUrl = process.env.FRONTEND_URL;
+  if (!frontendUrl) {
+      console.error("A variável de ambiente FRONTEND_URL não está definida.");
+      // Não envie o erro para o cliente para não expor a configuração do servidor
+      return res.status(500).json({ message: "Erro de configuração do servidor." });
+  }
+
+  try {
+    const userResult = await pool.query("SELECT * FROM dbo.usuarios WHERE email=$1", [emailLower]);
+    const usuario = userResult.rows[0];
+
+    // Importante: Mesmo que o usuário não seja encontrado, não retorne um erro 404.
+    // Isso evita que alguém use esta rota para descobrir quais e-mails estão cadastrados.
+    if (usuario) {
+      const token = crypto.randomBytes(32).toString("hex");
+      const expira = new Date(Date.now() + 3600 * 1000); // Token expira em 1 hora
+
+      await pool.query(
+        "UPDATE dbo.usuarios SET reset_token=$1, reset_token_expira=$2 WHERE email=$3",
+        [token, expira, emailLower]
+      );
+
+      // O link agora aponta para uma página /reset-senha no seu site do frontend
+      const resetLink = `${frontendUrl}/reset-senha?token=${token}`;
+      
+      await transporter.sendMail({
+        from: `"Monitora SPU" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Redefinição de Senha - Monitora SPU",
+        text: `Você solicitou uma redefinição de senha. Clique no link a seguir para criar uma nova senha: ${resetLink}`,
+        html: `<p>Você solicitou uma redefinição de senha.</p><p>Clique no link a seguir para criar uma nova senha: <a href="${resetLink}">${resetLink}</a></p><p>Este link expira em 1 hora.</p>`,
+      });
+    }
+    
+    // Sempre retorne uma mensagem de sucesso genérica.
+    res.json({ message: "Solicitação de redefinição recebida." });
+
+  } catch (err) {
+      console.error("Erro ao solicitar redefinição de senha:", err);
+      // Resposta genérica também em caso de erro de banco de dados.
+      res.json({ message: "Solicitação de redefinição recebida." });
+  }
 });
 
 router.post("/reset-redefinir", async (req, res) => {
