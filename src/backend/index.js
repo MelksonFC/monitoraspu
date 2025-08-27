@@ -34,7 +34,35 @@ import sequelize from '../models/sequelize.js';
 // CONFIGURAÇÃO DO SERVIDOR EXPRESS
 // ===================================================================
 const app = express();
-app.use(cors());
+
+// --- INÍCIO DA CORREÇÃO DE CORS ---
+// 1. Defina as origens que você quer permitir.
+const allowedOrigins = [
+  'https://melksonfc.github.io', // Seu frontend em produção
+  'http://localhost:5173',      // Seu frontend em desenvolvimento local
+  'http://127.0.0.1:5173'       // Outra variação do localhost
+];
+
+// 2. Crie as opções do CORS
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permite requisições sem 'origin' (como apps mobile ou Postman) ou se a origem estiver na lista
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pela política de CORS'));
+    }
+  },
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Métodos permitidos
+  credentials: true, // Se você precisar enviar cookies
+  optionsSuccessStatus: 204 // Para navegadores antigos
+};
+
+// 3. Use as opções de CORS no seu app
+// Esta linha substitui a antiga "app.use(cors());"
+app.use(cors(corsOptions));
+// --- FIM DA CORREÇÃO DE CORS ---
+
 app.use(express.json());
 
 // ===================================================================
