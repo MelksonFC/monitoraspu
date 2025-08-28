@@ -81,47 +81,48 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const margin = 15; // Margem nas laterais, topo e fundo
-      const contentWidth = pdfWidth - (margin * 2);
-      const contentHeight = pdfHeight - (margin * 2);
+      
+      // Define margens, incluindo uma maior para o rodapé
+      const topMargin = 15;
+      const bottomMargin = 20; // Espaço reservado para o rodapé
+      const horizontalMargin = 15;
+      
+      // Área útil da página para o conteúdo
+      const usablePageHeight = pdfHeight - topMargin - bottomMargin;
 
       const canvas = await html2canvas(content, {
         scale: 2, useCORS: true, allowTaint: true, logging: false, width: 800,
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = imgWidth / contentWidth;
-      const totalPdfHeight = imgHeight / ratio;
+      const contentWidth = pdfWidth - (horizontalMargin * 2);
+      const ratio = canvas.width / contentWidth;
+      const totalContentHeight = canvas.height / ratio;
 
       let position = 0;
-      let pageCount = 1;
+      let pages = 0;
 
-      // Adiciona a primeira página
-      pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, totalPdfHeight);
-      
-      // Calcula quantas páginas são necessárias
-      let heightLeft = totalPdfHeight;
-      heightLeft -= contentHeight;
-      
-      while (heightLeft > 0) {
-        pageCount++;
-        position -= pdfHeight; // Move a imagem para cima na próxima página
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, position + margin, contentWidth, totalPdfHeight);
-        heightLeft -= contentHeight;
+      // Adiciona páginas enquanto houver conteúdo para ser impresso
+      while (position < totalContentHeight) {
+        pages++;
+        // Adiciona uma nova página (exceto na primeira iteração)
+        if (pages > 1) {
+          pdf.addPage();
+        }
+        // Adiciona a "fatia" da imagem que cabe na página atual
+        pdf.addImage(imgData, 'JPEG', horizontalMargin, -position + topMargin, contentWidth, totalContentHeight);
+        position += usablePageHeight;
       }
       
-      // Adiciona o rodapé em cada página
-      for (let i = 1; i <= pageCount; i++) {
+      // Adiciona o rodapé em cada página gerada
+      for (let i = 1; i <= pages; i++) {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.setTextColor(100);
-        const footerY = pdf.internal.pageSize.getHeight() - 10;
-        pdf.text(`Usuário: ${usuario}`, margin, footerY);
-        pdf.text(`Página ${i} de ${pageCount}`, pdfWidth / 2, footerY, { align: 'center' });
-        pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pdfWidth - margin, footerY, { align: 'right' });
+        const footerY = pdf.internal.pageSize.getHeight() - 10; // Posição fixa do rodapé
+        pdf.text(`Usuário: ${usuario}`, horizontalMargin, footerY);
+        pdf.text(`Página ${i} de ${pages}`, pdfWidth / 2, footerY, { align: 'center' });
+        pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pdfWidth - horizontalMargin, footerY, { align: 'right' });
       }
 
       const suffix = showImages ? 'Completa' : 'Simples';
