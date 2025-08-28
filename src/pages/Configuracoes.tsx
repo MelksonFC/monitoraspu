@@ -247,14 +247,13 @@ const Configuracoes: React.FC = () => {
 
   // 1. Centraliza a busca de usuários em uma função para reutilização
   const fetchUsuarios = () => {
-    // Adiciona um parâmetro `_` com a data atual para evitar o cache do navegador
     axios.get(`${apiUrl}/api/usuarios`, { params: { _: new Date().getTime() } })
       .then(res => setUsuarios(res.data))
       .catch(err => console.error("Erro ao buscar usuários:", err));
   };
 
   // 2. Função para mostrar a mensagem de status e limpá-la após 5 segundos
-  const showStatusMessage = (message: string) => {
+   const showStatusMessage = (message: string, severity: "info" | "error" = "info") => {
     setStatusMsg(message);
     setTimeout(() => {
       setStatusMsg("");
@@ -270,7 +269,7 @@ const Configuracoes: React.FC = () => {
     try {
       const userToSend = { ...user, email: user.email.toLowerCase() };
       let res;
-      if (editUser) {
+      if (editUser && editUser.id) {
         res = await axios.put(`${apiUrl}/api/usuarios/${editUser.id}`, userToSend);
       } else {
         res = await axios.post(`${apiUrl}/api/usuarios`, userToSend);
@@ -292,6 +291,10 @@ const Configuracoes: React.FC = () => {
   };
 
   async function handleReenviarAtivacao(user: any) {
+    if (!user || !user.id) {
+        showStatusMessage("Erro: ID do usuário não encontrado.", "error");
+        return;
+    }
     try {
       const res = await axios.put(`${apiUrl}/api/usuarios/${user.id}/reenviar-ativacao`);
       fetchUsuarios(); // Atualiza a lista de usuários
@@ -303,6 +306,10 @@ const Configuracoes: React.FC = () => {
   }
 
   const handleDelete = async (id: number) => {
+    if (!id) {
+        showStatusMessage("Erro: ID inválido para exclusão.", "error");
+        return;
+    }
     try {
       await axios.delete(`${apiUrl}/api/usuarios/${id}`);
       // 3. Usa as novas funções para atualizar a lista e mostrar a mensagem
@@ -315,6 +322,10 @@ const Configuracoes: React.FC = () => {
   };
   
   const handleToggleAtivo = async (user: any) => {
+    if (!user || !user.id) {
+        showStatusMessage("Erro: Não foi possível alterar o status do usuário.", "error");
+        return;
+    }
     try {
         const novoStatus = user.ativo === 1 ? 0 : 1;
         await axios.put(`${apiUrl}/api/usuarios/${user.id}`, { ativo: novoStatus });
