@@ -40,11 +40,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const [showContent, setShowContent] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [withImages, setWithImages] = useState(true); // Estado para controlar se mostrar imagens
+  const [withImages, setWithImages] = useState(true);
   const open = Boolean(anchorEl);
-  
-  // Definimos o número total de páginas de antemão (sabemos que são 3)
-  const TOTAL_PAGES = 3;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -58,57 +55,24 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     setSnackbarOpen(false);
   };
 
-  // Gera o título com a matrícula do imóvel
-  const getImovelTitle = (): string => {
-    const matricula = imovel.matricula || '';
-    return matricula ? `Ficha do Imóvel ${matricula}` : 'Ficha do Imóvel';
-  };
-
-  // Funções auxiliares
+  // Funções auxiliares (sem alteração)
   const formatDateBR = (dateStr?: string): string => {
     if (!dateStr) return 'N/A';
-    try {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return dateStr;
-      return date.toLocaleDateString('pt-BR');
-    } catch {
-      return 'N/A';
-    }
+    try { const date = new Date(dateStr); if (isNaN(date.getTime())) return dateStr; return date.toLocaleDateString('pt-BR'); } catch { return 'N/A'; }
   };
-
   const formatValorBR = (valor: string | number | undefined | null): string => {
     if (valor === undefined || valor === null || valor === "") return "R$ 0,00";
-    try {
-      const num = typeof valor === 'string'
-        ? parseFloat(valor.replace(/\./g, "").replace(",", "."))
-        : valor;
-      if (isNaN(num)) return "N/A";
-      return `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    } catch {
-      return "N/A";
-    }
+    try { const num = typeof valor === 'string' ? parseFloat(valor.replace(/\./g, "").replace(",", ".")) : valor; if (isNaN(num)) return "N/A"; return `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; } catch { return "N/A"; }
   };
-
   const formatArea = (valor: string | number | undefined | null): string => {
     if (valor === undefined || valor === null || valor === "") return "0,00 m²";
-    try {
-      const num = typeof valor === 'string'
-        ? parseFloat(valor.replace(/\./g, "").replace(",", "."))
-        : valor;
-      if (isNaN(num)) return "N/A";
-      return `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
-    } catch {
-      return "N/A";
-    }
+    try { const num = typeof valor === 'string' ? parseFloat(valor.replace(/\./g, "").replace(",", ".")) : valor; if (isNaN(num)) return "N/A"; return `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`; } catch { return "N/A"; }
   };
+  const getLookupName = (id?: number, list?: any[]): string => list?.find(item => item.id === id)?.nome || 'N/A';
+  const getRegimeDesc = (id?: number): string => lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
 
-  const getLookupName = (id?: number, list?: any[]): string => 
-    list?.find(item => item.id === id)?.nome || 'N/A';
-  
-  const getRegimeDesc = (id?: number): string => 
-    lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
-
-  // Função de geração de PDF modificada para ser contínua
+  // --- INÍCIO DA CORREÇÃO ---
+  // Função de geração de PDF contínuo com rodapé corrigido
   const generateContinuousPdf = async (showImages: boolean) => {
     try {
       if (!contentRef.current) throw new Error('Elemento de conteúdo não disponível');
@@ -174,84 +138,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       setSnackbarOpen(true);
     }
   };
-
-  // Função para gerar múltiplas páginas de PDF
-  const generateMultipagePdf = async (showImages: boolean) => {
-    try {
-      if (!contentRef.current) {
-        throw new Error('Elemento de conteúdo não disponível');
-      }
-
-      // Criar seções separadas para capturar cada parte do documento
-      const sections = contentRef.current.querySelectorAll('.pdf-section');
-      
-      // Inicializar o PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Para cada seção, gerar uma página do PDF
-      let isFirstPage = true;
-      
-      for (let i = 0; i < sections.length; i++) {
-        const section = sections[i] as HTMLElement;
-        
-        // Converter a seção para canvas
-        const canvas = await html2canvas(section, {
-          scale: 1.5,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          windowWidth: 1000,
-          windowHeight: section.scrollHeight,
-        });
-        
-        // Converter o canvas para imagem
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        
-        // Calcular dimensões
-        const canvasRatio = canvas.height / canvas.width;
-        const imgWidth = pdfWidth;
-        const imgHeight = pdfWidth * canvasRatio;
-        
-        // Adicionar nova página, exceto para a primeira seção
-        if (!isFirstPage) {
-          pdf.addPage();
-        }
-        
-        // Adicionar a imagem à página
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight > pdfHeight ? pdfWidth : imgHeight);
-        
-        isFirstPage = false;
-      }
-      
-      // Salvar o PDF com o nome correto
-      const suffix = showImages ? 'Completa' : 'Simples';
-      pdf.save(`Ficha_${suffix}_Imovel_${imovel.matricula || imovel.idimovel || new Date().getTime()}.pdf`);
-      
-      setSnackbarMessage('PDF gerado com sucesso!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      setSnackbarMessage(`Erro ao gerar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
-  };
+  // --- FIM DA CORREÇÃO ---
 
   const generatePdf = async (showImages: boolean) => {
     try {
       setIsGenerating(true);
-      setWithImages(showImages); // Atualiza o estado para controlar exibição de imagens
+      setWithImages(showImages);
       setShowContent(true);
       handleClose();
       
-      // Damos tempo para o DOM renderizar o conteúdo
       setTimeout(async () => {
         try {
-          await generateMultipagePdf(showImages);
+          await generateContinuousPdf(showImages);
         } catch (err) {
           console.error('Erro durante a geração do PDF:', err);
           setSnackbarMessage(`Erro ao gerar PDF: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
@@ -261,7 +159,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           setIsGenerating(false);
           setShowContent(false);
         }
-      }, 1000); // Tempo suficiente para carregar imagens
+      }, 1000);
     } catch (err) {
       console.error('Erro ao iniciar geração do PDF:', err);
       setIsGenerating(false);
@@ -272,34 +170,24 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     }
   };
 
-  // Garantindo que arrays nunca sejam nulos/undefined
-  const imagensOrdenadas = Array.isArray(imovel.imagens) 
-    ? [...imovel.imagens].sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
-    : [];
+  const imagensOrdenadas = Array.isArray(imovel.imagens) ? [...imovel.imagens].sort((a, b) => (a.ordem || 0) - (b.ordem || 0)) : [];
   const fiscalizacoes = Array.isArray(imovel.fiscalizacoes) ? imovel.fiscalizacoes : [];
   const avaliacoes = Array.isArray(imovel.avaliacoes) ? imovel.avaliacoes : [];
   const hstUnidades = Array.isArray(imovel.hstUnidades) ? imovel.hstUnidades : [];
   const hstRegimes = Array.isArray(imovel.hstRegimes) ? imovel.hstRegimes : [];
-  
   const featuredImage = imagensOrdenadas.find(img => img.isdefault) || imagensOrdenadas[0];
-  const imovelTitle = getImovelTitle();
 
-  // Componente de cabeçalho oficial reutilizável
   const PdfHeader = () => (
     <>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
         <img
           src={`/monitoraspu/assets/brasaooficialcolorido.png`}
           alt="Brasão da República Federativa do Brasil"
-          style={{ width: '80px', height: 'auto', marginRight: '20px' }} // Aumentei o tamanho e a margem
+          style={{ width: '80px', height: 'auto', marginRight: '20px' }}
         />
         <div style={{ 
-          flex: 1, // Garante que o texto ocupe o espaço restante
-          fontSize: '10pt', // Aumentei a fonte
-          lineHeight: '1.4', // Adicionei espaçamento entre linhas
-          color: '#333', 
-          fontFamily: 'Times New Roman, serif', 
-          textTransform: 'uppercase' 
+          flex: 1, fontSize: '10pt', lineHeight: '1.4',
+          color: '#333', fontFamily: 'Times New Roman, serif', textTransform: 'uppercase' 
         }}>
           <div>MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS</div>
           <div>SECRETARIA DO PATRIMÔNIO DA UNIÃO</div>
@@ -317,70 +205,28 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     </>
   );
 
-  // Componente de rodapé reutilizável com margens maiores
-  const Footer = ({ pageNumber }: { pageNumber: number }) => (
-    <div style={{ 
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderTop: '1px solid #cccccc',
-      paddingTop: '5px',
-      marginTop: '20px',
-      fontSize: '8pt',
-      color: '#555555',
-      background: 'white',
-      padding: '5px 35px', // Aumentei o padding lateral aqui
-    }}>
-      <div>Usuário: {usuario}</div>
-      <div>Gerado em: {new Date().toLocaleString('pt-BR')}</div>
-      <div>Página {pageNumber} de {TOTAL_PAGES}</div>
-    </div>
-  );
-
   return (
     <>
       <Button
-        variant={variant}
-        color={color}
-        disabled={disabled || isGenerating}
-        fullWidth={fullWidth}
-        size={size}
-        onClick={handleClick}
+        variant={variant} color={color} disabled={disabled || isGenerating}
+        fullWidth={fullWidth} size={size} onClick={handleClick}
         endIcon={<ArrowDropDownIcon />}
         startIcon={isGenerating ? <CircularProgress size={20} /> : <PictureAsPdfIcon />}
       >
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>
       
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={() => generatePdf(true)}>
-          PDF Completo (com imagens)
-        </MenuItem>
-        <MenuItem onClick={() => generatePdf(false)}>
-          PDF Simplificado (sem imagens)
-        </MenuItem>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <MenuItem onClick={() => generatePdf(true)}>PDF Completo (com imagens)</MenuItem>
+        <MenuItem onClick={() => generatePdf(false)}>PDF Simplificado (sem imagens)</MenuItem>
       </Menu>
       
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
       
-      {/* Conteúdo do PDF - oculto até ser necessário */}
       {showContent && (
         <div 
           style={{ 
@@ -390,7 +236,6 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           }}
         >
           <div ref={contentRef} style={{ padding: '20px' }}>
-            {/* Cabeçalho Oficial */}
             <PdfHeader />
             
             {/* SEÇÃO 1: IDENTIFICAÇÃO E FOTOS */}
