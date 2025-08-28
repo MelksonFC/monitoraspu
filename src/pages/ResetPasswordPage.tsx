@@ -19,9 +19,11 @@ const ResetPasswordPage: React.FC = () => {
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmaSenha, setConfirmaSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmaSenha, setShowConfirmaSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -123,13 +125,26 @@ const ResetPasswordPage: React.FC = () => {
                 />
                 <TextField
                   label="Confirmar Nova Senha"
-                  type="password"
+                  name="confirmarSenha"
+                  type={showConfirmaSenha ? "text" : "password"}
                   fullWidth
-                  required
                   margin="normal"
                   value={confirmaSenha}
-                  onChange={e => setConfirmaSenha(e.target.value)}
-                  disabled={!token || isLoading}
+                  onChange={(e) => setConfirmaSenha(e.target.value)}
+                  required
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm password visibility"
+                          onClick={() => setShowConfirmaSenha((show) => !show)}
+                          edge="end"
+                        >
+                          {showConfirmaSenha ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 <Box sx={{ position: 'relative', mt: 2 }}>
                   <Button type="submit" variant="contained" color="primary" fullWidth disabled={!token || isLoading} sx={{ py: 1.5 }}>

@@ -243,58 +243,87 @@ app.put("/api/usuarios/:id/reenviar-ativacao", async (req, res) => {
   }
 });
 
-// PUT para atualizar usuário
+// PUT para atualizar usuário (VERSÃO REATORADA E MAIS SEGURA)
 app.put("/api/usuarios/:id", async (req, res) => {
-  // Lógica de atualização complexa permanece a mesma
   const { id } = req.params;
-  let { nome, email, senha, idpermissao, ativo } = req.body;
-  
-  try {
-    if (email) email = email.toLowerCase();
-    
-    const userResult = await pool.query("SELECT * FROM dbo.usuarios WHERE id=$1", [id]);
-    const userAtual = userResult.rows[0];
-    if (!userAtual) return res.status(404).json({ error: "Usuário Invalido." });
+  const { nome, email, senha, idpermissao, ativo } = req.body;
 
-    let sendActivation = email && email !== userAtual.email;
-    let ativacao_token = sendActivation ? crypto.randomBytes(32).toString("hex") : null;
-    let ativacao_token_expira = sendActivation ? new Date(Date.now() + 3600 * 1000) : null;
-    
-    let query, params;
-    
+  try {
+    // 1. Pega os dados atuais do usuário
+    const userResult = await pool.query("SELECT * FROM dbo.usuarios WHERE id=$1", [id]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+    const userAtual = userResult.rows[0];
+
+    // 2. Prepara os campos para a atualização
+    const updateFields = [];
+    const queryParams = [];
+    let paramIndex = 1;
+
+    // Adiciona os campos que foram fornecidos na requisição
+    if (nome !== undefined) {
+      updateFields.push(`nome = $${paramIndex++}`);
+      queryParams.push(nome);
+    }
+    if (idpermissao !== undefined) {
+      updateFields.push(`idpermissao = $${paramIndex++}`);
+      queryParams.push(idpermissao);
+    }
+    if (ativo !== undefined) {
+      updateFields.push(`ativo = $${paramIndex++}`);
+      queryParams.push(ativo);
+    }
+
+    // Lógica para troca de e-mail e reativação
+    if (email && email.toLowerCase() !== userAtual.email) {
+      const emailLower = email.toLowerCase();
+      const ativacao_token = crypto.randomBytes(32).toString("hex");
+      const ativacao_token_expira = new Date(Date.now() + 3600 * 1000);
+
+      updateFields.push(`email = $${paramIndex++}`);
+      queryParams.push(emailLower);
+      updateFields.push(`ativado = $${paramIndex++}`);
+      queryParams.push(false);
+      updateFields.push(`ativacao_token = $${paramIndex++}`);
+      queryParams.push(ativacao_token);
+      updateFields.push(`ativacao_token_expira = $${paramIndex++}`);
+      queryParams.push(ativacao_token_expira);
+      
+      // Envia o e-mail de reativação
+      await transporter.sendMail({
+        from: "naoresponda@monitoraspu.com", to: emailLower, subject: "Reative sua conta",
+        text: `Olá ${nome || userAtual.nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}`
+      });
+    }
+
+    // Lógica para atualização de senha
     if (senha) {
       if (!validaSenha(senha)) return res.status(400).json({ error: "Senha não atende aos requisitos de força." });
       const senha_hash = await bcrypt.hash(senha, 10);
-      if (sendActivation) {
-        query = `UPDATE dbo.usuarios SET nome=$1, email=$2, senha_hash=$3, idpermissao=$4, ativo=$5, ativado=false, ativacao_token=$6, ativacao_token_expira=$7 WHERE id=$8 RETURNING *`;
-        params = [nome, email, senha_hash, idpermissao, ativo, ativacao_token, ativacao_token_expira, id];
-      } else {
-        query = `UPDATE dbo.usuarios SET nome=$1, email=$2, senha_hash=$3, idpermissao=$4, ativo=$5 WHERE id=$6 RETURNING *`;
-        params = [nome, email || userAtual.email, senha_hash, idpermissao, ativo, id];
-      }
-    } else {
-      if (sendActivation) {
-        query = `UPDATE dbo.usuarios SET nome=$1, email=$2, idpermissao=$3, ativo=$4, ativado=false, ativacao_token=$5, ativacao_token_expira=$6 WHERE id=$7 RETURNING *`;
-        params = [nome, email, idpermissao, ativo, ativacao_token, ativacao_token_expira, id];
-      } else {
-        query = `UPDATE dbo.usuarios SET nome=$1, email=$2, idpermissao=$3, ativo=$4 WHERE id=$5 RETURNING *`;
-        params = [nome, email || userAtual.email, idpermissao, ativo, id];
-      }
+      updateFields.push(`senha_hash = $${paramIndex++}`);
+      queryParams.push(senha_hash);
     }
-    
-    const result = await pool.query(query, params);
-    
-    if (sendActivation) {
-      await transporter.sendMail({
-        from: "naoresponda@monitoraspu.com",
-        to: email,
-        subject: "Ativação de conta",
-        text: `Olá ${nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
-      });
+
+    // Se não houver campos para atualizar, retorna
+    if (updateFields.length === 0) {
+      return res.json({ message: "Nenhum dado para atualizar.", usuario: userAtual });
     }
+
+    // 3. Monta e executa a query final
+    const query = `UPDATE dbo.usuarios SET ${updateFields.join(", ")} WHERE id = $${paramIndex} RETURNING *`;
+    queryParams.push(id);
     
-    res.json({ message: sendActivation ? "Usuário editado! Email de ativação reenviado." : "Usuário editado com sucesso.", usuario: result.rows[0] });
+    const result = await pool.query(query, queryParams);
+
+    res.json({ message: "Usuário atualizado com sucesso.", usuario: result.rows[0] });
+
   } catch (err) {
+    // Verifica erro de e-mail duplicado
+    if (err.code === '23505' && err.constraint === 'usuarios_email_key') {
+        return res.status(409).json({ error: 'Este e-mail já está em uso por outro usuário.' });
+    }
+    console.error("Erro ao atualizar usuário:", err);
     res.status(500).json({ error: err.message });
   }
 });
