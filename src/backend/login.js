@@ -87,9 +87,9 @@ router.post("/reset-solicitar", async (req, res) => {
       const resetLink = `${frontendUrl}/reset-senha?token=${token}`;
       
       await transporter.sendMail({
-        from: `"Monitora SPU" <${process.env.EMAIL_USER}>`,
+        from: `"Monitora SPU-RR" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: "Redefinição de Senha - Monitora SPU",
+        subject: "Redefinição de Senha - Monitora SPU-RR",
         text: `Você solicitou uma redefinição de senha. Clique no link a seguir para criar uma nova senha: ${resetLink}`,
         html: `<p>Você solicitou uma redefinição de senha.</p><p>Clique no link a seguir para criar uma nova senha: <a href="${resetLink}">${resetLink}</a></p><p>Este link expira em 1 hora.</p>`,
       });

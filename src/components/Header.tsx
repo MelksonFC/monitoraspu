@@ -57,14 +57,8 @@ const Header: React.FC = () => {
           }}
         >
           <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-            Monitora
+            Monitora SPU-RR
           </Typography>
-          <Box
-            component="img"
-            src={logoSpuPng}
-            alt="Logo SPU"
-            sx={{ height: 28, position: 'relative', top: '2px' }}
-          />
         </Box>
 
         {/* Lado Direito: Menu do Usuário */}

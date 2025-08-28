@@ -146,7 +146,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
             }}
           >
             <Typography variant="h3" component="h1" fontWeight="bold" color="primary.main" gutterBottom>
-              Monitora SPU
+              Monitora SPU-RR
             </Typography>
             <Typography variant="h6" component="h2" color="text.secondary" mb={3}>
               Acesso ao Sistema

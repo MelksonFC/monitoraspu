@@ -204,7 +204,7 @@ app.post('/api/usuarios', async (req, res) => {
     );
     
      await transporter.sendMail({
-      from: "naoresponda@monitoraspu.com",
+      from: "naoresponda@monitoraspurr.com",
       to: email,
       subject: "Ativação de conta",
       text: `Olá ${nome},\n\nClique para ativar sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
@@ -231,7 +231,7 @@ app.put("/api/usuarios/:id/reenviar-ativacao", async (req, res) => {
     await pool.query("UPDATE dbo.usuarios SET ativado=false, ativacao_token=$1, ativacao_token_expira=$2 WHERE id=$3", [ativacao_token, ativacao_token_expira, id]);
     
     await transporter.sendMail({
-      from: "naoresponda@monitoraspu.com",
+      from: "naoresponda@monitoraspurr.com",
       to: usuario.email,
       subject: "Ativação de conta",
       text: `Olá ${usuario.nome},\n\nClique para ativar sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}\n\nEste link expira em 1 hora.`,
@@ -292,7 +292,7 @@ app.put("/api/usuarios/:id", async (req, res) => {
       
       // Envia o e-mail de reativação
       await transporter.sendMail({
-        from: "naoresponda@monitoraspu.com", to: emailLower, subject: "Reative sua conta",
+        from: "naoresponda@monitoraspurr.com", to: emailLower, subject: "Reative sua conta",
         text: `Olá ${nome || userAtual.nome},\n\nSeu e-mail foi atualizado. Ative novamente sua conta:\n${frontendUrl}/ativar-conta?token=${ativacao_token}`
       });
     }
