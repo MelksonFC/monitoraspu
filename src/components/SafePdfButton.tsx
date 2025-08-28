@@ -217,6 +217,39 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const featuredImage = imagensOrdenadas.find(img => img.isdefault) || imagensOrdenadas[0];
   const imovelTitle = getImovelTitle();
 
+  // Componente de cabeçalho oficial reutilizável
+  const PdfHeader = () => (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+        <img
+          // O caminho deve ser absoluto a partir da raiz do site.
+          // Como o app está em /monitoraspu/, o caminho completo é necessário.
+          src={`/monitoraspu/assets/brasaooficialcolorido.png`}
+          alt="Brasão da República Federativa do Brasil"
+          style={{ width: '70px', height: 'auto', marginRight: '15px' }}
+        />
+        <div style={{ fontSize: '9pt', color: '#333', fontFamily: 'Times New Roman, serif', textTransform: 'uppercase' }}>
+          <div>MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS</div>
+          <div>SECRETARIA DO PATRIMÔNIO DA UNIÃO</div>
+          <div>SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA</div>
+        </div>
+      </div>
+      <div style={{
+        backgroundColor: '#e0e0e0',
+        color: 'black',
+        textAlign: 'center',
+        padding: '6px',
+        fontSize: '10pt',
+        fontWeight: 'bold',
+        marginBottom: '20px',
+        borderTop: '0.5px solid #aaaaaa',
+        borderBottom: '0.5px solid #aaaaaa'
+      }}>
+        RELATÓRIO
+      </div>
+    </>
+  );
+
   // Componente de rodapé reutilizável com margens maiores
   const Footer = ({ pageNumber }: { pageNumber: number }) => (
     <div style={{ 
@@ -302,18 +335,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
             position: 'relative',
             minHeight: '1123px' // Aproximadamente o tamanho de uma A4
           }}>
-            {/* Cabeçalho */}
-            <div style={{ 
-              textAlign: 'center', 
-              fontSize: '14pt', 
-              fontWeight: 'bold', 
-              color: '#1E3A8A',
-              marginBottom: '20px',
-              paddingBottom: '10px',
-              borderBottom: '1px solid #cccccc'
-            }}>
-              {imovelTitle}
-            </div>
+            {/* Cabeçalho Oficial */}
+            <PdfHeader />
             
             {/* SEÇÃO 1: IDENTIFICAÇÃO E FOTOS */}
             <div style={{ 
@@ -872,18 +895,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
             position: 'relative',
             minHeight: '1123px' // Aproximadamente o tamanho de uma A4
           }}>
-            {/* Cabeçalho */}
-            <div style={{ 
-              textAlign: 'center', 
-              fontSize: '14pt', 
-              fontWeight: 'bold', 
-              color: '#1E3A8A',
-              marginBottom: '20px',
-              paddingBottom: '10px',
-              borderBottom: '1px solid #cccccc'
-            }}>
-              {`${imovelTitle} - Fiscalizações e Avaliações`}
-            </div>
+            {/* Cabeçalho Oficial */}
+            <PdfHeader />
             
             {/* SEÇÃO 5: FISCALIZAÇÕES */}
             <div style={{ 
@@ -1108,18 +1121,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
             position: 'relative',
             minHeight: '1123px' // Aproximadamente o tamanho de uma A4
           }}>
-            {/* Cabeçalho */}
-            <div style={{ 
-              textAlign: 'center', 
-              fontSize: '14pt', 
-              fontWeight: 'bold', 
-              color: '#1E3A8A',
-              marginBottom: '20px',
-              paddingBottom: '10px',
-              borderBottom: '1px solid #cccccc'
-            }}>
-              {`${imovelTitle} - Históricos`}
-            </div>
+            {/* Cabeçalho Oficial */}
+            <PdfHeader />
             
             {/* SEÇÃO 7: HISTÓRICO DE UNIDADE GESTORA */}
             <div style={{ 
