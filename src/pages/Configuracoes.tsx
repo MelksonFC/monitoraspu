@@ -242,50 +242,89 @@ const Configuracoes: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editUser, setEditUser] = useState<any | null>(null);
   const [statusMsg, setStatusMsg] = useState("");
-
-  // permissão admin
-  const usuarioAtual = { idpermissao: 1 }; // Mude para 1, 2 ou 3 para testar
-
-  // Ref para foco acessível após fechar o Dialog
+  const usuarioAtual = { idpermissao: 1 }; 
   const novoUsuarioBtnRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    axios.get(`${apiUrl}/api/usuarios`)
-      .then(res => setUsuarios(res.data));
-  }, []);
-
-  // Criação/edição de usuário com ativação
-  const handleSave = async (user: any) : Promise<{ message?: string }> => {
-    const userToSend = { ...user, email: user.email.toLowerCase() };
-    let res;
-    if (editUser) {
-      res = await axios.put(`${apiUrl}/api/usuarios/${editUser.id}`, userToSend);
-    } else {
-      res = await axios.post(`${apiUrl}/api/usuarios`, userToSend);
-    }
-    setDialogOpen(false);
-    setEditUser(null);
-    // Após fechar dialog, retorna o foco para o botão "Novo Usuário" (acessibilidade)
-    novoUsuarioBtnRef.current?.focus();
-    const updated = await axios.get(`${apiUrl}/api/usuarios`);
-    setUsuarios(updated.data);
-    setStatusMsg(res.data.message || "");
-    return { message: res.data.message };
+  // 1. Centraliza a busca de usuários em uma função para reutilização
+  const fetchUsuarios = () => {
+    // Adiciona um parâmetro `_` com a data atual para evitar o cache do navegador
+    axios.get(`${apiUrl}/api/usuarios`, { params: { _: new Date().getTime() } })
+      .then(res => setUsuarios(res.data))
+      .catch(err => console.error("Erro ao buscar usuários:", err));
   };
 
-  // Reenviar ativação
-async function handleReenviarAtivacao(user: any) {
-  // Chama rota exclusiva para reenvio, não depende de editar nada
-  const res = await axios.put(`${apiUrl}/api/usuarios/${user.id}/reenviar-ativacao`);
-  setStatusMsg(res.data.message || "Email de ativação reenviado.");
-  const updated = await axios.get(`${apiUrl}/api/usuarios`);
-  setUsuarios(updated.data);
-}
+  // 2. Função para mostrar a mensagem de status e limpá-la após 5 segundos
+  const showStatusMessage = (message: string) => {
+    setStatusMsg(message);
+    setTimeout(() => {
+      setStatusMsg("");
+    }, 5000); // A mensagem some após 5 segundos
+  };
+
+  // Busca os usuários quando o componente é montado pela primeira vez
+  useEffect(() => {
+    fetchUsuarios();
+  }, []);
+
+  const handleSave = async (user: any): Promise<{ message?: string }> => {
+    try {
+      const userToSend = { ...user, email: user.email.toLowerCase() };
+      let res;
+      if (editUser) {
+        res = await axios.put(`${apiUrl}/api/usuarios/${editUser.id}`, userToSend);
+      } else {
+        res = await axios.post(`${apiUrl}/api/usuarios`, userToSend);
+      }
+      setDialogOpen(false);
+      setEditUser(null);
+      novoUsuarioBtnRef.current?.focus();
+      
+      // 3. Usa as novas funções para atualizar a lista e mostrar a mensagem
+      fetchUsuarios();
+      showStatusMessage(res.data.message || "Operação realizada com sucesso.");
+      
+      return { message: res.data.message };
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || "Ocorreu um erro.";
+      showStatusMessage(errorMessage);
+      return { message: errorMessage };
+    }
+  };
+
+  async function handleReenviarAtivacao(user: any) {
+    try {
+      const res = await axios.put(`${apiUrl}/api/usuarios/${user.id}/reenviar-ativacao`);
+      fetchUsuarios(); // Atualiza a lista de usuários
+      showStatusMessage(res.data.message || "Email de ativação reenviado."); // Mostra a mensagem de sucesso
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || "Erro ao reenviar ativação.";
+      showStatusMessage(errorMessage); // Mostra a mensagem de erro
+    }
+  }
 
   const handleDelete = async (id: number) => {
-    await axios.delete(`${apiUrl}/api/usuarios/${id}`);
-    const res = await axios.get(`${apiUrl}/api/usuarios`);
-    setUsuarios(res.data);
+    try {
+      await axios.delete(`${apiUrl}/api/usuarios/${id}`);
+      // 3. Usa as novas funções para atualizar a lista e mostrar a mensagem
+      fetchUsuarios();
+      showStatusMessage("Usuário excluído com sucesso.");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || "Erro ao excluir usuário.";
+      showStatusMessage(errorMessage);
+    }
+  };
+  
+  const handleToggleAtivo = async (user: any) => {
+    try {
+        const novoStatus = user.ativo === 1 ? 0 : 1;
+        await axios.put(`${apiUrl}/api/usuarios/${user.id}`, { ativo: novoStatus });
+        // 3. Usa as novas funções para atualizar a lista e mostrar a mensagem
+        fetchUsuarios();
+        showStatusMessage(`Usuário ${novoStatus === 1 ? 'ativado' : 'desativado'} com sucesso.`);
+    } catch (error: any) {
+        const errorMessage = error.response?.data?.error || "Erro ao alterar status do usuário.";
+        showStatusMessage(errorMessage);
+    }
   };
 
   if (usuarioAtual.idpermissao !== 1) {
@@ -355,17 +394,22 @@ async function handleReenviarAtivacao(user: any) {
             ))}
           </TableBody>
         </Table>
-        <UsuarioDialog
-          open={dialogOpen}
-          onClose={() => {
-            setDialogOpen(false);
-            setEditUser(null);
-            // Após fechar dialog, retorna o foco ao botão Novo Usuário
-            novoUsuarioBtnRef.current?.focus();
-          }}
-          onSave={handleSave}
-          editUser={editUser}
-        />
+        {dialogOpen && (
+          <UsuarioDialog
+            // A 'key' força a recriação do componente quando o usuário a ser editado muda.
+            // Se 'editUser' for nulo (novo usuário), a key será 'novo'.
+            // Se estiver editando, a key será o ID do usuário.
+            key={editUser ? editUser.id : 'novo'}
+            open={dialogOpen}
+            onClose={() => {
+              setDialogOpen(false);
+              setEditUser(null);
+              novoUsuarioBtnRef.current?.focus();
+            }}
+            onSave={handleSave}
+            editUser={editUser}
+          />
+        )}
       </Box>
     </Box>
   );
