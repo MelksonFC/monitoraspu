@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Button, CircularProgress, Menu, MenuItem, Snackbar, Alert } from '@mui/material';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import type { Imovel } from '../types';
 
 interface SafePdfButtonProps {
@@ -37,174 +37,281 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [showContent, setShowContent] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [withImages, setWithImages] = useState(true);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
-
-  // Funções auxiliares (sem alteração)
+  // Helpers
   const formatDateBR = (dateStr?: string): string => {
     if (!dateStr) return 'N/A';
-    try { const date = new Date(dateStr); if (isNaN(date.getTime())) return dateStr; return date.toLocaleDateString('pt-BR'); } catch { return 'N/A'; }
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString('pt-BR');
+    } catch {
+      return 'N/A';
+    }
   };
   const formatValorBR = (valor: string | number | undefined | null): string => {
     if (valor === undefined || valor === null || valor === "") return "R$ 0,00";
-    try { const num = typeof valor === 'string' ? parseFloat(valor.replace(/\./g, "").replace(",", ".")) : valor; if (isNaN(num)) return "N/A"; return `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; } catch { return "N/A"; }
+    try {
+      const num = typeof valor === 'string'
+        ? parseFloat(valor.replace(/\./g, "").replace(",", "."))
+        : valor;
+      if (isNaN(num)) return "N/A";
+      return `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    } catch {
+      return "N/A";
+    }
   };
   const formatArea = (valor: string | number | undefined | null): string => {
     if (valor === undefined || valor === null || valor === "") return "0,00 m²";
-    try { const num = typeof valor === 'string' ? parseFloat(valor.replace(/\./g, "").replace(",", ".")) : valor; if (isNaN(num)) return "N/A"; return `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`; } catch { return "N/A"; }
+    try {
+      const num = typeof valor === 'string'
+        ? parseFloat(valor.replace(/\./g, "").replace(",", "."))
+        : valor;
+      if (isNaN(num)) return "N/A";
+      return `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
+    } catch {
+      return "N/A";
+    }
   };
   const getLookupName = (id?: number, list?: any[]): string => list?.find(item => item.id === id)?.nome || 'N/A';
   const getRegimeDesc = (id?: number): string => lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
 
-  // --- INÍCIO DA CORREÇÃO ---
-  // Função de geração de PDF contínuo com rodapé corrigido
-  const generateContinuousPdf = async (showImages: boolean) => {
+  // Cabeçalho e rodapé
+  function addHeader(doc) {
+    // Brasão
     try {
-      if (!contentRef.current) throw new Error('Elemento de conteúdo não disponível');
+      doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', 15, 10, 18, 18);
+    } catch {}
+    doc.setFont('times', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(51,51,51);
+    doc.text('MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS', 36, 16, { baseline: 'top' });
+    doc.text('SECRETARIA DO PATRIMÔNIO DA UNIÃO', 36, 20, { baseline: 'top' });
+    doc.text('SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA', 36, 24, { baseline: 'top' });
+    // Barra relatório
+    doc.setFillColor(224,224,224);
+    doc.rect(15, 29, doc.internal.pageSize.getWidth()-30, 8, 'F');
+    doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+    doc.text('RELATÓRIO', doc.internal.pageSize.getWidth()/2, 34, {align:'center'});
+    doc.setTextColor(51,51,51); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  }
+  function addFooter(doc, pageNumber, totalPages) {
+    const height = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setTextColor(100);
+    doc.text(`Usuário: ${usuario}`, 15, height-10);
+    doc.text(`Página ${pageNumber} de ${totalPages}`, doc.internal.pageSize.getWidth()/2, height-10, {align: 'center'});
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-10, {align: 'right'});
+  }
 
-      const content = contentRef.current;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Define margens, incluindo uma maior para o rodapé
-      const topMargin = 15;
-      const bottomMargin = 20; // Espaço reservado para o rodapé
-      const horizontalMargin = 15;
-      
-      // Área útil da página para o conteúdo
-      const usablePageHeight = pdfHeight - topMargin - bottomMargin;
+  async function generateStructuredPdf() {
+    setIsGenerating(true);
+    const doc = new jsPDF('p', 'mm', 'a4');
+    let totalPages = 1; // será ajustado ao final
 
-      const canvas = await html2canvas(content, {
-        scale: 2, useCORS: true, allowTaint: true, logging: false, width: 800,
-      });
+    // Função para repetir cabeçalho/rodapé
+    const didDrawPage = (data) => {
+      addHeader(doc);
+      totalPages = doc.internal.getNumberOfPages();
+      addFooter(doc, data.pageNumber, totalPages);
+    };
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const contentWidth = pdfWidth - (horizontalMargin * 2);
-      const ratio = canvas.width / contentWidth;
-      const totalContentHeight = canvas.height / ratio;
+    let y = 42; // início após cabeçalho
 
-      let position = 0;
-      let pages = 0;
+    // Seção Identificação e Fotos
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Identificação e Fotos', 15, y);
+    y += 2;
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      body: [
+        ['Matrícula', imovel.matricula || 'N/A', 'Imóvel Ativo', imovel.situacao ? 'Sim':'Não'],
+        ['RIP Imóvel', imovel.ripimovel || 'N/A', 'RIP Utilização', imovel.riputilizacao || 'N/A'],
+        ['Nome', imovel.nome || 'N/A', '', ''],
+        ['Valor', formatValorBR(imovel.valorimovel), 'Data do Imóvel', formatDateBR(imovel.dataimovel)],
+      ],
+      theme: 'plain',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
 
-      // Adiciona páginas enquanto houver conteúdo para ser impresso
-      while (position < totalContentHeight) {
-        pages++;
-        // Adiciona uma nova página (exceto na primeira iteração)
-        if (pages > 1) {
-          pdf.addPage();
-        }
-        // Adiciona a "fatia" da imagem que cabe na página atual
-        pdf.addImage(imgData, 'JPEG', horizontalMargin, -position + topMargin, contentWidth, totalContentHeight);
-        position += usablePageHeight;
-      }
-      
-      // Adiciona o rodapé em cada página gerada
-      for (let i = 1; i <= pages; i++) {
-        pdf.setPage(i);
-        pdf.setFontSize(8);
-        pdf.setTextColor(100);
-        const footerY = pdf.internal.pageSize.getHeight() - 10; // Posição fixa do rodapé
-        pdf.text(`Usuário: ${usuario}`, horizontalMargin, footerY);
-        pdf.text(`Página ${i} de ${pages}`, pdfWidth / 2, footerY, { align: 'center' });
-        pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, pdfWidth - horizontalMargin, footerY, { align: 'right' });
-      }
+    // Seção Localização
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Localização', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      body: [
+        ['CEP', imovel.cep || 'N/A', 'País', getLookupName(imovel.idpais, lookups.paises)],
+        ['Estado', getLookupName(imovel.idestado, lookups.estados), 'Município', getLookupName(imovel.idmunicipio, lookups.municipios)],
+        ['Endereço', imovel.endereco || 'N/A', 'Número', imovel.numero || 'N/A'],
+        ['Complemento', imovel.complemento || 'N/A', '', ''],
+        ['Latitude', imovel.latitude ?? 'N/A', 'Longitude', imovel.longitude ?? 'N/A'],
+      ],
+      theme: 'plain',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
 
-      const suffix = showImages ? 'Completa' : 'Simples';
-      pdf.save(`Ficha_${suffix}_Imovel_${imovel.matricula || imovel.idimovel || new Date().getTime()}.pdf`);
-      
-      setSnackbarMessage('PDF gerado com sucesso!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      setSnackbarMessage(`Erro ao gerar PDF: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+    // Seção Contato e Registro Cartorial
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Contato', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      body: [
+        ['E-mail', imovel.email || 'N/A'],
+      ],
+      theme: 'plain',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
+
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Registro Cartorial', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      body: [
+        ['Cartório', imovel.nomecartorio || 'N/A', 'Nº Processo', imovel.nprocesso || 'N/A', 'Ocupante', imovel.ocupante || 'N/A'],
+      ],
+      theme: 'plain',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
+
+    // Seção Gestão e Áreas
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Gestão e Áreas', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      body: [
+        ['Unidade Gestora', getLookupName(imovel.idunidadegestora, lookups.unidades), 'Regime de Utilização', getRegimeDesc(imovel.idregimeutilizacao)],
+        ['Área Construída', formatArea(imovel.areaconstruida), 'Área do Terreno', formatArea(imovel.areaterreno)],
+      ],
+      theme: 'plain',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
+
+    // Seção Fiscalizações
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Fiscalizações', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      head: [['Data','Fiscal','Condições','Observações']],
+      body: imovel.fiscalizacoes?.length
+        ? imovel.fiscalizacoes.map(f => [
+            formatDateBR(f.datafiscalizacao),
+            f.fiscalizador || 'N/A',
+            f.condicoes || 'N/A',
+            f.observacoes || 'N/A',
+          ])
+        : [['Nenhuma fiscalização encontrada','','','']],
+      theme: 'grid',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
+
+    // Seção Avaliações
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Avaliações', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      head: [['Data','Avaliador','Novo Valor','Observações']],
+      body: imovel.avaliacoes?.length
+        ? imovel.avaliacoes.map(a => [
+            formatDateBR(a.dataavaliacao),
+            a.avaliador || 'N/A',
+            formatValorBR(a.novovalor),
+            a.observacoes || 'N/A',
+          ])
+        : [['Nenhuma avaliação encontrada','','','']],
+      theme: 'grid',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
+
+    // Seção Histórico Unidade Gestora
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Histórico de Unidade Gestora', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      head: [['Unidade Gestora','Data Início','Data Fim']],
+      body: imovel.hstUnidades?.length
+        ? imovel.hstUnidades.map(h => [
+            getLookupName(h.idunidadegestora, lookups.unidades),
+            formatDateBR(h.dtinicio),
+            h.dtfim ? formatDateBR(h.dtfim) : 'Atual',
+          ])
+        : [['Nenhum histórico encontrado','','']],
+      theme: 'grid',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+    y = doc.lastAutoTable.finalY + 4;
+
+    // Seção Histórico Regime de Utilização
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Histórico de Regime de Utilização', 15, y);
+    autoTable(doc, {
+      startY: y+2,
+      margin: { left: 15, right: 15 },
+      head: [['Regime','Data Início','Data Fim']],
+      body: imovel.hstRegimes?.length
+        ? imovel.hstRegimes.map(h => [
+            getRegimeDesc(h.idregimeutilizacao),
+            formatDateBR(h.dtinicio),
+            h.dtfim ? formatDateBR(h.dtfim) : 'Atual',
+          ])
+        : [['Nenhum histórico encontrado','','']],
+      theme: 'grid',
+      didDrawPage,
+      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      alternateRowStyles: { fillColor: [255,255,255] },
+    });
+
+    // Ajusta número total de páginas no rodapé (corrige rodapé/cabeçalho em todas as páginas)
+    const finalTotalPages = doc.internal.getNumberOfPages();
+    for(let i=1; i<=finalTotalPages; i++) {
+      doc.setPage(i);
+      addHeader(doc);
+      addFooter(doc, i, finalTotalPages);
     }
-  };
-  // --- FIM DA CORREÇÃO ---
 
-  const generatePdf = async (showImages: boolean) => {
-    try {
-      setIsGenerating(true);
-      setWithImages(showImages);
-      setShowContent(true);
-      handleClose();
-      
-      setTimeout(async () => {
-        try {
-          await generateContinuousPdf(showImages);
-        } catch (err) {
-          console.error('Erro durante a geração do PDF:', err);
-          setSnackbarMessage(`Erro ao gerar PDF: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
-          setSnackbarSeverity('error');
-          setSnackbarOpen(true);
-        } finally {
-          setIsGenerating(false);
-          setShowContent(false);
-        }
-      }, 1000);
-    } catch (err) {
-      console.error('Erro ao iniciar geração do PDF:', err);
-      setIsGenerating(false);
-      setShowContent(false);
-      setSnackbarMessage(`Erro ao gerar PDF: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
-  };
+    doc.save(`Relatorio_Imovel_${imovel.matricula || imovel.idimovel || new Date().getTime()}.pdf`);
+    setSnackbarMessage('PDF gerado com sucesso!');
+    setSnackbarSeverity('success');
+    setSnackbarOpen(true);
+    setIsGenerating(false);
+  }
 
-  const imagensOrdenadas = Array.isArray(imovel.imagens) ? [...imovel.imagens].sort((a, b) => (a.ordem || 0) - (b.ordem || 0)) : [];
-  const fiscalizacoes = Array.isArray(imovel.fiscalizacoes) ? imovel.fiscalizacoes : [];
-  const avaliacoes = Array.isArray(imovel.avaliacoes) ? imovel.avaliacoes : [];
-  const hstUnidades = Array.isArray(imovel.hstUnidades) ? imovel.hstUnidades : [];
-  const hstRegimes = Array.isArray(imovel.hstRegimes) ? imovel.hstRegimes : [];
-  const featuredImage = imagensOrdenadas.find(img => img.isdefault) || imagensOrdenadas[0];
-
-  const PdfHeader = () => (
-    <>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-        <img
-          src={`/monitoraspu/assets/brasaooficialcolorido.png`}
-          alt="Brasão da República Federativa do Brasil"
-          style={{ width: '80px', height: 'auto', marginRight: '20px' }}
-        />
-        <div style={{ 
-          flex: 1, fontSize: '10pt', lineHeight: '1.4',
-          color: '#333', fontFamily: 'Times New Roman, serif', textTransform: 'uppercase' 
-        }}>
-          <div>MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS</div>
-          <div>SECRETARIA DO PATRIMÔNIO DA UNIÃO</div>
-          <div>SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA</div>
-        </div>
-      </div>
-      <div style={{
-        backgroundColor: '#e0e0e0', color: 'black', textAlign: 'center',
-        padding: '6px', fontSize: '11pt', fontWeight: 'bold',
-        marginBottom: '25px', borderTop: '0.5px solid #aaaaaa',
-        borderBottom: '0.5px solid #aaaaaa'
-      }}>
-        RELATÓRIO
-      </div>
-    </>
-  );
+  // UI
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+  const handleCloseSnackbar = () => setSnackbarOpen(false);
 
   return (
     <>
@@ -216,67 +323,15 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       >
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>
-      
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={() => generatePdf(true)}>PDF Completo (com imagens)</MenuItem>
-        <MenuItem onClick={() => generatePdf(false)}>PDF Simplificado (sem imagens)</MenuItem>
+        <MenuItem onClick={() => generateStructuredPdf()}>PDF Completo (com imagens)</MenuItem>
+        <MenuItem onClick={() => generateStructuredPdf()}>PDF Simplificado (sem imagens)</MenuItem>
       </Menu>
-      
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      
-      {showContent && (
-        <div 
-          style={{ 
-            position: 'absolute', left: '-9999px', top: '-9999px',
-            width: '800px', background: '#ffffff', fontFamily: 'Roboto, Arial, sans-serif',
-            color: '#333333', fontSize: '9pt',
-          }}
-        >
-          <div ref={contentRef} style={{ padding: '20px' }}>
-            <PdfHeader />
-            
-            {/* SEÇÃO 1: IDENTIFICAÇÃO E FOTOS */}
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
-              <div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px' }}>Identificação e Fotos</div>
-              <div style={{ display: 'flex' }}>
-                <div style={{ flex: withImages ? 1.5 : 1, paddingRight: '8px' }}>
-                  <div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Matrícula</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{imovel.matricula || 'N/A'}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Imóvel Ativo</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{imovel.situacao ? 'Sim' : 'Não'}</div></div></div></div>
-                  <div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>RIP Imóvel</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{imovel.ripimovel || 'N/A'}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>RIP Utilização</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{imovel.riputilizacao || 'N/A'}</div></div></div></div>
-                  <div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Nome</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{imovel.nome || 'N/A'}</div></div>
-                  <div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Valor</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{formatValorBR(imovel.valorimovel)}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Data do Imóvel</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px' }}>{formatDateBR(imovel.dataimovel)}</div></div></div></div>
-                </div>
-                {withImages && (<div style={{ flex: 1 }}>{featuredImage?.url ? (<img src={featuredImage.url} alt="Imagem principal do imóvel" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px', marginBottom: '8px', backgroundColor: '#f0f0f0' }}/>) : (<div style={{ width: '100%', height: '200px', borderRadius: '4px', marginBottom: '8px', backgroundColor: '#f0f0f0', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px solid #e0e0e0' }}><div style={{ color: '#666666', fontSize: '10pt', textAlign: 'center' }}>Sem imagem</div></div>)}{imagensOrdenadas.length > 0 && (<div style={{ display: 'flex', flexWrap: 'wrap', marginTop: '5px' }}>{imagensOrdenadas.filter(img => img.url).slice(0, 4).map((img, index) => (<img key={index} src={img.url} alt={`Miniatura ${index + 1}`} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '3px', border: img.isdefault ? '2px solid #1976d2' : '1px solid #ccc', margin: '2px' }}/>))}</div>)}</div>)}
-              </div>
-            </div>
-
-            {/* SEÇÃO 2: LOCALIZAÇÃO */}
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px' }}>
-                <div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px', }}>Localização</div>
-                <div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, padding: '0 4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>CEP</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.cep || 'N/A'}</div></div></div><div style={{ flex: 1, padding: '0 4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>País</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{getLookupName(imovel.idpais, lookups.paises)}</div></div></div><div style={{ flex: 1, padding: '0 4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Estado</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{getLookupName(imovel.idestado, lookups.estados)}</div></div></div></div>
-                <div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Município</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{getLookupName(imovel.idmunicipio, lookups.municipios)}</div></div>
-                <div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 3, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Endereço</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.endereco || 'N/A'}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Número</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.numero || 'N/A'}</div></div></div></div>
-                <div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Complemento</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.complemento || 'N/A'}</div></div>
-                <div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Latitude</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.latitude || 'N/A'}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Longitude</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.longitude || 'N/A'}</div></div></div></div>
-            </div>
-
-            {/* SEÇÃO 3 E 4: CONTATO, REGISTRO, GESTÃO E ÁREAS */}
-            <div style={{ display: 'flex', marginBottom: '12px' }}><div style={{ flex: 1, marginRight: '8px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px', }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px', }}>Contato</div><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>E-mail</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.email || 'N/A'}</div></div></div><div style={{ flex: 2, padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px', }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px', }}>Registro Cartorial</div><div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, padding: '0 4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Cartório</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.nomecartorio || 'N/A'}</div></div></div><div style={{ flex: 1, padding: '0 4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Nº Processo</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.nprocesso || 'N/A'}</div></div></div><div style={{ flex: 1, padding: '0 4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Ocupante</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{imovel.ocupante || 'N/A'}</div></div></div></div></div></div>
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px', }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px', }}>Gestão e Áreas</div><div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Unidade Gestora</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{getLookupName(imovel.idunidadegestora, lookups.unidades)}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Regime de Utilização</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{getRegimeDesc(imovel.idregimeutilizacao)}</div></div></div></div><div style={{ display: 'flex', marginBottom: '5px' }}><div style={{ flex: 1, paddingRight: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Área Construída</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{formatArea(imovel.areaconstruida)}</div></div></div><div style={{ flex: 1, paddingLeft: '4px' }}><div style={{ marginBottom: '5px' }}><div style={{ fontSize: '8pt', color: '#666666', marginBottom: '2px' }}>Área do Terreno</div><div style={{ fontSize: '9pt', color: '#333333', borderBottom: '0.5px solid #f0f0f0', paddingBottom: '2px', }}>{formatArea(imovel.areaterreno)}</div></div></div></div></div>
-
-            {/* SEÇÃO 5 E 6: FISCALIZAÇÕES E AVALIAÇÕES */}
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px' }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px' }}>Fiscalizações</div>{fiscalizacoes.length > 0 ? (<div style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '3px' }}><div style={{ display: 'flex', backgroundColor: '#f2f2f2', borderBottom: '1px solid #e0e0e0' }}><div style={{ flex: 1.5, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Data</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Fiscal</div><div style={{ flex: 3, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Condições</div><div style={{ flex: 3, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Observações</div></div>{fiscalizacoes.map((f: any, index: number) => (<div key={index} style={{ display: 'flex', borderBottom: '1px solid #f0f0f0' }}><div style={{ flex: 1.5, padding: '5px', fontSize: '9pt' }}>{formatDateBR(f.datafiscalizacao)}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{String(f.fiscalizador || 'N/A')}</div><div style={{ flex: 3, padding: '5px', fontSize: '9pt' }}>{String(f.condicoes || 'N/A')}</div><div style={{ flex: 3, padding: '5px', fontSize: '9pt' }}>{String(f.observacoes || 'N/A')}</div></div>))}</div>) : (<div>Nenhuma fiscalização encontrada.</div>)}</div>
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px' }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px' }}>Avaliações</div>{avaliacoes.length > 0 ? (<div style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '3px' }}><div style={{ display: 'flex', backgroundColor: '#f2f2f2', borderBottom: '1px solid #e0e0e0' }}><div style={{ flex: 1.5, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Data</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Avaliador</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Novo Valor</div><div style={{ flex: 4, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Observações</div></div>{avaliacoes.map((a: any, index: number) => (<div key={index} style={{ display: 'flex', borderBottom: '1px solid #f0f0f0' }}><div style={{ flex: 1.5, padding: '5px', fontSize: '9pt' }}>{formatDateBR(a.dataavaliacao)}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{String(a.avaliador || 'N/A')}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{formatValorBR(a.novovalor)}</div><div style={{ flex: 4, padding: '5px', fontSize: '9pt' }}>{String(a.observacoes || 'N/A')}</div></div>))}</div>) : (<div>Nenhuma avaliação encontrada.</div>)}</div>
-            
-            {/* SEÇÃO 7 E 8: HISTÓRICOS */}
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px' }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px' }}>Histórico de Unidade Gestora</div>{hstUnidades.length > 0 ? (<div style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '3px' }}><div style={{ display: 'flex', backgroundColor: '#f2f2f2', borderBottom: '1px solid #e0e0e0' }}><div style={{ flex: 3, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Unidade Gestora</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Data Início</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Data Fim</div></div>{hstUnidades.map((h: any, index: number) => (<div key={index} style={{ display: 'flex', borderBottom: '1px solid #f0f0f0' }}><div style={{ flex: 3, padding: '5px', fontSize: '9pt' }}>{getLookupName(h.idunidadegestora, lookups.unidades)}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{formatDateBR(h.dtinicio)}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{h.dtfim ? formatDateBR(h.dtfim) : 'Atual'}</div></div>))}</div>) : (<div>Nenhum histórico encontrado.</div>)}</div>
-            <div style={{ marginBottom: '12px', padding: '10px', border: '1px solid #e0e0e0', borderRadius: '4px' }}><div style={{ fontSize: '12pt', fontWeight: 'bold', marginBottom: '8px', color: '#1E3A8A', borderBottom: '1px solid #e0e0e0', paddingBottom: '4px' }}>Histórico de Regime de Utilização</div>{hstRegimes.length > 0 ? (<div style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '3px' }}><div style={{ display: 'flex', backgroundColor: '#f2f2f2', borderBottom: '1px solid #e0e0e0' }}><div style={{ flex: 3, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Regime</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Data Início</div><div style={{ flex: 2, padding: '5px', fontWeight: 'bold', fontSize: '9pt' }}>Data Fim</div></div>{hstRegimes.map((h: any, index: number) => (<div key={index} style={{ display: 'flex', borderBottom: '1px solid #f0f0f0' }}><div style={{ flex: 3, padding: '5px', fontSize: '9pt' }}>{getRegimeDesc(h.idregimeutilizacao)}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{formatDateBR(h.dtinicio)}</div><div style={{ flex: 2, padding: '5px', fontSize: '9pt' }}>{h.dtfim ? formatDateBR(h.dtfim) : 'Atual'}</div></div>))}</div>) : (<div>Nenhum histórico encontrado.</div>)}</div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
