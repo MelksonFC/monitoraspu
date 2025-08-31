@@ -6,6 +6,16 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { Imovel } from '../types';
 
+// Tipagem para autoTable + jsPDF (para TypeScript funcionar)
+declare module 'jspdf' {
+  interface jsPDF {
+    lastAutoTable: {
+      finalY: number;
+    };
+    getNumberOfPages(): number;
+  }
+}
+
 interface SafePdfButtonProps {
   imovel: Imovel;
   usuario: string;
@@ -79,8 +89,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const getRegimeDesc = (id?: number): string => lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
 
   // Cabeçalho e rodapé
-  function addHeader(doc) {
-    // Brasão
+  function addHeader(doc: jsPDF) {
     try {
       doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', 15, 10, 18, 18);
     } catch {}
@@ -90,14 +99,13 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text('MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS', 36, 16, { baseline: 'top' });
     doc.text('SECRETARIA DO PATRIMÔNIO DA UNIÃO', 36, 20, { baseline: 'top' });
     doc.text('SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA', 36, 24, { baseline: 'top' });
-    // Barra relatório
     doc.setFillColor(224,224,224);
     doc.rect(15, 29, doc.internal.pageSize.getWidth()-30, 8, 'F');
     doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
     doc.text('RELATÓRIO', doc.internal.pageSize.getWidth()/2, 34, {align:'center'});
     doc.setTextColor(51,51,51); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
   }
-  function addFooter(doc, pageNumber, totalPages) {
+  function addFooter(doc: jsPDF, pageNumber: number, totalPages: number) {
     const height = doc.internal.pageSize.getHeight();
     doc.setFontSize(8);
     doc.setTextColor(100);
@@ -109,16 +117,16 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   async function generateStructuredPdf() {
     setIsGenerating(true);
     const doc = new jsPDF('p', 'mm', 'a4');
-    let totalPages = 1; // será ajustado ao final
+    let totalPages = 1;
 
     // Função para repetir cabeçalho/rodapé
-    const didDrawPage = (data) => {
+    const didDrawPage = (data: any) => {
       addHeader(doc);
-      totalPages = doc.internal.getNumberOfPages();
+      totalPages = doc.getNumberOfPages();
       addFooter(doc, data.pageNumber, totalPages);
     };
 
-    let y = 42; // início após cabeçalho
+    let y = 42;
 
     // Seção Identificação e Fotos
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
@@ -160,7 +168,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     });
     y = doc.lastAutoTable.finalY + 4;
 
-    // Seção Contato e Registro Cartorial
+    // Seção Contato
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Contato', 15, y);
     autoTable(doc, {
@@ -176,6 +184,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     });
     y = doc.lastAutoTable.finalY + 4;
 
+    // Seção Registro Cartorial
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Registro Cartorial', 15, y);
     autoTable(doc, {
@@ -293,8 +302,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       alternateRowStyles: { fillColor: [255,255,255] },
     });
 
-    // Ajusta número total de páginas no rodapé (corrige rodapé/cabeçalho em todas as páginas)
-    const finalTotalPages = doc.internal.getNumberOfPages();
+    // Rodapé/cabeçalho em todas as páginas (ajuste final)
+    const finalTotalPages = doc.getNumberOfPages();
     for(let i=1; i<=finalTotalPages; i++) {
       doc.setPage(i);
       addHeader(doc);
