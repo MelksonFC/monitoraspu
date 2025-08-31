@@ -6,7 +6,6 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { Imovel } from '../types';
 
-// Tipagem para autoTable + jsPDF (para TypeScript funcionar)
 declare module 'jspdf' {
   interface jsPDF {
     lastAutoTable: {
@@ -114,7 +113,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-10, {align: 'right'});
   }
 
-  async function generateStructuredPdf() {
+  async function generateStructuredPdf(withImages: boolean) {
     setIsGenerating(true);
     const doc = new jsPDF('p', 'mm', 'a4');
     let totalPages = 1;
@@ -128,23 +127,54 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
     let y = 42;
 
+    // Seção Imagens do Imóvel (página inicial)
+    if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Imagens do Imóvel', 15, y);
+      let imgY = y + 4;
+      let imgSize = 52; // 52mm de altura
+      let imgX = 15;
+      let gap = 5;
+      let maxPerRow = 3;
+      let count = 0;
+      for (const img of imovel.imagens.slice(0,6)) {
+        try {
+          doc.addImage(img.url, 'JPEG', imgX, imgY, 55, imgSize);
+        } catch {}
+        imgX += 60;
+        count++;
+        if (count % maxPerRow === 0) {
+          imgX = 15;
+          imgY += imgSize + gap;
+        }
+      }
+      y = imgY + imgSize + 8;
+      doc.addPage();
+      y = 42;
+    }
+
     // Seção Identificação e Fotos
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Identificação e Fotos', 15, y);
-    y += 2;
     autoTable(doc, {
       startY: y+2,
       margin: { left: 15, right: 15 },
+      head: [['Campo', 'Valor']],
       body: [
-        ['Matrícula', imovel.matricula || 'N/A', 'Imóvel Ativo', imovel.situacao ? 'Sim':'Não'],
-        ['RIP Imóvel', imovel.ripimovel || 'N/A', 'RIP Utilização', imovel.riputilizacao || 'N/A'],
-        ['Nome', imovel.nome || 'N/A', '', ''],
-        ['Valor', formatValorBR(imovel.valorimovel), 'Data do Imóvel', formatDateBR(imovel.dataimovel)],
+        ['Matrícula', imovel.matricula || 'N/A'],
+        ['Imóvel Ativo', imovel.situacao ? 'Sim':'Não'],
+        ['RIP Imóvel', imovel.ripimovel || 'N/A'],
+        ['RIP Utilização', imovel.riputilizacao || 'N/A'],
+        ['Nome', imovel.nome || 'N/A'],
+        ['Valor', formatValorBR(imovel.valorimovel)],
+        ['Data do Imóvel', formatDateBR(imovel.dataimovel)],
       ],
-      theme: 'plain',
+      theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -154,17 +184,24 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     autoTable(doc, {
       startY: y+2,
       margin: { left: 15, right: 15 },
+      head: [['Campo', 'Valor']],
       body: [
-        ['CEP', imovel.cep || 'N/A', 'País', getLookupName(imovel.idpais, lookups.paises)],
-        ['Estado', getLookupName(imovel.idestado, lookups.estados), 'Município', getLookupName(imovel.idmunicipio, lookups.municipios)],
-        ['Endereço', imovel.endereco || 'N/A', 'Número', imovel.numero || 'N/A'],
-        ['Complemento', imovel.complemento || 'N/A', '', ''],
-        ['Latitude', imovel.latitude ?? 'N/A', 'Longitude', imovel.longitude ?? 'N/A'],
+        ['CEP', imovel.cep || 'N/A'],
+        ['País', getLookupName(imovel.idpais, lookups.paises)],
+        ['Estado', getLookupName(imovel.idestado, lookups.estados)],
+        ['Município', getLookupName(imovel.idmunicipio, lookups.municipios)],
+        ['Endereço', imovel.endereco || 'N/A'],
+        ['Número', imovel.numero || 'N/A'],
+        ['Complemento', imovel.complemento || 'N/A'],
+        ['Latitude', imovel.latitude ?? 'N/A'],
+        ['Longitude', imovel.longitude ?? 'N/A'],
       ],
-      theme: 'plain',
+      theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -174,13 +211,16 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     autoTable(doc, {
       startY: y+2,
       margin: { left: 15, right: 15 },
+      head: [['Campo', 'Valor']],
       body: [
         ['E-mail', imovel.email || 'N/A'],
       ],
-      theme: 'plain',
+      theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -190,13 +230,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     autoTable(doc, {
       startY: y+2,
       margin: { left: 15, right: 15 },
+      head: [['Campo', 'Valor']],
       body: [
-        ['Cartório', imovel.nomecartorio || 'N/A', 'Nº Processo', imovel.nprocesso || 'N/A', 'Ocupante', imovel.ocupante || 'N/A'],
+        ['Cartório', imovel.nomecartorio || 'N/A'],
+        ['Nº Processo', imovel.nprocesso || 'N/A'],
+        ['Ocupante', imovel.ocupante || 'N/A'],
       ],
-      theme: 'plain',
+      theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -206,14 +251,19 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     autoTable(doc, {
       startY: y+2,
       margin: { left: 15, right: 15 },
+      head: [['Campo', 'Valor']],
       body: [
-        ['Unidade Gestora', getLookupName(imovel.idunidadegestora, lookups.unidades), 'Regime de Utilização', getRegimeDesc(imovel.idregimeutilizacao)],
-        ['Área Construída', formatArea(imovel.areaconstruida), 'Área do Terreno', formatArea(imovel.areaterreno)],
+        ['Unidade Gestora', getLookupName(imovel.idunidadegestora, lookups.unidades)],
+        ['Regime de Utilização', getRegimeDesc(imovel.idregimeutilizacao)],
+        ['Área Construída', formatArea(imovel.areaconstruida)],
+        ['Área do Terreno', formatArea(imovel.areaterreno)],
       ],
-      theme: 'plain',
+      theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -235,7 +285,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -257,7 +309,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -278,7 +332,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
@@ -299,7 +355,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       theme: 'grid',
       didDrawPage,
       styles: {fontSize:9,cellPadding:2, textColor: 51},
-      alternateRowStyles: { fillColor: [255,255,255] },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+      alternateRowStyles: { fillColor: [247,249,251] },
     });
 
     // Rodapé/cabeçalho em todas as páginas (ajuste final)
@@ -333,8 +391,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-        <MenuItem onClick={() => generateStructuredPdf()}>PDF Completo (com imagens)</MenuItem>
-        <MenuItem onClick={() => generateStructuredPdf()}>PDF Simplificado (sem imagens)</MenuItem>
+        <MenuItem onClick={() => generateStructuredPdf(true)}>PDF Completo (com imagens)</MenuItem>
+        <MenuItem onClick={() => generateStructuredPdf(false)}>PDF Simplificado (sem imagens)</MenuItem>
       </Menu>
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
