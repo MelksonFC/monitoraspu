@@ -119,6 +119,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth() - 15, height - PAGE_MARGIN_BOTTOM + 2, { align: 'right' });
   }
 
+  function drawSectionTitle(doc: jsPDF, text: string, y: number, columns: number, margin = 15) {
+    const tableWidth = doc.internal.pageSize.getWidth() - margin * 2;
+    const rectHeight = 9;
+    doc.setFillColor(230, 240, 255);
+    doc.rect(margin, y, tableWidth, rectHeight, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(30, 58, 138);
+    doc.text(text, margin + 2, y + 6); // ajuste para alinhar verticalmente
+    return y + rectHeight + 2; // novo y
+  }
+
   async function generateStructuredPdf(withImages: boolean) {
     setIsGenerating(true);
     try {
@@ -126,13 +138,14 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       let y = PAGE_MARGIN_TOP;
 
       // Identificação
+      y = drawSectionTitle(doc, 'Identificação', y, 4);
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Identificação', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
-        ],
+         ],
         body: [
           [
             { content: 'Matrícula:', styles: { fontStyle: 'bold' } }, imovel.matricula || '',
@@ -158,13 +171,14 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
       // Imagens
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
-      autoTable(doc, {
+      
+      y = drawSectionTitle(doc, 'Imegns', y, 2);
+        autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Imagens', colSpan: 2, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
-        ],
+          ],
         body: [
           [{ content: '', colSpan: 2 }]
         ],
@@ -198,11 +212,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       }
 
       // Localização
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Localização', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Localização', y, 6);
 
       autoTable(doc, {
         startY: y,
@@ -243,11 +253,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Contato
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Contato', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Contato', y, 2);
 
       autoTable(doc, {
         startY: y,
@@ -266,11 +272,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Registro Cartorial
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Registro Cartorial', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Registro Cartorial', y, 4);
 
       autoTable(doc, {
         startY: y,
@@ -293,11 +295,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Gestão e Áreas
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Gestão e Áreas', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Gestão e Áreas', y, 4);
 
       autoTable(doc, {
         startY: y,
@@ -325,11 +323,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Fiscalizações
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Fiscalizações', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Fiscalizações', y, 4);
 
       autoTable(doc, {
         startY: y,
@@ -357,11 +351,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Avaliações
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Avaliações', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Avaliações', y, 4);
       
       autoTable(doc, {
         startY: y,
@@ -390,11 +380,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Histórico Unidade Gestora
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Histórico de Unidade Gestora', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Histórico de Unidade Gestora', y, 3);
 
       autoTable(doc, {
         startY: y,
@@ -421,11 +407,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Histórico Regime de Utilização`
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 58, 138);
-      doc.text('Histórico de Regime de Utilização', 15, y);
-      y += 2;
+      y = drawSectionTitle(doc, 'Histórico de Regime de Utilização', y, 3);
 
       autoTable(doc, {
         startY: y,
