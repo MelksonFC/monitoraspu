@@ -110,13 +110,13 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-10, {align: 'right'});
   }
 
+  // Renderiza campos agrupados em colunas, campo em negrito, valor ao lado
   function renderInfoTable(
     doc: jsPDF,
     startY: number,
     fields: Array<{label:string,value:string}>,
     columns: number = 2
   ) {
-    // Divide em linhas de acordo com colunas
     const rows: string[][] = [];
     for (let i = 0; i < fields.length; i += columns) {
       const row: string[] = [];
@@ -154,198 +154,205 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
   async function generateStructuredPdf(withImages: boolean) {
     setIsGenerating(true);
-    const doc = new jsPDF('p', 'mm', 'a4');
-    let y = 42;
+    try {
+      const doc = new jsPDF('p', 'mm', 'a4');
+      let y = 42;
 
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Identificação', 15, y);
-    y += 2;
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Identificação', 15, y);
+      y += 2;
 
-    const idFields = [
-      {label:'Matrícula',value:String(imovel.matricula || 'N/A')},
-      {label:'Imóvel Ativo',value:imovel.situacao ? 'Sim':'Não'},
-      {label:'RIP Imóvel',value: String(imovel.ripimovel || 'N/A')},
-      {label:'RIP Utilização', value: String(imovel.riputilizacao || 'N/A')},
-      {label:'Classe', value: String(imovel.nome || 'N/A')},
-      {label:'Valor', value: formatValorBR(imovel.valorimovel)},
-      {label:'Data do Imóvel', value: formatDateBR(imovel.dataimovel)}
-    ];
-    y = renderInfoTable(doc, y+2, idFields, 2);
+      const idFields = [
+        {label:'Matrícula',value:String(imovel.matricula || 'N/A')},
+        {label:'Imóvel Ativo',value:imovel.situacao ? 'Sim':'Não'},
+        {label:'RIP Imóvel',value: String(imovel.ripimovel || 'N/A')},
+        {label:'RIP Utilização', value: String(imovel.riputilizacao || 'N/A')},
+        {label:'Classe', value: String(imovel.nome || 'N/A')},
+        {label:'Valor', value: formatValorBR(imovel.valorimovel)},
+        {label:'Data do Imóvel', value: formatDateBR(imovel.dataimovel)}
+      ];
+      y = renderInfoTable(doc, y+2, idFields, 2);
 
-    if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
-      let imgY = y+4;
-      let imgSize = 36;
-      let imgX = 15;
-      let gap = 5;
-      let maxPerRow = 3;
-      let count = 0;
-      for (const img of imovel.imagens.slice(0,6)) {
-        try {
-          doc.addImage(img.url, 'JPEG', imgX, imgY, 55, imgSize);
-        } catch {}
-        imgX += 60;
-        count++;
-        if (count % maxPerRow === 0) {
-          imgX = 15;
-          imgY += imgSize + gap;
+      if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
+        let imgY = y+4;
+        let imgSize = 36;
+        let imgX = 15;
+        let gap = 5;
+        let maxPerRow = 3;
+        let count = 0;
+        for (const img of imovel.imagens.slice(0,6)) {
+          try {
+            doc.addImage(img.url, 'JPEG', imgX, imgY, 55, imgSize);
+          } catch {}
+          imgX += 60;
+          count++;
+          if (count % maxPerRow === 0) {
+            imgX = 15;
+            imgY += imgSize + gap;
+          }
         }
+        y = imgY + imgSize + 6;
+      } else {
+        y += 6;
       }
-      y = imgY + imgSize + 6;
-    } else {
-      y += 6;
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Localização', 15, y);
+      const locFields = [
+        {label:'CEP',value:String(imovel.cep || 'N/A')},
+        {label:'País',value:getLookupName(imovel.idpais, lookups.paises)},
+        {label:'Estado',value:getLookupName(imovel.idestado, lookups.estados)},
+        {label:'Município',value:getLookupName(imovel.idmunicipio, lookups.municipios)},
+        {label:'Endereço',value:String(imovel.endereco || 'N/A')},
+        {label:'Número',value:String(imovel.numero || 'N/A')},
+        {label:'Complemento',value:String(imovel.complemento || 'N/A')},
+        {label:'Latitude',value:String(imovel.latitude ?? 'N/A')},
+        {label:'Longitude',value:String(imovel.longitude ?? 'N/A')},
+      ];
+      y = renderInfoTable(doc, y+2, locFields, 3);
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Contato', 15, y);
+      y = renderInfoTable(doc, y+2, [
+        {label:'E-mail',value:String(imovel.email || 'N/A')},
+      ], 2);
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Registro Cartorial', 15, y);
+      y = renderInfoTable(doc, y+2, [
+        {label:'Cartório',value:String(imovel.nomecartorio || 'N/A')},
+        {label:'Nº Processo',value:String(imovel.nprocesso || 'N/A')},
+        {label:'Ocupante',value:String(imovel.ocupante || 'N/A')},
+      ], 2);
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Gestão e Áreas', 15, y);
+      y = renderInfoTable(doc, y+2, [
+        {label:'Unidade Gestora',value:getLookupName(imovel.idunidadegestora, lookups.unidades)},
+        {label:'Regime de Utilização',value:getRegimeDesc(imovel.idregimeutilizacao)},
+        {label:'Área Construída',value:formatArea(imovel.areaconstruida)},
+        {label:'Área do Terreno',value:formatArea(imovel.areaterreno)},
+      ], 2);
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Fiscalizações', 15, y);
+      autoTable(doc, {
+        startY: y+2,
+        margin: { left: 15, right: 15 },
+        head: [['Data','Fiscal','Condições','Observações']],
+        body: imovel.fiscalizacoes?.length
+          ? imovel.fiscalizacoes.map(f => [
+              formatDateBR(f.datafiscalizacao),
+              String(f.fiscalizador || 'N/A'),
+              String(f.condicoes || 'N/A'),
+              String(f.observacoes || 'N/A'),
+            ])
+          : [['Nenhuma fiscalização encontrada','','','']],
+        theme: 'grid',
+        didDrawPage: (data: any) => {
+          addHeader(doc);
+          const totalPages = doc.getNumberOfPages();
+          addFooter(doc, data.pageNumber, totalPages);
+        },
+        headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+        bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+        alternateRowStyles: { fillColor: [247,249,251] },
+      });
+      y = doc.lastAutoTable.finalY + 4;
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Avaliações', 15, y);
+      autoTable(doc, {
+        startY: y+2,
+        margin: { left: 15, right: 15 },
+        head: [['Data','Avaliador','Novo Valor','Observações']],
+        body: imovel.avaliacoes?.length
+          ? imovel.avaliacoes.map(a => [
+              formatDateBR(a.dataavaliacao),
+              String(a.avaliador || 'N/A'),
+              formatValorBR(a.novovalor),
+              String(a.observacoes || 'N/A'),
+            ])
+          : [['Nenhuma avaliação encontrada','','','']],
+        theme: 'grid',
+        didDrawPage: (data: any) => {
+          addHeader(doc);
+          const totalPages = doc.getNumberOfPages();
+          addFooter(doc, data.pageNumber, totalPages);
+        },
+        headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+        bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+        alternateRowStyles: { fillColor: [247,249,251] },
+      });
+      y = doc.lastAutoTable.finalY + 4;
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Histórico de Unidade Gestora', 15, y);
+      autoTable(doc, {
+        startY: y+2,
+        margin: { left: 15, right: 15 },
+        head: [['Unidade Gestora','Data Início','Data Fim']],
+        body: imovel.hstUnidades?.length
+          ? imovel.hstUnidades.map(h => [
+              getLookupName(h.idunidadegestora, lookups.unidades),
+              formatDateBR(h.dtinicio),
+              h.dtfim ? formatDateBR(h.dtfim) : 'Atual',
+            ])
+          : [['Nenhum histórico encontrado','','']],
+        theme: 'grid',
+        didDrawPage: (data: any) => {
+          addHeader(doc);
+          const totalPages = doc.getNumberOfPages();
+          addFooter(doc, data.pageNumber, totalPages);
+        },
+        headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+        bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+        alternateRowStyles: { fillColor: [247,249,251] },
+      });
+      y = doc.lastAutoTable.finalY + 4;
+
+      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      doc.text('Histórico de Regime de Utilização', 15, y);
+      autoTable(doc, {
+        startY: y+2,
+        margin: { left: 15, right: 15 },
+        head: [['Regime','Data Início','Data Fim']],
+        body: imovel.hstRegimes?.length
+          ? imovel.hstRegimes.map(h => [
+              getRegimeDesc(h.idregimeutilizacao),
+              formatDateBR(h.dtinicio),
+              h.dtfim ? formatDateBR(h.dtfim) : 'Atual',
+            ])
+          : [['Nenhum histórico encontrado','','']],
+        theme: 'grid',
+        didDrawPage: (data: any) => {
+          addHeader(doc);
+          const totalPages = doc.getNumberOfPages();
+          addFooter(doc, data.pageNumber, totalPages);
+        },
+        headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
+        bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
+        alternateRowStyles: { fillColor: [247,249,251] },
+      });
+
+      const finalTotalPages = doc.getNumberOfPages();
+      for(let i=1; i<=finalTotalPages; i++) {
+        doc.setPage(i);
+        addHeader(doc);
+        addFooter(doc, i, finalTotalPages);
+      }
+
+      doc.save(`Relatorio_Imovel_${imovel.matricula || imovel.idimovel || new Date().getTime()}.pdf`);
+      setSnackbarMessage('PDF gerado com sucesso!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    } catch (err) {
+      setSnackbarMessage('Erro ao gerar PDF: ' + (err instanceof Error ? err.message : String(err)));
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    } finally {
+      setIsGenerating(false);
     }
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Localização', 15, y);
-    const locFields = [
-      {label:'CEP',value:String(imovel.cep || 'N/A')},
-      {label:'País',value:getLookupName(imovel.idpais, lookups.paises)},
-      {label:'Estado',value:getLookupName(imovel.idestado, lookups.estados)},
-      {label:'Município',value:getLookupName(imovel.idmunicipio, lookups.municipios)},
-      {label:'Endereço',value:String(imovel.endereco || 'N/A')},
-      {label:'Número',value:String(imovel.numero || 'N/A')},
-      {label:'Complemento',value:String(imovel.complemento || 'N/A')},
-      {label:'Latitude',value:String(imovel.latitude ?? 'N/A')},
-      {label:'Longitude',value:String(imovel.longitude ?? 'N/A')},
-    ];
-    y = renderInfoTable(doc, y+2, locFields, 3);
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Contato', 15, y);
-    y = renderInfoTable(doc, y+2, [
-      {label:'E-mail',value:String(imovel.email || 'N/A')},
-    ], 2);
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Registro Cartorial', 15, y);
-    y = renderInfoTable(doc, y+2, [
-      {label:'Cartório',value:String(imovel.nomecartorio || 'N/A')},
-      {label:'Nº Processo',value:String(imovel.nprocesso || 'N/A')},
-      {label:'Ocupante',value:String(imovel.ocupante || 'N/A')},
-    ], 2);
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Gestão e Áreas', 15, y);
-    y = renderInfoTable(doc, y+2, [
-      {label:'Unidade Gestora',value:getLookupName(imovel.idunidadegestora, lookups.unidades)},
-      {label:'Regime de Utilização',value:getRegimeDesc(imovel.idregimeutilizacao)},
-      {label:'Área Construída',value:formatArea(imovel.areaconstruida)},
-      {label:'Área do Terreno',value:formatArea(imovel.areaterreno)},
-    ], 2);
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Fiscalizações', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Data','Fiscal','Condições','Observações']],
-      body: imovel.fiscalizacoes?.length
-        ? imovel.fiscalizacoes.map(f => [
-            formatDateBR(f.datafiscalizacao),
-            String(f.fiscalizador || 'N/A'),
-            String(f.condicoes || 'N/A'),
-            String(f.observacoes || 'N/A'),
-          ])
-        : [['Nenhuma fiscalização encontrada','','','']],
-      theme: 'grid',
-      didDrawPage: (data: any) => {
-        addHeader(doc);
-        const totalPages = doc.getNumberOfPages();
-        addFooter(doc, data.pageNumber, totalPages);
-      },
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Avaliações', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Data','Avaliador','Novo Valor','Observações']],
-      body: imovel.avaliacoes?.length
-        ? imovel.avaliacoes.map(a => [
-            formatDateBR(a.dataavaliacao),
-            String(a.avaliador || 'N/A'),
-            formatValorBR(a.novovalor),
-            String(a.observacoes || 'N/A'),
-          ])
-        : [['Nenhuma avaliação encontrada','','','']],
-      theme: 'grid',
-      didDrawPage: (data: any) => {
-        addHeader(doc);
-        const totalPages = doc.getNumberOfPages();
-        addFooter(doc, data.pageNumber, totalPages);
-      },
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Histórico de Unidade Gestora', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Unidade Gestora','Data Início','Data Fim']],
-      body: imovel.hstUnidades?.length
-        ? imovel.hstUnidades.map(h => [
-            getLookupName(h.idunidadegestora, lookups.unidades),
-            formatDateBR(h.dtinicio),
-            h.dtfim ? formatDateBR(h.dtfim) : 'Atual',
-          ])
-        : [['Nenhum histórico encontrado','','']],
-      theme: 'grid',
-      didDrawPage: (data: any) => {
-        addHeader(doc);
-        const totalPages = doc.getNumberOfPages();
-        addFooter(doc, data.pageNumber, totalPages);
-      },
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
-
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Histórico de Regime de Utilização', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Regime','Data Início','Data Fim']],
-      body: imovel.hstRegimes?.length
-        ? imovel.hstRegimes.map(h => [
-            getRegimeDesc(h.idregimeutilizacao),
-            formatDateBR(h.dtinicio),
-            h.dtfim ? formatDateBR(h.dtfim) : 'Atual',
-          ])
-        : [['Nenhum histórico encontrado','','']],
-      theme: 'grid',
-      didDrawPage: (data: any) => {
-        addHeader(doc);
-        const totalPages = doc.getNumberOfPages();
-        addFooter(doc, data.pageNumber, totalPages);
-      },
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-
-    const finalTotalPages = doc.getNumberOfPages();
-    for(let i=1; i<=finalTotalPages; i++) {
-      doc.setPage(i);
-      addHeader(doc);
-      addFooter(doc, i, finalTotalPages);
-    }
-
-    doc.save(`Relatorio_Imovel_${imovel.matricula || imovel.idimovel || new Date().getTime()}.pdf`);
-    setSnackbarMessage('PDF gerado com sucesso!');
-    setSnackbarSeverity('success');
-    setSnackbarOpen(true);
-    setIsGenerating(false);
   }
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
