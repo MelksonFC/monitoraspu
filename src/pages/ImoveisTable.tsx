@@ -24,6 +24,35 @@ import * as XLSX from "xlsx";
 import { useAuth } from "../AuthContext";
 import { formatValorBR } from './ImovelForm';
 
+const TABLE_SETTINGS_TABLENAME = "imoveis";
+
+async function fetchUserTableConfig(userId: number | string) {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  try {
+    const res = await axios.get(`${apiUrl}/api/usertablesettings/${userId}/${TABLE_SETTINGS_TABLENAME}`);
+    return res.data;
+  } catch (err) {
+    return null;
+  }
+}
+
+// Salva configuração do usuário na API
+async function saveUserTableConfig(userId: number | string, config: {
+  columns: string[],
+  orderby: string,
+  orderdir: string,
+  filters: any,
+  filterops: any,
+  filterrange: any
+}) {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  try {
+    await axios.put(`${apiUrl}/api/usertablesettings/${userId}/${TABLE_SETTINGS_TABLENAME}`, config);
+  } catch (err) {
+    // Você pode exibir um toast de erro se desejar
+  }
+}
+
 // ... (funções de formatação, interfaces, constantes, etc. - sem alterações)
 function formatDateBR(dateStr: string | undefined): string {
   if (!dateStr) return "";
@@ -166,6 +195,33 @@ export default function ImoveisTable() {
 
     const apiUrl = import.meta.env.VITE_API_URL;
 
+    useEffect(() => {
+      if (!usuario?.id) return;
+      fetchUserTableConfig(usuario.id).then(config => {
+        if (config) {
+          setColumns(config.columns || defaultColumns);
+          setOrderBy(config.orderby || defaultOrderBy);
+          setOrderDir(config.orderdir || defaultOrderDir);
+          setFilters(config.filters || {});
+          setFilterOps(config.filterops || {});
+          setFilterRange(config.filterrange || {});
+        }
+      });
+    }, [usuario?.id]);
+
+    useEffect(() => {
+      if (!usuario?.id) return;
+      const config = {
+        columns,
+        orderby: orderBy,
+        orderdir: orderDir,
+        filters,
+        filterops: filterOps,
+        filterrange: filterRange
+      };
+      saveUserTableConfig(usuario.id, config);
+    }, [columns, orderBy, orderDir, filters, filterOps, filterRange, usuario?.id]);
+
     async function fetchImoveis() {
     setIsLoading(true);
     setIsLayoutReady(false);
@@ -203,6 +259,8 @@ export default function ImoveisTable() {
   }, []);
 
   useEffect(() => { fetchImoveis(); }, []);
+
+
 
   function getLookupNome(arr: LookupItem[], id: number | string | undefined): string {
     if (id === undefined || id === null) return "";
