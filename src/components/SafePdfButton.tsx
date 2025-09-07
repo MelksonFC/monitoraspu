@@ -174,25 +174,26 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
         let imgY = y;
-        let imgSize = 48;
+        let imgHeight = 50; 
+        let imgWidth = 85;
         let imgX = 15;
         let gap = 5;
         let maxPerRow = 2;
         let count = 0;
-        for (const img of imovel.imagens.slice(0, 8)) {
+        for (const img of imovel.imagens.slice(0, 4)) {
           try {
-            doc.addImage(img.url, 'JPEG', imgX, imgY, 42, imgSize);
+            doc.addImage(img.url, 'JPEG', imgX, imgY, imgWidth, imgHeight);
           } catch { }
-          imgX += 47;
+          imgX += imgWidth + 5 ;
           count++;
           if (count % maxPerRow === 0) {
             imgX = 15;
-            imgY += imgSize + gap;
+            imgY += imgHeight + gap;
           }
         }
-        y = imgY + imgSize + 4;
+        y = imgY + imgHeight + gap;
       } else {
-        y += 4;
+        y += 10;
       }
 
       // Localização
@@ -240,11 +241,11 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Contato', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
+          [{ content: 'Contato', colSpan: 2, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
         ],
         body: [
           [
-            { content: 'E-mail:', styles: { fontStyle: 'bold' } }, { content: imovel.email || '', colSpan: 3, styles: { halign: 'left' } }
+            { content: 'E-mail:', styles: { fontStyle: 'bold' } }, { content: imovel.email || '', styles: { halign: 'left' } }
           ]
         ],
         bodyStyles: { lineWidth: 0 },
