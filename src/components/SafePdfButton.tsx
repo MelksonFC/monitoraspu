@@ -125,7 +125,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     const bottomMargin = margin;
     if (currentY + requiredSpace + bottomMargin > pageHeight) {
       doc.addPage();
-      return margin; // início da nova página
+      addHeader(doc);
+      return 50; // início da nova página
     }
     return currentY;
   }
