@@ -30,6 +30,9 @@ interface SafePdfButtonProps {
   size?: 'small' | 'medium' | 'large';
 }
 
+const PAGE_MARGIN_TOP = 35;    // Reserva espaço para o cabeçalho
+const PAGE_MARGIN_BOTTOM = 15; // Reserva espaço para o rodapé
+
 const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   imovel,
   usuario,
@@ -78,37 +81,38 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const getLookupName = (id?: number, list?: any[]): string => list?.find(item => item.id === id)?.nome || 'N/A';
   const getRegimeDesc = (id?: number): string => lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
 
+  // Cabeçalho e rodapé
   function addHeader(doc: jsPDF) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const imageHeight = 18;
     const imageWidth = 18;
-    const marginY = 10;
     const marginX = 15;
+    const marginY = 12; // sobe o cabeçalho!
     try {
       doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', marginX, marginY, imageWidth, imageHeight);
     } catch {}
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(51,51,51);
-    const headerCenterY = marginY + imageHeight / 2 + 2;
+    const headerCenterY = marginY + imageHeight / 2 - 2; // mais pra cima
     doc.text([
       'MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS',
       'SECRETARIA DO PATRIMÔNIO DA UNIÃO',
       'SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA'
     ], pageWidth / 2, headerCenterY, { align: 'center' });
     doc.setFillColor(224,224,224);
-    doc.rect(marginX, marginY + imageHeight + 5, pageWidth - marginX * 2, 8, 'F');
+    doc.rect(marginX, marginY + imageHeight + 2, pageWidth - marginX * 2, 8, 'F');
     doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-    doc.text('RELATÓRIO', pageWidth / 2, marginY + imageHeight + 10, { align: 'center' });
+    doc.text('RELATÓRIO', pageWidth / 2, marginY + imageHeight + 7, { align: 'center' });
     doc.setTextColor(51,51,51); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
   }
   function addFooter(doc: jsPDF, pageNumber: number, totalPages: number) {
     const height = doc.internal.pageSize.getHeight();
     doc.setFontSize(8);
     doc.setTextColor(100);
-    doc.text(`Usuário: ${usuario}`, 15, height-10);
-    doc.text(`Página ${pageNumber} de ${totalPages}`, doc.internal.pageSize.getWidth()/2, height-10, {align: 'center'});
-    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-10, {align: 'right'});
+    doc.text(`Usuário: ${usuario}`, 15, height-PAGE_MARGIN_BOTTOM+2);
+    doc.text(`Página ${pageNumber} de ${totalPages}`, doc.internal.pageSize.getWidth()/2, height-PAGE_MARGIN_BOTTOM+2, {align: 'center'});
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-PAGE_MARGIN_BOTTOM+2, {align: 'right'});
   }
 
   function renderInfoTable(
@@ -132,7 +136,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     }
     autoTable(doc, {
       startY,
-      margin: { left: 15, right: 15 },
+      margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
       body: rows,
       theme: 'grid',
       didDrawPage: (data: any) => {
@@ -156,12 +160,14 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     setIsGenerating(true);
     try {
       const doc = new jsPDF('p', 'mm', 'a4');
-      let y = 42;
+      let y = PAGE_MARGIN_TOP;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Identificação
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Identificação', 15, y);
-      y += 2;
-
+      y += 7;
       const idFields = [
         {label:'Matrícula',value:String(imovel.matricula || 'N/A')},
         {label:'Imóvel Ativo',value:imovel.situacao ? 'Sim':'Não'},
@@ -171,10 +177,12 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         {label:'Valor', value: formatValorBR(imovel.valorimovel)},
         {label:'Data do Imóvel', value: formatDateBR(imovel.dataimovel)}
       ];
-      y = renderInfoTable(doc, y+2, idFields, 2);
+      y = renderInfoTable(doc, y, idFields, 2);
 
+      // Espaço extra antes das imagens
+      y += 7;
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
-        let imgY = y+4;
+        let imgY = y;
         let imgSize = 36;
         let imgX = 15;
         let gap = 5;
@@ -191,13 +199,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
             imgY += imgSize + gap;
           }
         }
-        y = imgY + imgSize + 6;
+        y = imgY + imgSize + 10;
       } else {
-        y += 6;
+        y += 10;
       }
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Localização
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Localização', 15, y);
+      y += 7;
       const locFields = [
         {label:'CEP',value:String(imovel.cep || 'N/A')},
         {label:'País',value:getLookupName(imovel.idpais, lookups.paises)},
@@ -209,36 +221,55 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         {label:'Latitude',value:String(imovel.latitude ?? 'N/A')},
         {label:'Longitude',value:String(imovel.longitude ?? 'N/A')},
       ];
-      y = renderInfoTable(doc, y+2, locFields, 3);
+      y = renderInfoTable(doc, y, locFields, 3);
+      y += 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Contato
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Contato', 15, y);
-      y = renderInfoTable(doc, y+2, [
+      y += 7;
+      y = renderInfoTable(doc, y, [
         {label:'E-mail',value:String(imovel.email || 'N/A')},
       ], 2);
+      y += 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Registro Cartorial
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Registro Cartorial', 15, y);
-      y = renderInfoTable(doc, y+2, [
+      y += 7;
+      y = renderInfoTable(doc, y, [
         {label:'Cartório',value:String(imovel.nomecartorio || 'N/A')},
         {label:'Nº Processo',value:String(imovel.nprocesso || 'N/A')},
         {label:'Ocupante',value:String(imovel.ocupante || 'N/A')},
       ], 2);
+      y += 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Gestão e Áreas
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Gestão e Áreas', 15, y);
-      y = renderInfoTable(doc, y+2, [
+      y += 7;
+      y = renderInfoTable(doc, y, [
         {label:'Unidade Gestora',value:getLookupName(imovel.idunidadegestora, lookups.unidades)},
         {label:'Regime de Utilização',value:getRegimeDesc(imovel.idregimeutilizacao)},
         {label:'Área Construída',value:formatArea(imovel.areaconstruida)},
         {label:'Área do Terreno',value:formatArea(imovel.areaterreno)},
       ], 2);
+      y += 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Fiscalizações
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Fiscalizações', 15, y);
       autoTable(doc, {
-        startY: y+2,
-        margin: { left: 15, right: 15 },
+        startY: y + 7,
+        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Data','Fiscal','Condições','Observações']],
         body: imovel.fiscalizacoes?.length
           ? imovel.fiscalizacoes.map(f => [
@@ -258,13 +289,16 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
         alternateRowStyles: { fillColor: [247,249,251] },
       });
-      y = doc.lastAutoTable.finalY + 4;
+      y = doc.lastAutoTable.finalY + 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Avaliações
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Avaliações', 15, y);
       autoTable(doc, {
-        startY: y+2,
-        margin: { left: 15, right: 15 },
+        startY: y + 7,
+        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Data','Avaliador','Novo Valor','Observações']],
         body: imovel.avaliacoes?.length
           ? imovel.avaliacoes.map(a => [
@@ -284,13 +318,16 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
         alternateRowStyles: { fillColor: [247,249,251] },
       });
-      y = doc.lastAutoTable.finalY + 4;
+      y = doc.lastAutoTable.finalY + 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Histórico Unidade Gestora
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Histórico de Unidade Gestora', 15, y);
       autoTable(doc, {
-        startY: y+2,
-        margin: { left: 15, right: 15 },
+        startY: y + 7,
+        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Unidade Gestora','Data Início','Data Fim']],
         body: imovel.hstUnidades?.length
           ? imovel.hstUnidades.map(h => [
@@ -309,13 +346,16 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
         alternateRowStyles: { fillColor: [247,249,251] },
       });
-      y = doc.lastAutoTable.finalY + 4;
+      y = doc.lastAutoTable.finalY + 10;
 
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+      // Histórico Regime de Utilização
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
       doc.text('Histórico de Regime de Utilização', 15, y);
       autoTable(doc, {
-        startY: y+2,
-        margin: { left: 15, right: 15 },
+        startY: y + 7,
+        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Regime','Data Início','Data Fim']],
         body: imovel.hstRegimes?.length
           ? imovel.hstRegimes.map(h => [
@@ -335,6 +375,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         alternateRowStyles: { fillColor: [247,249,251] },
       });
 
+      // Ajusta cabeçalho/rodapé em todas as páginas
       const finalTotalPages = doc.getNumberOfPages();
       for(let i=1; i<=finalTotalPages; i++) {
         doc.setPage(i);
