@@ -352,7 +352,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           [
             { content: 'Data', styles: { fontStyle: 'bold' } },
             { content: 'Fiscal', styles: { fontStyle: 'bold' } },
-            { content: 'Condições', styles: { fontStyle: 'bold' } },
+            { content: 'Condições verificadas na fiscalização', styles: { fontStyle: 'bold' } },
             { content: '', styles: { fontStyle: 'bold' } }
           ]
         ],

@@ -133,7 +133,7 @@ function ConfirmSaveDialog({ open, title, message, onCancel, onConfirm, confirmT
 // === NOVO BLOCO DE VALIDAÇÃO ===
 
 const REQUIRED_FIELDS: { name: keyof ImovelFormState; label: string }[] = [
-  { name: "nome", label: "Nome" },
+  { name: "nome", label: "Classe" },
   { name: "matricula", label: "Matrícula" },
   { name: "dataimovel", label: "Data do Imóvel" },
   { name: "valorimovel", label: "Valor" },
@@ -872,7 +872,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                     <TableRow>
                       <TableCell>Data</TableCell>
                       <TableCell>Fiscal</TableCell>
-                      <TableCell>Condições</TableCell>
+                      <TableCell>Condições verificadas na fiscalização</TableCell>
                       {!isPdfMode && <TableCell align="right">Ações</TableCell>}
                     </TableRow>
                   </TableHead>
@@ -1234,20 +1234,12 @@ const handleConfirmSave = () => {
             />
             <TextField
               name="condicoes"
-              label="Condições do Imóvel"
+              label="Condições verificadas na fiscalização"
               value={formData?.condicoes || ""}
               onChange={handleChange}
               multiline
               rows={3}
               required
-            />
-            <TextField
-              name="observacoes"
-              label="Observações"
-              value={formData?.observacoes || ""}
-              onChange={handleChange}
-              multiline
-              rows={3}
             />
           </>
         );

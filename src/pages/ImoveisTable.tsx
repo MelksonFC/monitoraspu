@@ -73,7 +73,7 @@ const PAPER_MAX_WIDTH = 1650;
 
 const columnsAll: ColumnDef[] = [
   { id: "idimovel", label: "ID", numeric: true, type: "number" },
-  { id: "nome", label: "Nome", type: "string" },
+  { id: "nome", label: "Classe", type: "string" },
   { id: "matricula", label: "Matrícula", type: "string" },
   { id: "dataimovel", label: "Data do Imóvel", type: "date" },
   { id: "valorimovel", label: "Valor", numeric: true, type: "number" },
