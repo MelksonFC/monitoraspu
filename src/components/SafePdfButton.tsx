@@ -195,18 +195,21 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         let gap = 5;
         let maxPerRow = 2;
         let count = 0;
+        let totalRows = Math.ceil(imovel.imagens.length / maxPerRow);
+
         for (const img of imovel.imagens.slice(0, 4)) {
           try {
             doc.addImage(img.url, 'JPEG', imgX, imgY, imgWidth, imgHeight);
           } catch { }
-          imgX += imgWidth + 5 ;
           count++;
           if (count % maxPerRow === 0) {
             imgX = 15;
             imgY += imgHeight + gap;
+          } else {
+            imgX += imgWidth + 10;
           }
         }
-        y = imgY + imgHeight + gap;
+        y = y + totalRows * (imgHeight + gap);
       } else {
         y += 4;
       }
