@@ -119,6 +119,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth() - 15, height - PAGE_MARGIN_BOTTOM + 2, { align: 'right' });
   }
 
+  // Função utilitária: garante espaço antes do título
+  function ensureSpace(doc: jsPDF, currentY: number, requiredSpace: number, margin = 15) {
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const bottomMargin = margin;
+    if (currentY + requiredSpace + bottomMargin > pageHeight) {
+      doc.addPage();
+      return margin; // início da nova página
+    }
+    return currentY;
+  }
+
   function drawSectionTitle(doc: jsPDF, text: string, y: number, columns: number, margin = 15) {
     const tableWidth = doc.internal.pageSize.getWidth() - margin * 2;
     const rectHeight = 9;
@@ -215,6 +226,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       }
 
       // Localização
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Localização', y, 6);
 
       autoTable(doc, {
@@ -255,6 +267,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Contato
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Contato', y, 2);
 
       autoTable(doc, {
@@ -274,6 +287,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Registro Cartorial
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Registro Cartorial', y, 4);
 
       autoTable(doc, {
@@ -297,6 +311,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Gestão e Áreas
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Gestão e Áreas', y, 4);
 
       autoTable(doc, {
@@ -325,6 +340,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Fiscalizações
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Fiscalizações', y, 4);
 
       autoTable(doc, {
@@ -353,6 +369,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Avaliações
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Avaliações', y, 4);
       
       autoTable(doc, {
@@ -382,6 +399,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Histórico Unidade Gestora
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Histórico de Unidade Gestora', y, 3);
 
       autoTable(doc, {
@@ -409,6 +427,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Histórico Regime de Utilização`
+      y = ensureSpace(doc, y, 21);
       y = drawSectionTitle(doc, 'Histórico de Regime de Utilização', y, 3);
 
       autoTable(doc, {
