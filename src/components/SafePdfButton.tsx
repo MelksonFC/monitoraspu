@@ -157,6 +157,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Imagens
+      if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
@@ -172,7 +173,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       });
       y = doc.lastAutoTable.finalY + 2;
 
-      if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
+      
         let imgY = y;
         let imgHeight = 50; 
         let imgWidth = 85;
@@ -197,6 +198,12 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       }
 
       // Localização
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Localização', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
@@ -236,13 +243,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Contato
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Contato', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Contato', colSpan: 2, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
-        ],
+          ],
         body: [
           [
             { content: 'E-mail:', styles: { fontStyle: 'bold' } }, { content: imovel.email || '', styles: { halign: 'left' } }
@@ -254,13 +266,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Registro Cartorial
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Registro Cartorial', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Registro Cartorial', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
-        ],
+          ],
         body: [
           [
             { content: 'Cartório:', styles: { fontStyle: 'bold' } }, imovel.nomecartorio || '',
@@ -276,13 +293,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Gestão e Áreas
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Gestão e Áreas', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Gestão e Áreas', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
-        ],
+          ],
         body: [
           [
             { content: 'Unidade Gestora:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idunidadegestora, lookups.unidades),
@@ -303,14 +325,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Fiscalizações
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Fiscalizações', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [
-            { content: 'Fiscalizações', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }
-          ],
           [
             { content: 'Data', styles: { fontStyle: 'bold' } },
             { content: 'Fiscal', styles: { fontStyle: 'bold' } },
@@ -332,14 +357,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Avaliações
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Avaliações', 15, y);
+      y += 2;
+      
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [
-            { content: 'Avaliações', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }
-          ],
           [
             { content: 'Data', styles: { fontStyle: 'bold' } },
             { content: 'Avaliador', styles: { fontStyle: 'bold' } },
@@ -362,14 +390,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Histórico Unidade Gestora
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Histórico de Unidade Gestora', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [
-            { content: 'Histórico de Unidade Gestora', colSpan: 3, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }
-          ],
           [
             { content: 'Unidade Gestora', styles: { fontStyle: 'bold' } },
             { content: 'Data Início', styles: { fontStyle: 'bold' } },
@@ -389,15 +420,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       });
       y = doc.lastAutoTable.finalY + 4;
 
-      // Histórico Regime de Utilização
+      // Histórico Regime de Utilização`
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 58, 138);
+      doc.text('Histórico de Regime de Utilização', 15, y);
+      y += 2;
+
       autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [
-            { content: 'Histórico de Regime de Utilização', colSpan: 3, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }
-          ],
           [
             { content: 'Regime', styles: { fontStyle: 'bold' } },
             { content: 'Data Início', styles: { fontStyle: 'bold' } },
