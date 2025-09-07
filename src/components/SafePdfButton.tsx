@@ -172,7 +172,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       // Imagens
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
       
-      y = drawSectionTitle(doc, 'Imegns', y, 2);
+      y = drawSectionTitle(doc, 'Imagens', y, 2);
         autoTable(doc, {
         startY: y,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
@@ -219,8 +219,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Localização', colSpan: 6, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
-        ],
+          ],
         body: [
           [
             { content: 'CEP:', styles: { fontStyle: 'bold' }, colSpan: 1},
