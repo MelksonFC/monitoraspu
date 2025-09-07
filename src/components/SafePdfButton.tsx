@@ -31,7 +31,7 @@ interface SafePdfButtonProps {
 }
 
 const PAGE_MARGIN_TOP = 45;    // Reserva espaço para o cabeçalho
-const PAGE_MARGIN_BOTTOM = 30; // Reserva espaço para o rodapé
+const PAGE_MARGIN_BOTTOM = 15; // Reserva espaço para o rodapé
 
 const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   imovel,
@@ -167,7 +167,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setTextColor(30,58,138);
       doc.setFont('helvetica','bold');
       doc.text('Identificação', 15, y);
-      y += 7;
+      y += 5;
       const idFields = [
         {label:'Matrícula',value:String(imovel.matricula || 'N/A')},
         {label:'Imóvel Ativo',value:imovel.situacao ? 'Sim':'Não'},
@@ -184,7 +184,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setTextColor(30,58,138);
       doc.setFont('helvetica','bold');
       doc.text('Imagens', 15, y);
-      y += 7;
+      y += 5;
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
         let imgY = y;
         let imgSize = 36;
@@ -213,7 +213,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setTextColor(30,58,138);
       doc.setFont('helvetica','bold');
       doc.text('Localização', 15, y);
-      y += 7;
+      y += 5;
       const locFields = [
         {label:'CEP',value:String(imovel.cep || 'N/A')},
         {label:'País',value:getLookupName(imovel.idpais, lookups.paises)},
@@ -233,7 +233,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setTextColor(30,58,138);
       doc.setFont('helvetica','bold');
       doc.text('Contato', 15, y);
-      y += 7;
+      y += 5;
       y = renderInfoTable(doc, y, [
         {label:'E-mail',value:String(imovel.email || 'N/A')},
       ], 2);
@@ -244,7 +244,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setTextColor(30,58,138);
       doc.setFont('helvetica','bold');
       doc.text('Registro Cartorial', 15, y);
-      y += 7;
+      y += 5;
       y = renderInfoTable(doc, y, [
         {label:'Cartório',value:String(imovel.nomecartorio || 'N/A')},
         {label:'Nº Processo',value:String(imovel.nprocesso || 'N/A')},
@@ -257,7 +257,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setTextColor(30,58,138);
       doc.setFont('helvetica','bold');
       doc.text('Gestão e Áreas', 15, y);
-      y += 7;
+      y += 5;
       y = renderInfoTable(doc, y, [
         {label:'Unidade Gestora',value:getLookupName(imovel.idunidadegestora, lookups.unidades)},
         {label:'Regime de Utilização',value:getRegimeDesc(imovel.idregimeutilizacao)},
@@ -272,7 +272,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setFont('helvetica','bold');
       doc.text('Fiscalizações', 15, y);
       autoTable(doc, {
-        startY: y + 7,
+        startY: y + 5,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Data','Fiscal','Condições','Observações']],
         body: imovel.fiscalizacoes?.length
@@ -301,7 +301,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setFont('helvetica','bold');
       doc.text('Avaliações', 15, y);
       autoTable(doc, {
-        startY: y + 7,
+        startY: y + 5,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Data','Avaliador','Novo Valor','Observações']],
         body: imovel.avaliacoes?.length
@@ -330,7 +330,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setFont('helvetica','bold');
       doc.text('Histórico de Unidade Gestora', 15, y);
       autoTable(doc, {
-        startY: y + 7,
+        startY: y + 5,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Unidade Gestora','Data Início','Data Fim']],
         body: imovel.hstUnidades?.length
@@ -358,7 +358,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       doc.setFont('helvetica','bold');
       doc.text('Histórico de Regime de Utilização', 15, y);
       autoTable(doc, {
-        startY: y + 7,
+        startY: y + 5,
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         head: [['Regime','Data Início','Data Fim']],
         body: imovel.hstRegimes?.length
