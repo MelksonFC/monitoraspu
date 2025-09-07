@@ -174,10 +174,10 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
         let imgY = y;
-        let imgSize = 28;
+        let imgSize = 48;
         let imgX = 15;
         let gap = 5;
-        let maxPerRow = 4;
+        let maxPerRow = 2;
         let count = 0;
         for (const img of imovel.imagens.slice(0, 8)) {
           try {
@@ -244,7 +244,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         ],
         body: [
           [
-            { content: 'E-mail:', styles: { fontStyle: 'bold' } }, { content: imovel.email || '', colSpan: 3 }
+            { content: 'E-mail:', styles: { fontStyle: 'bold' } }, { content: imovel.email || '', colSpan: 3, styles: { halign: 'left' } }
           ]
         ],
         bodyStyles: { lineWidth: 0 },
@@ -285,7 +285,11 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         body: [
           [
             { content: 'Unidade Gestora:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idunidadegestora, lookups.unidades),
-            { content: 'Regime de Utilização:', styles: { fontStyle: 'bold' } }, getRegimeDesc(imovel.idregimeutilizacao, lookups.regimes)
+            { content: '', colSpan: 2 },
+          ],
+          [
+            { content: 'Regime de Utilização:', styles: { fontStyle: 'bold' } }, getRegimeDesc(imovel.idregimeutilizacao, lookups.regimes),
+            { content: '', colSpan: 2 },
           ],
           [
             { content: 'Área Construída:', styles: { fontStyle: 'bold' } }, formatArea(imovel.areaconstruida),
