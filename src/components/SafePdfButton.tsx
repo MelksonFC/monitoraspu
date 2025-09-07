@@ -78,14 +78,15 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const getLookupName = (id?: number, list?: any[]): string => list?.find(item => item.id === id)?.nome || 'N/A';
   const getRegimeDesc = (id?: number): string => lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
 
-  // Cabeçalho e rodapé
   function addHeader(doc: jsPDF) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const imageHeight = 18;
     const imageWidth = 18;
     const marginY = 10;
     const marginX = 15;
-    doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', marginX, marginY, imageWidth, imageHeight);
+    try {
+      doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', marginX, marginY, imageWidth, imageHeight);
+    } catch {}
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(51,51,51);
@@ -110,7 +111,6 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-10, {align: 'right'});
   }
 
-  // Renderiza campos agrupados em colunas, campo em negrito, valor ao lado
   function renderInfoTable(
     doc: jsPDF,
     startY: number,
@@ -355,9 +355,11 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     }
   }
 
+  // MENU CORRETO! Chama PDF só no clique, nunca ao abrir a tela.
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const handleCloseSnackbar = () => setSnackbarOpen(false);
+  const menuOpen = Boolean(anchorEl);
 
   return (
     <>
@@ -369,9 +371,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       >
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>
-      <Menu anchorEl={anchorEl} open={Boolean(open)} onClose={handleClose}>
-        <MenuItem onClick={() => generateStructuredPdf(true)}>PDF Completo (com imagens)</MenuItem>
-        <MenuItem onClick={() => generateStructuredPdf(false)}>PDF Simplificado (sem imagens)</MenuItem>
+      <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
+        <MenuItem onClick={() => { handleClose(); generateStructuredPdf(true); }}>PDF Completo (com imagens)</MenuItem>
+        <MenuItem onClick={() => { handleClose(); generateStructuredPdf(false); }}>PDF Simplificado (sem imagens)</MenuItem>
       </Menu>
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
