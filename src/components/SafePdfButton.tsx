@@ -185,7 +185,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         bodyStyles: { lineWidth: 0 },
         styles: { cellPadding: 2 }
       });
-      y = doc.lastAutoTable.finalY + 2;
+      y = doc.lastAutoTable.finalY + 1;
 
       
         let imgY = y;
@@ -208,7 +208,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         }
         y = imgY + imgHeight + gap;
       } else {
-        y += 10;
+        y += 4;
       }
 
       // Localização
