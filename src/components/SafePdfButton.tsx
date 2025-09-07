@@ -8,9 +8,7 @@ import type { Imovel } from '../types';
 
 declare module 'jspdf' {
   interface jsPDF {
-    lastAutoTable: {
-      finalY: number;
-    };
+    lastAutoTable: { finalY: number; };
     getNumberOfPages(): number;
   }
 }
@@ -40,14 +38,13 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   color = 'primary',
   disabled = false,
   fullWidth = false,
-  size = 'medium',
+  size = 'medium'
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
 
   // Helpers
   const formatDateBR = (dateStr?: string): string => {
@@ -56,9 +53,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return dateStr;
       return date.toLocaleDateString('pt-BR');
-    } catch {
-      return 'N/A';
-    }
+    } catch { return 'N/A'; }
   };
   const formatValorBR = (valor: string | number | undefined | null): string => {
     if (valor === undefined || valor === null || valor === "") return "R$ 0,00";
@@ -68,9 +63,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         : valor;
       if (isNaN(num)) return "N/A";
       return `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    } catch {
-      return "N/A";
-    }
+    } catch { return "N/A"; }
   };
   const formatArea = (valor: string | number | undefined | null): string => {
     if (valor === undefined || valor === null || valor === "") return "0,00 m²";
@@ -80,28 +73,32 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         : valor;
       if (isNaN(num)) return "N/A";
       return `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
-    } catch {
-      return "N/A";
-    }
+    } catch { return "N/A"; }
   };
   const getLookupName = (id?: number, list?: any[]): string => list?.find(item => item.id === id)?.nome || 'N/A';
   const getRegimeDesc = (id?: number): string => lookups.regimes.find(r => r.id === id)?.descricao || getLookupName(id, lookups.regimes);
 
   // Cabeçalho e rodapé
   function addHeader(doc: jsPDF) {
-    try {
-      doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', 15, 10, 18, 18);
-    } catch {}
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const imageHeight = 18;
+    const imageWidth = 18;
+    const marginY = 10;
+    const marginX = 15;
+    doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', marginX, marginY, imageWidth, imageHeight);
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(51,51,51);
-    doc.text('MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS', 36, 16, { baseline: 'top' });
-    doc.text('SECRETARIA DO PATRIMÔNIO DA UNIÃO', 36, 20, { baseline: 'top' });
-    doc.text('SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA', 36, 24, { baseline: 'top' });
+    const headerCenterY = marginY + imageHeight / 2 + 2;
+    doc.text([
+      'MINISTÉRIO DA GESTÃO E DA INOVAÇÃO EM SERVIÇOS PÚBLICOS',
+      'SECRETARIA DO PATRIMÔNIO DA UNIÃO',
+      'SUPERINTENDÊNCIA DO PATRIMÔNIO DA UNIÃO EM RORAIMA'
+    ], pageWidth / 2, headerCenterY, { align: 'center' });
     doc.setFillColor(224,224,224);
-    doc.rect(15, 29, doc.internal.pageSize.getWidth()-30, 8, 'F');
+    doc.rect(marginX, marginY + imageHeight + 5, pageWidth - marginX * 2, 8, 'F');
     doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-    doc.text('RELATÓRIO', doc.internal.pageSize.getWidth()/2, 34, {align:'center'});
+    doc.text('RELATÓRIO', pageWidth / 2, marginY + imageHeight + 10, { align: 'center' });
     doc.setTextColor(51,51,51); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
   }
   function addFooter(doc: jsPDF, pageNumber: number, totalPages: number) {
@@ -113,26 +110,71 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, doc.internal.pageSize.getWidth()-15, height-10, {align: 'right'});
   }
 
+  function renderInfoTable(
+    doc: jsPDF,
+    startY: number,
+    fields: Array<{label:string,value:string}>,
+    columns: number = 2
+  ) {
+    // Divide em linhas de acordo com colunas
+    const rows: string[][] = [];
+    for (let i = 0; i < fields.length; i += columns) {
+      const row: string[] = [];
+      for (let c = 0; c < columns; c++) {
+        const field = fields[i+c];
+        if (field) {
+          row.push(`${field.label}:`, `${String(field.value)}`);
+        } else {
+          row.push("", "");
+        }
+      }
+      rows.push(row);
+    }
+    autoTable(doc, {
+      startY,
+      margin: { left: 15, right: 15 },
+      body: rows,
+      theme: 'grid',
+      didDrawPage: (data: any) => {
+        addHeader(doc);
+        const totalPages = doc.getNumberOfPages();
+        addFooter(doc, data.pageNumber, totalPages);
+      },
+      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10, halign:'center', valign:'middle' },
+      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51, halign:'left', valign:'middle', lineWidth:0.2, lineColor:'#90caf9' },
+      alternateRowStyles: { fillColor: [247,249,251] },
+      columnStyles: {
+        0: { fontStyle: 'bold', textColor: 30 },
+        2: { fontStyle: 'bold', textColor: 30 },
+      },
+      styles: { cellPadding: 2, minCellHeight: 8, fontSize: 10 }
+    });
+    return doc.lastAutoTable.finalY;
+  }
+
   async function generateStructuredPdf(withImages: boolean) {
     setIsGenerating(true);
     const doc = new jsPDF('p', 'mm', 'a4');
-    let totalPages = 1;
-
-    // Função para repetir cabeçalho/rodapé
-    const didDrawPage = (data: any) => {
-      addHeader(doc);
-      totalPages = doc.getNumberOfPages();
-      addFooter(doc, data.pageNumber, totalPages);
-    };
-
     let y = 42;
 
-    // Seção Imagens do Imóvel (página inicial)
+    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
+    doc.text('Identificação', 15, y);
+    y += 2;
+
+    const idFields = [
+      {label:'Matrícula',value:String(imovel.matricula || 'N/A')},
+      {label:'Imóvel Ativo',value:imovel.situacao ? 'Sim':'Não'},
+      {label:'RIP Imóvel',value: String(imovel.ripimovel || 'N/A')},
+      {label:'RIP Utilização', value: String(imovel.riputilizacao || 'N/A')},
+      {label:'Classe', value: String(imovel.nome || 'N/A')},
+      {label:'Valor', value: formatValorBR(imovel.valorimovel)},
+      {label:'Data do Imóvel', value: formatDateBR(imovel.dataimovel)}
+    ];
+    y = renderInfoTable(doc, y+2, idFields, 2);
+
     if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
-      doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-      doc.text('Imagens do Imóvel', 15, y);
-      let imgY = y + 4;
-      let imgSize = 52; // 52mm de altura
+      let imgY = y+4;
+      let imgSize = 36;
       let imgX = 15;
       let gap = 5;
       let maxPerRow = 3;
@@ -148,126 +190,49 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           imgY += imgSize + gap;
         }
       }
-      y = imgY + imgSize + 8;
-      doc.addPage();
-      y = 42;
+      y = imgY + imgSize + 6;
+    } else {
+      y += 6;
     }
 
-    // Seção Identificação e Fotos
-    doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
-    doc.text('Identificação e Fotos', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Campo', 'Valor']],
-      body: [
-        ['Matrícula', imovel.matricula || 'N/A'],
-        ['Imóvel Ativo', imovel.situacao ? 'Sim':'Não'],
-        ['RIP Imóvel', imovel.ripimovel || 'N/A'],
-        ['RIP Utilização', imovel.riputilizacao || 'N/A'],
-        ['Nome', imovel.nome || 'N/A'],
-        ['Valor', formatValorBR(imovel.valorimovel)],
-        ['Data do Imóvel', formatDateBR(imovel.dataimovel)],
-      ],
-      theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
-
-    // Seção Localização
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Localização', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Campo', 'Valor']],
-      body: [
-        ['CEP', imovel.cep || 'N/A'],
-        ['País', getLookupName(imovel.idpais, lookups.paises)],
-        ['Estado', getLookupName(imovel.idestado, lookups.estados)],
-        ['Município', getLookupName(imovel.idmunicipio, lookups.municipios)],
-        ['Endereço', imovel.endereco || 'N/A'],
-        ['Número', imovel.numero || 'N/A'],
-        ['Complemento', imovel.complemento || 'N/A'],
-        ['Latitude', imovel.latitude ?? 'N/A'],
-        ['Longitude', imovel.longitude ?? 'N/A'],
-      ],
-      theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    const locFields = [
+      {label:'CEP',value:String(imovel.cep || 'N/A')},
+      {label:'País',value:getLookupName(imovel.idpais, lookups.paises)},
+      {label:'Estado',value:getLookupName(imovel.idestado, lookups.estados)},
+      {label:'Município',value:getLookupName(imovel.idmunicipio, lookups.municipios)},
+      {label:'Endereço',value:String(imovel.endereco || 'N/A')},
+      {label:'Número',value:String(imovel.numero || 'N/A')},
+      {label:'Complemento',value:String(imovel.complemento || 'N/A')},
+      {label:'Latitude',value:String(imovel.latitude ?? 'N/A')},
+      {label:'Longitude',value:String(imovel.longitude ?? 'N/A')},
+    ];
+    y = renderInfoTable(doc, y+2, locFields, 3);
 
-    // Seção Contato
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Contato', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Campo', 'Valor']],
-      body: [
-        ['E-mail', imovel.email || 'N/A'],
-      ],
-      theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    y = renderInfoTable(doc, y+2, [
+      {label:'E-mail',value:String(imovel.email || 'N/A')},
+    ], 2);
 
-    // Seção Registro Cartorial
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Registro Cartorial', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Campo', 'Valor']],
-      body: [
-        ['Cartório', imovel.nomecartorio || 'N/A'],
-        ['Nº Processo', imovel.nprocesso || 'N/A'],
-        ['Ocupante', imovel.ocupante || 'N/A'],
-      ],
-      theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    y = renderInfoTable(doc, y+2, [
+      {label:'Cartório',value:String(imovel.nomecartorio || 'N/A')},
+      {label:'Nº Processo',value:String(imovel.nprocesso || 'N/A')},
+      {label:'Ocupante',value:String(imovel.ocupante || 'N/A')},
+    ], 2);
 
-    // Seção Gestão e Áreas
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Gestão e Áreas', 15, y);
-    autoTable(doc, {
-      startY: y+2,
-      margin: { left: 15, right: 15 },
-      head: [['Campo', 'Valor']],
-      body: [
-        ['Unidade Gestora', getLookupName(imovel.idunidadegestora, lookups.unidades)],
-        ['Regime de Utilização', getRegimeDesc(imovel.idregimeutilizacao)],
-        ['Área Construída', formatArea(imovel.areaconstruida)],
-        ['Área do Terreno', formatArea(imovel.areaterreno)],
-      ],
-      theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
-      headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
-      bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
-      alternateRowStyles: { fillColor: [247,249,251] },
-    });
-    y = doc.lastAutoTable.finalY + 4;
+    y = renderInfoTable(doc, y+2, [
+      {label:'Unidade Gestora',value:getLookupName(imovel.idunidadegestora, lookups.unidades)},
+      {label:'Regime de Utilização',value:getRegimeDesc(imovel.idregimeutilizacao)},
+      {label:'Área Construída',value:formatArea(imovel.areaconstruida)},
+      {label:'Área do Terreno',value:formatArea(imovel.areaterreno)},
+    ], 2);
 
-    // Seção Fiscalizações
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Fiscalizações', 15, y);
     autoTable(doc, {
@@ -277,21 +242,23 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       body: imovel.fiscalizacoes?.length
         ? imovel.fiscalizacoes.map(f => [
             formatDateBR(f.datafiscalizacao),
-            f.fiscalizador || 'N/A',
-            f.condicoes || 'N/A',
-            f.observacoes || 'N/A',
+            String(f.fiscalizador || 'N/A'),
+            String(f.condicoes || 'N/A'),
+            String(f.observacoes || 'N/A'),
           ])
         : [['Nenhuma fiscalização encontrada','','','']],
       theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      didDrawPage: (data: any) => {
+        addHeader(doc);
+        const totalPages = doc.getNumberOfPages();
+        addFooter(doc, data.pageNumber, totalPages);
+      },
       headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
       bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
       alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
-    // Seção Avaliações
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Avaliações', 15, y);
     autoTable(doc, {
@@ -301,21 +268,23 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       body: imovel.avaliacoes?.length
         ? imovel.avaliacoes.map(a => [
             formatDateBR(a.dataavaliacao),
-            a.avaliador || 'N/A',
+            String(a.avaliador || 'N/A'),
             formatValorBR(a.novovalor),
-            a.observacoes || 'N/A',
+            String(a.observacoes || 'N/A'),
           ])
         : [['Nenhuma avaliação encontrada','','','']],
       theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      didDrawPage: (data: any) => {
+        addHeader(doc);
+        const totalPages = doc.getNumberOfPages();
+        addFooter(doc, data.pageNumber, totalPages);
+      },
       headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
       bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
       alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
-    // Seção Histórico Unidade Gestora
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Histórico de Unidade Gestora', 15, y);
     autoTable(doc, {
@@ -330,15 +299,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           ])
         : [['Nenhum histórico encontrado','','']],
       theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      didDrawPage: (data: any) => {
+        addHeader(doc);
+        const totalPages = doc.getNumberOfPages();
+        addFooter(doc, data.pageNumber, totalPages);
+      },
       headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
       bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
       alternateRowStyles: { fillColor: [247,249,251] },
     });
     y = doc.lastAutoTable.finalY + 4;
 
-    // Seção Histórico Regime de Utilização
     doc.setFontSize(12); doc.setTextColor(30,58,138); doc.setFont('helvetica','bold');
     doc.text('Histórico de Regime de Utilização', 15, y);
     autoTable(doc, {
@@ -353,14 +324,16 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           ])
         : [['Nenhum histórico encontrado','','']],
       theme: 'grid',
-      didDrawPage,
-      styles: {fontSize:9,cellPadding:2, textColor: 51},
+      didDrawPage: (data: any) => {
+        addHeader(doc);
+        const totalPages = doc.getNumberOfPages();
+        addFooter(doc, data.pageNumber, totalPages);
+      },
       headStyles: {fillColor:'#E3F2FD', fontStyle:'bold', textColor:30, fontSize:10 },
       bodyStyles: {fillColor:'#F7F9FB', fontStyle:'normal', textColor:51 },
       alternateRowStyles: { fillColor: [247,249,251] },
     });
 
-    // Rodapé/cabeçalho em todas as páginas (ajuste final)
     const finalTotalPages = doc.getNumberOfPages();
     for(let i=1; i<=finalTotalPages; i++) {
       doc.setPage(i);
@@ -375,7 +348,6 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     setIsGenerating(false);
   }
 
-  // UI
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const handleCloseSnackbar = () => setSnackbarOpen(false);
@@ -390,7 +362,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       >
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>
-      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+      <Menu anchorEl={anchorEl} open={Boolean(open)} onClose={handleClose}>
         <MenuItem onClick={() => generateStructuredPdf(true)}>PDF Completo (com imagens)</MenuItem>
         <MenuItem onClick={() => generateStructuredPdf(false)}>PDF Simplificado (sem imagens)</MenuItem>
       </Menu>

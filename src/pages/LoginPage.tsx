@@ -145,7 +145,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
               textAlign: 'center',
             }}
           >
-            <Typography variant="h3" component="h1" fontWeight="bold" color="primary.main" gutterBottom>
+            <Typography variant="h4" component="h1" fontWeight="bold" color="primary.main" gutterBottom>
               Monitora SPU-RR
             </Typography>
             <Typography variant="h6" component="h2" color="text.secondary" mb={3}>
