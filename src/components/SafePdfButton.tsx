@@ -30,8 +30,8 @@ interface SafePdfButtonProps {
   size?: 'small' | 'medium' | 'large';
 }
 
-const PAGE_MARGIN_TOP = 35;    // Reserva espaço para o cabeçalho
-const PAGE_MARGIN_BOTTOM = 15; // Reserva espaço para o rodapé
+const PAGE_MARGIN_TOP = 45;    // Reserva espaço para o cabeçalho
+const PAGE_MARGIN_BOTTOM = 30; // Reserva espaço para o rodapé
 
 const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   imovel,
@@ -180,6 +180,10 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = renderInfoTable(doc, y, idFields, 2);
 
       // Espaço extra antes das imagens
+      doc.setFontSize(13);
+      doc.setTextColor(30,58,138);
+      doc.setFont('helvetica','bold');
+      doc.text('Imagens', 15, y);
       y += 7;
       if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
         let imgY = y;
