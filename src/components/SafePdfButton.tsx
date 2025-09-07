@@ -30,8 +30,8 @@ interface SafePdfButtonProps {
   size?: 'small' | 'medium' | 'large';
 }
 
-const PAGE_MARGIN_TOP = 35;
-const PAGE_MARGIN_BOTTOM = 15;
+const PAGE_MARGIN_TOP = 45;
+const PAGE_MARGIN_BOTTOM = 20;
 
 function formatDateBR(dateStr?: string): string {
   if (!dateStr) return '';
@@ -162,10 +162,10 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
         theme: 'plain',
         head: [
-          [{ content: 'Imagens', colSpan: 4, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
+          [{ content: 'Imagens', colSpan: 2, styles: { fontStyle: 'bold', fontSize: 13, textColor: [30, 58, 138], fillColor: [230, 240, 255], halign: 'left' } }]
         ],
         body: [
-          [{ content: '', colSpan: 4 }]
+          [{ content: '', colSpan: 2 }]
         ],
         bodyStyles: { lineWidth: 0 },
         styles: { cellPadding: 2 }
@@ -205,13 +205,17 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         ],
         body: [
           [
-            { content: 'CEP:', styles: { fontStyle: 'bold' } }, imovel.cep || '',
+            { content: 'CEP:', styles: { fontStyle: 'bold' }, colSpan: 1},
+            { content: imovel.cep || '', colSpan: 5 }
+          ],  
+          [ 
             { content: 'País:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idpais, lookups.paises),
-            { content: 'Estado:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idestado, lookups.estados)
+            { content: 'Estado:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idestado, lookups.estados),
+            { content: 'Município:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idmunicipio, lookups.municipios)
           ],
           [
-            { content: 'Município:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idmunicipio, lookups.municipios),
             { content: 'Endereço:', styles: { fontStyle: 'bold' } }, imovel.endereco || '',
+            { content: '', colSpan: 2 },
             { content: 'Número:', styles: { fontStyle: 'bold' } }, imovel.numero || ''
           ],
           [
@@ -220,8 +224,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           ],
           [
             { content: 'Latitude:', styles: { fontStyle: 'bold' } }, String(imovel.latitude ?? ''),
+            { content: '', colSpan: 1 },
             { content: 'Longitude:', styles: { fontStyle: 'bold' } }, String(imovel.longitude ?? ''),
-            { content: '', colSpan: 2 }
+            { content: '', colSpan: 1 }
           ]
         ],
         bodyStyles: { lineWidth: 0 },
@@ -372,7 +377,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
             formatDateBR(h.dtinicio),
             h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
           ])
-          : [[{ content: 'mesclado', colSpan: 3 }]]
+          : [[{ content: 'Nenhuma histórico encontrado', colSpan: 3 }]]
         ),
         bodyStyles: { lineWidth: 0 },
         styles: { cellPadding: 2 }
@@ -400,7 +405,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
             formatDateBR(h.dtinicio),
             h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
           ])
-          : [[{ content: 'mesclado', colSpan: 3 }]]
+          : [[{ content: 'Nenhuma histórico encontrado', colSpan: 3 }]]
         ),
         bodyStyles: { lineWidth: 0 },
         styles: { cellPadding: 2 }
