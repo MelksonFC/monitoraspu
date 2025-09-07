@@ -57,7 +57,7 @@ export default function PropertySidebar({ imoveis, onImovelSelect, selectedImove
                 <FormControl fullWidth size="small">
                     <InputLabel id="sort-by-label">Ordenar por</InputLabel>
                     <Select labelId="sort-by-label" id="sort-by-select" value={sortOption} label="Ordenar por" onChange={(e) => setSortOption(e.target.value as SortOption)}>
-                        <MenuItem value="nome">Nome</MenuItem>
+                        <MenuItem value="nome">Classe</MenuItem>
                         <MenuItem value="valorimovel">Valor do Imóvel</MenuItem>
                         <MenuItem value="ripimovel">RIP do Imóvel</MenuItem>
                     </Select>

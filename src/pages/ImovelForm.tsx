@@ -630,8 +630,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
     const imagensOrdenadas = useMemo(() => [...imagens].sort((a, b) => a.ordem - b.ordem), [imagens]);
     const featuredImage = useMemo(() => imagensOrdenadas.find(img => img.isdefault) || imagensOrdenadas[0], [imagensOrdenadas]);
 
-    // *** INÍCIO DAS MUDANÇAS PARA O PDF ***
-    // Agrupa todos os dados necessários para o PDF em um único objeto
+     // Agrupa todos os dados necessários para o PDF em um único objeto
     const pdfData = useMemo(() => ({
       imovel: {
         ...form,
@@ -650,7 +649,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
         regimes,
       }
     }), [form, imagensOrdenadas, fiscalizacoes, avaliacoes, hstUnidades, hstRegimes, usuario, paises, estados, municipios, unidades, regimes]);
-    // *** FIM DAS MUDANÇAS PARA O PDF ***
+   
 
     return (
       <Container maxWidth="lg" sx={{ mt: 2, mb: 4, ...(isPdfMode && { mt: 0, mb: 0, p: 0, background: '#fff' }) }}>
@@ -698,7 +697,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                     <TextField label="RIP Imóvel" name="ripimovel" className={isPdfMode ? "pdf-field" : ""} value={form.ripimovel} required onChange={handleChange} fullWidth variant="outlined" InputProps={{ readOnly: isPdfMode }} error={!!validationErrors.ripimovel} helperText={validationErrors.ripimovel}/>
                     <TextField label="RIP Utilização" name="riputilizacao" className={isPdfMode ? "pdf-field" : ""} value={form.riputilizacao} required onChange={handleChange} fullWidth variant="outlined" InputProps={{ readOnly: isPdfMode }} error={!!validationErrors.riputilizacao} helperText={validationErrors.riputilizacao}/>
                   </Box>
-                  <TextField label="Nome" name="nome" className={isPdfMode ? "pdf-field" : ""} value={form.nome} onChange={handleChange} fullWidth required variant="outlined" InputProps={{ readOnly: isPdfMode }} error={!!validationErrors.nome} helperText={validationErrors.nome}/>
+                  <TextField label="Classe" name="nome" className={isPdfMode ? "pdf-field" : ""} value={form.nome} onChange={handleChange} fullWidth required variant="outlined" InputProps={{ readOnly: isPdfMode }} error={!!validationErrors.nome} helperText={validationErrors.nome}/>
                   <Box sx={{ display: 'flex', gap: 2 }}>
                     <Tooltip title={isEditMode ? "O valor do imóvel só pode ser alterado através de uma nova avaliação." : ""} arrow>
                       <span style={{ width: '100%' }}>
