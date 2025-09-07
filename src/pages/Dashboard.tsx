@@ -84,6 +84,8 @@ export default function ShadcnDashboard() {
     const [error, setError] = useState<string | null>(null);
     const [activeRegime, setActiveRegime] = useState<string>("");
     const [timeRange, setTimeRange] = useState("24m");
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+    const [drillImoveis, setDrillImoveis] = useState<Imovel[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -216,6 +218,35 @@ export default function ShadcnDashboard() {
         vencido: { label: "Vencido", color: "hsl(0 100% 65.4%)" },
         nuncaFiscalizado: { label: "Nunca Fiscalizado", color: "hsl(var(--muted))" },
     };
+
+    // ---- DRILL DOWN: Lista de imóveis por status ----
+    function getImoveisPorStatus(status: string): Imovel[] {
+        const hoje = new Date();
+        const prazoVencido = new Date(); prazoVencido.setFullYear(hoje.getFullYear() - 2);
+        const prazoAVencer = new Date(); prazoAVencer.setFullYear(hoje.getFullYear() - 2); prazoAVencer.setMonth(hoje.getMonth() + 6);
+
+        // Mapa: idimovel => data da última fiscalização
+        const ultimasFiscalizacoes = new Map<number, string>();
+        for (const fisc of fiscalizacoes) {
+            if (fisc.idimovel) {
+                const dataAtual = ultimasFiscalizacoes.get(fisc.idimovel);
+                if (!dataAtual || new Date(fisc.datafiscalizacao) > new Date(dataAtual)) ultimasFiscalizacoes.set(fisc.idimovel, fisc.datafiscalizacao);
+            }
+        }
+
+        return imoveis.filter(imovel => {
+            const ultimaFiscalizacao = imovel.idimovel ? ultimasFiscalizacoes.get(imovel.idimovel) : undefined;
+            if (status === "nuncaFiscalizado") {
+                return !ultimaFiscalizacao;
+            }
+            if (!ultimaFiscalizacao) return false;
+            const dataFiscalizacao = new Date(ultimaFiscalizacao);
+            if (status === "vencido") return dataFiscalizacao < prazoVencido;
+            if (status === "aVencer") return dataFiscalizacao < prazoAVencer && dataFiscalizacao >= prazoVencido;
+            if (status === "emDia") return dataFiscalizacao >= prazoAVencer;
+            return false;
+        });
+    }
 
     if (loading) return <div className="flex items-center justify-center h-screen"><p>Carregando dados...</p></div>;
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
@@ -423,14 +454,56 @@ export default function ShadcnDashboard() {
                                     <YAxis dataKey="name" type="category" hide />
                                     <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                                     <Legend />
-                                    <Bar dataKey="emDia" stackId="a" fill="var(--color-emDia)" radius={[4, 0, 0, 4]} />
-                                    <Bar dataKey="aVencer" stackId="a" fill="var(--color-aVencer)" />
-                                    <Bar dataKey="vencido" stackId="a" fill="var(--color-vencido)" />
-                                    <Bar dataKey="nuncaFiscalizado" stackId="a" fill="var(--color-nuncaFiscalizado)" radius={[0, 4, 4, 0]} />
+                                    <Bar dataKey="emDia" stackId="a" fill="var(--color-emDia)" radius={[4, 0, 0, 4]}
+                                      onClick={() => {
+                                        setSelectedStatus("emDia");
+                                        setDrillImoveis(getImoveisPorStatus("emDia"));
+                                      }}
+                                    />
+                                    <Bar dataKey="aVencer" stackId="a" fill="var(--color-aVencer)"
+                                      onClick={() => {
+                                        setSelectedStatus("aVencer");
+                                        setDrillImoveis(getImoveisPorStatus("aVencer"));
+                                      }}
+                                    />
+                                    <Bar dataKey="vencido" stackId="a" fill="var(--color-vencido)"
+                                      onClick={() => {
+                                        setSelectedStatus("vencido");
+                                        setDrillImoveis(getImoveisPorStatus("vencido"));
+                                      }}
+                                    />
+                                    <Bar dataKey="nuncaFiscalizado" stackId="a" fill="var(--color-nuncaFiscalizado)" radius={[0, 4, 4, 0]}
+                                      onClick={() => {
+                                        setSelectedStatus("nuncaFiscalizado");
+                                        setDrillImoveis(getImoveisPorStatus("nuncaFiscalizado"));
+                                      }}
+                                    />
                                 </BarChart>
                             </ChartContainer>
                         </CardContent>
                     </Card>
+                    {/* Drill Down Modal/List */}
+                    {selectedStatus && (
+                      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-4 relative">
+                          <button className="absolute top-4 right-6 text-lg" onClick={() => setSelectedStatus(null)}>Fechar</button>
+                          <h2 className="text-xl font-bold mb-2">
+                            Imóveis - {chartConfigStatusFiscalizacao[selectedStatus]?.label || selectedStatus}
+                          </h2>
+                          <ul className="max-h-[400px] overflow-y-auto">
+                            {drillImoveis.length === 0 ? (
+                              <li>Nenhum imóvel encontrado.</li>
+                            ) : (
+                              drillImoveis.map(imovel => (
+                                <li key={imovel.idimovel} className="py-2 border-b">
+                                  <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
+                                </li>
+                              ))
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                 </div>
             </div>
         </main>
