@@ -513,8 +513,17 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
             if (viaCepData.erro) { toast.warn("CEP não encontrado."); setValidationErrors(prev => ({ ...prev, cep: 'CEP não encontrado.' })); return; }
             const { logradouro, bairro, localidade, uf } = viaCepData;
             console.log("Estados:", estados, "UF buscada:", uf);
-            const estadoEncontrado = estados.find(est => est.uf?.toUpperCase() === uf.toUpperCase());
-            if (!estadoEncontrado) { toast.error(`Estado com a sigla ${uf} não encontrado no sistema.`); return; }
+            const { data: estadosData } = await axios.get(`${API_URL}/api/estados?pais=1`);
+            const estadosList: LookupItem[] = Array.isArray(estadosData)
+              ? estadosData.map((e: any) => ({ id: e.idestado ?? e.id, nome: e.nome, uf: e.uf }))
+              : [];
+            const estadoEncontrado = estadosList.find(est => est.uf?.toUpperCase() === uf.toUpperCase());
+            if (!estadoEncontrado) {
+              toast.error(`Estado com a sigla ${uf} não encontrado no sistema.`);
+              return;
+            }
+            // Atualize o estado do componente
+            setEstados(estadosList);
             const { data: municipiosDoEstado } = await axios.get(`${API_URL}/api/municipios?estado=${estadoEncontrado.id}`);
             const municipiosList: LookupItem[] = Array.isArray(municipiosDoEstado) ? municipiosDoEstado.map((m: any) => ({ id: m.idmunicipio ?? m.id, nome: m.nome })) : [];
             setMunicipios(municipiosList);
