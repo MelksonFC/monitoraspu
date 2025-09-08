@@ -347,25 +347,17 @@ export default function ShadcnDashboard() {
                                 <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
                                 <XAxis dataKey="value" type="number" hide />
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} />
-                                <Bar dataKey="value" fill="var(--color-value)" radius={4}>
+                                <Bar dataKey="value"
+                                    fill="var(--color-value)"
+                                    radius={4}
+                                    onClick={(data, index) => {
+                                    const municipio = dataMunicipio[index].name;
+                                    setSelectedMunicipio(municipio);
+                                    setDrillImoveis(getImoveisPorMunicipio(municipio));
+                                    }}
+                                >
                                     <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
                                     <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} />
-                                    {/* Drill Down por Município */}
-                                    {dataMunicipio.map((entry, idx) => (
-                                      <rect
-                                        key={entry.name}
-                                        x={0}
-                                        y={idx * 45}
-                                        width="100%"
-                                        height={45}
-                                        fill="transparent"
-                                        style={{ cursor: "pointer", pointerEvents: "all" }}
-                                        onClick={() => {
-                                          setSelectedMunicipio(entry.name);
-                                          setDrillImoveis(getImoveisPorMunicipio(entry.name));
-                                        }}
-                                      />
-                                    ))}
                                 </Bar>
                             </BarChart>
                         </ChartContainer>
