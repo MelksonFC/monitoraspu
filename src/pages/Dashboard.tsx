@@ -428,7 +428,7 @@ export default function ShadcnDashboard() {
                                                 x={cx}
                                                 y={cy + idx * 18 + 10}
                                                 className="fill-muted-foreground"
-                                                fontSize={16}
+                                                fontSize={12}
                                             >
                                                 {line}
                                             </tspan>
