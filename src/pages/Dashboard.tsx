@@ -84,8 +84,12 @@ export default function ShadcnDashboard() {
     const [error, setError] = useState<string | null>(null);
     const [activeRegime, setActiveRegime] = useState<string>("");
     const [timeRange, setTimeRange] = useState("24m");
+
+    // Drill Down
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [drillImoveis, setDrillImoveis] = useState<Imovel[]>([]);
+    const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
+    const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -248,6 +252,22 @@ export default function ShadcnDashboard() {
         });
     }
 
+    // ---- DRILL DOWN: Lista de imóveis por município ----
+    function getImoveisPorMunicipio(municipioNome: string): Imovel[] {
+        return imoveis.filter(imovel => {
+            const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
+            return nomeMunicipio === municipioNome;
+        });
+    }
+
+    // ---- DRILL DOWN: Lista de imóveis por regime ----
+    function getImoveisPorRegime(regimeNome: string): Imovel[] {
+        return imoveis.filter(imovel => {
+            const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
+            return nomeRegime === regimeNome;
+        });
+    }
+
     if (loading) return <div className="flex items-center justify-center h-screen"><p>Carregando dados...</p></div>;
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
 
@@ -330,6 +350,22 @@ export default function ShadcnDashboard() {
                                 <Bar dataKey="value" fill="var(--color-value)" radius={4}>
                                     <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
                                     <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} />
+                                    {/* Drill Down por Município */}
+                                    {dataMunicipio.map((entry, idx) => (
+                                      <rect
+                                        key={entry.name}
+                                        x={0}
+                                        y={idx * 45}
+                                        width="100%"
+                                        height={45}
+                                        fill="transparent"
+                                        style={{ cursor: "pointer", pointerEvents: "all" }}
+                                        onClick={() => {
+                                          setSelectedMunicipio(entry.name);
+                                          setDrillImoveis(getImoveisPorMunicipio(entry.name));
+                                        }}
+                                      />
+                                    ))}
                                 </Bar>
                             </BarChart>
                         </ChartContainer>
@@ -370,15 +406,24 @@ export default function ShadcnDashboard() {
                         </ChartContainer>
                     </CardContent>
                     <div className="grid grid-cols-3 md:gap-8 md:p-8">
-                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground">
+                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
+                          setSelectedRegimeCard('Vago para Uso');
+                          setDrillImoveis(getImoveisPorRegime('Vago para Uso'));
+                        }}>
                             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Vago para Uso</CardTitle></CardHeader>
                             <CardContent><p className="text-2xl font-bold">{totalVago}</p></CardContent>
                         </Card>
-                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground">
+                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
+                          setSelectedRegimeCard('Em Regularização');
+                          setDrillImoveis(getImoveisPorRegime('Em Regularização'));
+                        }}>
                             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Em Regularização</CardTitle></CardHeader>
                             <CardContent><p className="text-2xl font-bold">{totalEmRegularizacao}</p></CardContent>
                         </Card>
-                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground">
+                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
+                          setSelectedRegimeCard('Destinados');
+                          setDrillImoveis(getImoveisPorRegime('Destinados'));
+                        }}>
                             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Destinados</CardTitle></CardHeader>
                             <CardContent><p className="text-2xl font-bold">{totalDestinados}</p></CardContent>
                         </Card>
@@ -482,28 +527,35 @@ export default function ShadcnDashboard() {
                             </ChartContainer>
                         </CardContent>
                     </Card>
-                    {/* Drill Down Modal/List */}
-                    {selectedStatus && (
-                      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    {/* Drill Down Modal/List para Município, Regime e Status */}
+                    {(selectedStatus || selectedMunicipio || selectedRegimeCard) && (
+                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                         <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-4 relative">
-                          <button className="absolute top-4 right-6 text-lg" onClick={() => setSelectedStatus(null)}>Fechar</button>
-                          <h2 className="text-xl font-bold mb-2">
-                            Imóveis - {chartConfigStatusFiscalizacao[selectedStatus]?.label || selectedStatus}
-                          </h2>
-                          <ul className="max-h-[400px] overflow-y-auto">
+                        <button className="absolute top-4 right-6 text-lg" onClick={() => {
+                            setSelectedStatus(null);
+                            setSelectedMunicipio(null);
+                            setSelectedRegimeCard(null);
+                            setDrillImoveis([]);
+                        }}>Fechar</button>
+                        <h2 className="text-xl font-bold mb-2">
+                            {selectedStatus && (<>Imóveis - {chartConfigStatusFiscalizacao[selectedStatus]?.label || selectedStatus}</>)}
+                            {selectedMunicipio && (<>Imóveis no Município - {selectedMunicipio}</>)}
+                            {selectedRegimeCard && (<>Imóveis - {selectedRegimeCard}</>)}
+                        </h2>
+                        <ul className="max-h-[400px] overflow-y-auto">
                             {drillImoveis.length === 0 ? (
-                              <li>Nenhum imóvel encontrado.</li>
+                            <li>Nenhum imóvel encontrado.</li>
                             ) : (
-                              drillImoveis.map(imovel => (
+                            drillImoveis.map(imovel => (
                                 <li key={imovel.idimovel} className="py-2 border-b">
-                                  <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
+                                <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
                                 </li>
-                              ))
+                            ))
                             )}
-                          </ul>
+                        </ul>
                         </div>
-                      </div>
-                    )}
+                    </div>
+                    )}      
                 </div>
             </div>
         </main>
