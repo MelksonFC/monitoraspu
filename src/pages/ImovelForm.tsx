@@ -512,7 +512,6 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
             const { data: viaCepData } = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
             if (viaCepData.erro) { toast.warn("CEP não encontrado."); setValidationErrors(prev => ({ ...prev, cep: 'CEP não encontrado.' })); return; }
             const { logradouro, bairro, localidade, uf } = viaCepData;
-            console.log("Estados:", estados, "UF buscada:", uf);
             const { data: estadosData } = await axios.get(`${API_URL}/api/estados?pais=1`);
             const estadosList: LookupItem[] = Array.isArray(estadosData)
               ? estadosData.map((e: any) => ({ id: e.idestado ?? e.id, nome: e.nome, uf: e.uf }))
