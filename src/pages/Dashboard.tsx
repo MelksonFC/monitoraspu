@@ -268,6 +268,27 @@ export default function ShadcnDashboard() {
         });
     }
 
+    function formatPieCenterText(text: string, maxLength: number = 16): string[] {
+    // Se o texto for curto, retorna como está
+    if (text.length <= maxLength) return [text];
+    // Tenta dividir por espaço para melhor quebra
+    const words = text.split(' ');
+    let line1 = "";
+    let line2 = "";
+    for (const word of words) {
+        if ((line1 + ' ' + word).length <= maxLength) {
+        line1 += (line1 ? ' ' : '') + word;
+        } else {
+        line2 += (line2 ? ' ' : '') + word;
+        }
+    }
+    // Se a segunda linha ainda ficou muito longa, faz uma abreviação simples
+    if (line2.length > maxLength) {
+        line2 = line2.slice(0, maxLength - 1) + '…';
+    }
+    return [line1, line2];
+    }
+
     if (loading) return <div className="flex items-center justify-center h-screen"><p>Carregando dados...</p></div>;
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
 
@@ -366,7 +387,10 @@ export default function ShadcnDashboard() {
                 
                 <Card className="md:col-span-3 flex flex-col">
                     <CardHeader className="flex-row items-start space-y-0 pb-0">
-                        <div className="grid gap-1"><CardTitle>Distribuição por Regime</CardTitle><CardDescription>Percentual de imóveis por regime</CardDescription></div>
+                        <div className="grid gap-1">
+                            <CardTitle>Distribuição por Regime</CardTitle>
+                            <CardDescription>Percentual de imóveis por regime</CardDescription>
+                        </div>
                         <Select value={activeRegime} onValueChange={setActiveRegime}>
                             <SelectTrigger className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" aria-label="Selecione o Regime"><SelectValue placeholder="Selecione" /></SelectTrigger>
                             <SelectContent align="end" className="rounded-xl">
@@ -385,14 +409,34 @@ export default function ShadcnDashboard() {
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                                 <Pie data={dataRegime} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} activeIndex={activeIndexRegime}
                                     activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (<g><Sector {...props} outerRadius={outerRadius + 10} /><Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
-                                    <RechartsLabel content={({ viewBox }) => {
-                                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                                            const activeData = dataRegime[activeIndexRegime];
-                                            const percentage = totalImoveisRegime > 0 && activeData ? (activeData.value / totalImoveisRegime) * 100 : 0;
-                                            return (<text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle" ><tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">{percentage.toFixed(1)}%</tspan><tspan x={viewBox.cx} y={(viewBox.cy || 0) + 20} className="fill-muted-foreground">{activeRegime}</tspan></text>);
-                                        }
-                                        return null;
-                                    }}/>
+                                    <RechartsLabel
+                                    content={({ viewBox }) => {
+                                        // Type guard para garantir que cx/cy existem
+                                        if (!viewBox || typeof (viewBox as any).cx !== "number" || typeof (viewBox as any).cy !== "number") return null;
+                                        const cx = (viewBox as any).cx;
+                                        const cy = (viewBox as any).cy;
+                                        const activeData = dataRegime[activeIndexRegime];
+                                        const percentage = totalImoveisRegime > 0 && activeData ? (activeData.value / totalImoveisRegime) * 100 : 0;
+                                        const lines = formatPieCenterText(activeRegime, 16);
+
+                                        return (
+                                        <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                                            <tspan x={cx} y={cy - 12} className="fill-foreground text-3xl font-bold">{percentage.toFixed(1)}%</tspan>
+                                            {lines.map((line, idx) => (
+                                            <tspan
+                                                key={idx}
+                                                x={cx}
+                                                y={cy + idx * 18 + 10}
+                                                className="fill-muted-foreground"
+                                                fontSize={16}
+                                            >
+                                                {line}
+                                            </tspan>
+                                            ))}
+                                        </text>
+                                        );
+                                    }}
+                                    />
                                 </Pie>
                             </PieChart>
                         </ChartContainer>
