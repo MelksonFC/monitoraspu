@@ -512,6 +512,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
             const { data: viaCepData } = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
             if (viaCepData.erro) { toast.warn("CEP não encontrado."); setValidationErrors(prev => ({ ...prev, cep: 'CEP não encontrado.' })); return; }
             const { logradouro, bairro, localidade, uf } = viaCepData;
+            console.log("Estados:", estados, "UF buscada:", uf);
             const estadoEncontrado = estados.find(est => est.uf?.toUpperCase() === uf.toUpperCase());
             if (!estadoEncontrado) { toast.error(`Estado com a sigla ${uf} não encontrado no sistema.`); return; }
             const { data: municipiosDoEstado } = await axios.get(`${API_URL}/api/municipios?estado=${estadoEncontrado.id}`);
