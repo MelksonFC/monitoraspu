@@ -53,7 +53,7 @@ export default function RegimeUtilizacaoManagement() {
     try {
       await axios[method](url, {
         descricao: item.descricao,
-        destinacao: item.destinado ?? false
+        destinado: item.destinado ?? false
       });
       toast.success("Regime salvo com sucesso!");
       handleCloseDialog();
