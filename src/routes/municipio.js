@@ -1,7 +1,7 @@
-import express from "express";
-import db from "../models/index.js";
+const express = require("express");
+const db = require('../models/index.js');
+const { Op } = require("sequelize");
 const { Municipio, Imovel } = db;
-import { Op } from "sequelize";
 
 const router = express.Router();
 
@@ -119,4 +119,4 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

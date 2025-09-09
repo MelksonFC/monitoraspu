@@ -1,10 +1,11 @@
 'use strict';
 
-import express from "express";
-import pool  from "./db.js";
-import bcrypt from "bcrypt";
-import crypto from "crypto";
-import nodemailer from "nodemailer";
+const express = require("express");
+const pool = require("./db.js");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+
 
 const router = express.Router();
 
@@ -139,4 +140,4 @@ router.get("/ativar", async (req, res) => {
   res.json({ message: "Usuário ativado com sucesso." });
 });
 
-export default router;
+module.exports = router;

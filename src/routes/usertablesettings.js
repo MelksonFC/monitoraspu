@@ -1,6 +1,6 @@
-import express from "express";
-import sequelize from "../models/sequelize.js";
-import db from "../models/index.js";
+const express = require("express");
+const sequelize = require("../models/sequelize.js");
+const db = require('../models/index.js');
 const { UserTableSetting } = db;
 
 const router = express.Router();
@@ -75,4 +75,4 @@ router.put("/:userid/:tablename", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

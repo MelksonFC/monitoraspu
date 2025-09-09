@@ -1,7 +1,6 @@
 'use strict';
-import express from "express";
-import { Op } from "sequelize";
-import db from "../models/index.js";
+const express = require("express");
+const db = require('../models/index.js');
 const { Pais, Estado, Municipio, UnidadeGestora, RegimeUtilizacao, Imovel } = db;
 
 
@@ -104,4 +103,4 @@ router.get('/regimes-utilizacao', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;

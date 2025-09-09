@@ -1,11 +1,11 @@
 'use strict';
 
-import express from "express";
-import multer from "multer";
-import db from "../models/index.js";
+const express = require("express");
+const sequelize = require("../models/sequelize.js");
+const { Op } = require("sequelize");
+const db = require('../models/index.js');
+const multer = require("multer");
 const { Imovel, Municipio, Estado, Imagem, UnidadeGestora, RegimeUtilizacao, HstUnidadeGestora, HstRegimeUtilizacao } = db;
-import sequelize from "../models/sequelize.js";
-import { Op } from "sequelize";
 
 const router = express.Router();
 const storage = multer.memoryStorage();
@@ -474,4 +474,4 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;
