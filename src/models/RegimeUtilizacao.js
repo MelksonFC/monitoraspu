@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   RegimeUtilizacao.init({
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     descricao: { type: DataTypes.STRING(100), allowNull: false, unique: true },
+    destinado: { type: DataTypes.BOOLEAN },
   }, {
     sequelize,
     modelName: 'RegimeUtilizacao',

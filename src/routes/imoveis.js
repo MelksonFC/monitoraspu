@@ -38,12 +38,12 @@ const processMonetaryFields = (data) => {
   return processedData;
 };
 
-async function isMatriculaDuplicada(matricula, idimovel = null) {
+/*async function isMatriculaDuplicada(matricula, idimovel = null) {
   const where = { matricula };
   if (idimovel) where.idimovel = { [Op.ne]: idimovel };
   const found = await Imovel.findOne({ where });
   return !!found;
-}
+}*/
 
 async function isRipUtilizacaoDuplicada(riputilizacao, ripimovel, idimovel = null) {
   const where = { riputilizacao, ripimovel };
@@ -253,10 +253,10 @@ router.post("/", upload.array('files'), async (req, res) => {
     const dadosProcessados = processMonetaryFields(dadosPrincipaisImovel);
 
     // === VALIDAÇÃO DE CAMPOS DUPLICADOS ===
-    if (await isMatriculaDuplicada(dadosPrincipaisImovel.matricula)) {
+    /*if (await isMatriculaDuplicada(dadosPrincipaisImovel.matricula)) {
       await t.rollback();
       return res.status(400).json({ error: "Matrícula já cadastrada." });
-    }
+    }*/
     if (await isRipUtilizacaoDuplicada(dadosPrincipaisImovel.riputilizacao, dadosPrincipaisImovel.ripimovel)) {
       await t.rollback();
       return res.status(400).json({ error: "RIP Utilização já existe para esse RIP Imóvel." });
@@ -344,10 +344,10 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         const dadosProcessados = processMonetaryFields(dadosPrincipaisImovel);
 
         // === VALIDAÇÃO DE CAMPOS DUPLICADOS ===
-        if (await isMatriculaDuplicada(dadosPrincipaisImovel.matricula, id)) {
+        /*if (await isMatriculaDuplicada(dadosPrincipaisImovel.matricula, id)) {
           await t.rollback();
           return res.status(400).json({ error: "Matrícula já cadastrada." });
-        }
+        }*/
         if (await isRipUtilizacaoDuplicada(dadosPrincipaisImovel.riputilizacao, dadosPrincipaisImovel.ripimovel, id)) {
           await t.rollback();
           return res.status(400).json({ error: "RIP Utilização já existe para esse RIP Imóvel." });

@@ -163,6 +163,7 @@ export default function ShadcnDashboard() {
 
     const dataRegime = Object.entries(imoveisPorRegime).map(([name, value]) => ({ name, value, fill: `var(--color-${name.replace(/\s+/g, '-').toLowerCase()})` })).sort((a,b) => b.value - a.value);
     const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0);
+    const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
     
     const chartConfigRegime = dataRegime.reduce<ChartConfig>((acc, { name }, index) => {
         const key = name.replace(/\s+/g, '-').toLowerCase();
@@ -175,7 +176,7 @@ export default function ShadcnDashboard() {
 
     const totalVago = dataRegime.find(r => r.name === 'Vago para Uso')?.value || 0;
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
-    const totalDestinados = dataRegime.find(r => r.name === 'Destinados')?.value || 0;
+    const totalDestinados = imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
     
     // --- AGRUPAMENTO POR MÊS PARA O GRÁFICO DE ÁREA ---
     const monthlyTimelineData = React.useMemo(() => {
@@ -457,11 +458,15 @@ export default function ShadcnDashboard() {
                             <CardContent><p className="text-2xl font-bold">{totalEmRegularizacao}</p></CardContent>
                         </Card>
                         <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
-                          setSelectedRegimeCard('Destinados');
-                          setDrillImoveis(getImoveisPorRegime('Destinados'));
+                        setSelectedRegimeCard('Destinados');
+                        setDrillImoveis(imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)));
                         }}>
-                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Destinados</CardTitle></CardHeader>
-                            <CardContent><p className="text-2xl font-bold">{totalDestinados}</p></CardContent>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-sm font-medium">Destinados</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-2xl font-bold">{totalDestinados}</p>
+                            </CardContent>
                         </Card>
                     </div>
                 </Card>

@@ -65,6 +65,7 @@ export type Imovel = {
   nprocesso: string; 
   ocupante: string; 
   idregimeutilizacao?: number; 
+  destinado?: boolean;
   idunidadegestora?: number; 
   areaconstruida?: string; 
   areaterreno?: string; 

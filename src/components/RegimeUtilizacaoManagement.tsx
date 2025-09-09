@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Box, Typography } from '@mui/material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Box, Typography, Checkbox } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -13,6 +13,7 @@ const API_URL = `${apiUrl}/api/regimeutilizacao`;
 interface Regime {
   id: number;
   descricao: string;
+  destinado: boolean; 
 }
 
 export default function RegimeUtilizacaoManagement() {
@@ -34,7 +35,8 @@ export default function RegimeUtilizacaoManagement() {
   }, [fetchData]);
 
   const handleOpenDialog = (item: Regime | null = null) => {
-    setCurrentItem(item);
+    // Se for novo, garante destinacao como false
+    setCurrentItem(item ? item : { id: 0, descricao: '', destinado: false });
     setDialogOpen(true);
   };
 
@@ -49,7 +51,10 @@ export default function RegimeUtilizacaoManagement() {
     const method = isEditing ? 'put' : 'post';
 
     try {
-      await axios[method](url, { descricao: item.descricao });
+      await axios[method](url, {
+        descricao: item.descricao,
+        destinacao: item.destinado ?? false
+      });
       toast.success("Regime salvo com sucesso!");
       handleCloseDialog();
       fetchData();
@@ -85,6 +90,7 @@ export default function RegimeUtilizacaoManagement() {
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Descrição</TableCell>
+                <TableCell>Destinado</TableCell>
                 <TableCell align="right">Ações</TableCell>
               </TableRow>
             </TableHead>
@@ -93,6 +99,9 @@ export default function RegimeUtilizacaoManagement() {
                 <TableRow key={regime.id}>
                   <TableCell>{regime.id}</TableCell>
                   <TableCell>{regime.descricao}</TableCell>
+                  <TableCell>
+                    <Checkbox checked={!!regime.destinado} disabled />
+                  </TableCell>
                   <TableCell align="right">
                     <IconButton onClick={() => handleOpenDialog(regime)}><EditIcon /></IconButton>
                     <IconButton onClick={() => handleDelete(regime.id)}><DeleteIcon /></IconButton>
@@ -103,7 +112,7 @@ export default function RegimeUtilizacaoManagement() {
           </Table>
         </TableContainer>
       </Paper>
-      {/* Aqui especificamos o tipo <Regime> */}
+      {/* Agora passa o campo extra para o ManagementDialog */}
       <ManagementDialog<Regime>
         open={dialogOpen}
         onClose={handleCloseDialog}
@@ -112,6 +121,14 @@ export default function RegimeUtilizacaoManagement() {
         title={currentItem ? 'Editar Regime de Utilização' : 'Novo Regime de Utilização'}
         label="Descrição do Regime"
         fieldName="descricao"
+        extraFields={[
+          {
+            type: 'checkbox',
+            name: 'destinado',
+            label: 'Destinado',
+            defaultValue: false
+          }
+        ]}
       />
     </>
   );

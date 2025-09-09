@@ -1,13 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Box,
+} from '@mui/material';
 import { toast } from 'react-toastify';
 
-// Definimos uma interface base para garantir que o item sempre terá um id opcional
+// Interface base para garantir que o item sempre terá um id opcional
 interface BaseItem {
   id?: number;
 }
 
-// Usamos <T extends BaseItem> para tornar o componente genérico
+// Novo tipo para campos extras
+type ExtraFieldType = 'checkbox' | 'text' | 'number';
+
+interface ExtraField<T> {
+  type: ExtraFieldType;
+  name: keyof T;
+  label: string;
+  defaultValue?: any;
+}
+
 interface ManagementDialogProps<T extends BaseItem> {
   open: boolean;
   onClose: () => void;
@@ -15,7 +34,8 @@ interface ManagementDialogProps<T extends BaseItem> {
   item: T | null;
   title: string;
   label: string;
-  fieldName: keyof T & string; // O nome do campo deve ser uma chave do tipo T
+  fieldName: keyof T & string;
+  extraFields?: ExtraField<T>[];
 }
 
 export default function ManagementDialog<T extends BaseItem>({
@@ -26,41 +46,103 @@ export default function ManagementDialog<T extends BaseItem>({
   title,
   label,
   fieldName,
+  extraFields = [],
 }: ManagementDialogProps<T>) {
-  const [value, setValue] = useState('');
+  // Inicializa todos os valores do formulário
+  const [formValues, setFormValues] = useState<any>({});
 
   useEffect(() => {
     if (open) {
-      // Usamos 'as string' para garantir ao TS que o valor do campo é uma string
-      setValue(item ? (item[fieldName] as string) || '' : '');
+      let initialValues: any = item ? { ...item } : { [fieldName]: '' };
+      extraFields.forEach(field => {
+        if (!(field.name in initialValues)) {
+          initialValues[field.name] = field.defaultValue ?? (field.type === 'checkbox' ? false : '');
+        }
+      });
+      setFormValues(initialValues);
     }
-  }, [item, open, fieldName]);
+  }, [item, open, fieldName, extraFields]);
+
+  const handleFieldChange = (key: keyof T, value: any) => {
+    setFormValues((prev: any) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   const handleSaveClick = () => {
-    if (!value.trim()) {
+    if (!formValues[fieldName] || (typeof formValues[fieldName] === 'string' && !formValues[fieldName].trim())) {
       toast.error(`O campo "${label}" é obrigatório.`);
       return;
     }
-    // Criamos o novo objeto e o convertemos para o tipo T antes de salvar
-    const updatedItem = { ...item, [fieldName]: value } as T;
-    onSave(updatedItem);
+    onSave(formValues as T);
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          label={label}
-          type="text"
-          fullWidth
-          variant="outlined"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          sx={{ mt: 2 }}
-        />
+        <Box sx={{ mt: 2 }}>
+          <TextField
+            autoFocus
+            margin="dense"
+            label={label}
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={formValues[fieldName] ?? ''}
+            onChange={(e) => handleFieldChange(fieldName, e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          {extraFields.map(field => {
+            switch (field.type) {
+              case 'checkbox':
+                return (
+                  <FormControlLabel
+                    key={String(field.name)}
+                    control={
+                      <Checkbox
+                        checked={!!formValues[field.name]}
+                        onChange={e => handleFieldChange(field.name, e.target.checked)}
+                      />
+                    }
+                    label={field.label}
+                    sx={{ mt: 2 }}
+                  />
+                );
+              case 'text':
+                return (
+                  <TextField
+                    key={String(field.name)}
+                    margin="dense"
+                    label={field.label}
+                    type="text"
+                    fullWidth
+                    variant="outlined"
+                    value={formValues[field.name] ?? ''}
+                    onChange={e => handleFieldChange(field.name, e.target.value)}
+                    sx={{ mt: 2 }}
+                  />
+                );
+              case 'number':
+                return (
+                  <TextField
+                    key={String(field.name)}
+                    margin="dense"
+                    label={field.label}
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                    value={formValues[field.name] ?? ''}
+                    onChange={e => handleFieldChange(field.name, Number(e.target.value))}
+                    sx={{ mt: 2 }}
+                  />
+                );
+              default:
+                return null;
+            }
+          })}
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancelar</Button>
