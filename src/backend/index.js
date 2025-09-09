@@ -31,9 +31,6 @@ const poligonosterrenoRouter = require("../routes/poligonosterreno.js");
 const sequelize = require('../models/sequelize.js');
 
 
-// Sequelize não é mais usado diretamente aqui, mas mantido caso alguma rota futura precise
-import sequelize from '../models/sequelize.js';
-
 // ===================================================================
 // CONFIGURAÇÃO DO SERVIDOR EXPRESS
 // ===================================================================
