@@ -27,7 +27,6 @@ import regimeutilizacaoRouter from "../routes/regimeutilizacao.js";
 import unidadegestoraRouter from "../routes/unidadegestora.js";
 import lookupsRouter from "../routes/lookups.js";
 import usertablesettingsRouter from "../routes/usertablesettings.js";
-import usertablesettingsRouter from "../routes/usertablesettings.js";
 import poligonosterrenoRouter from "../routes/poligonosterreno.js";
 
 
