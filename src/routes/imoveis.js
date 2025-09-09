@@ -264,6 +264,14 @@ router.post("/", upload.array('files'), async (req, res) => {
     const imovelData = JSON.parse(req.body.imovelData);
     const { imagens, ...dadosPrincipaisImovel } = imovelData;
 
+    // --- INÍCIO DO DEBUG ---
+    console.log("--- [DEBUG] ROTA POST /api/imoveis ---");
+    console.log("1. Dados recebidos (imovelData):", JSON.stringify(imovelData, null, 2));
+    if (req.files) {
+      console.log("2. Arquivos recebidos (req.files):", req.files.map(f => f.originalname));
+    }
+    // --- FIM DO DEBUG ---
+
     const dadosProcessados = processMonetaryFields(dadosPrincipaisImovel);
 
     // === VALIDAÇÃO DE CAMPOS DUPLICADOS ===
@@ -319,9 +327,14 @@ router.post("/", upload.array('files'), async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       const imagensParaCriar = req.files.map(file => {
+        // --- DEBUG DENTRO DO MAP ---
+        console.log(`3. Processando arquivo: "${file.originalname}"`);
         const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
-        const sanitizedName = sanitizeFilename(file.originalname);
-        return imgInfo ? {
+        
+        if (imgInfo) {
+          const sanitizedName = sanitizeFilename(file.originalname);
+          console.log(`   - Info encontrada. Nome sanitizado será: "${sanitizedName}"`);
+          return {
             idimovel: newImovel.idimovel,
             nomearquivo: sanitizedName,
             imagem: file.buffer,
@@ -329,7 +342,12 @@ router.post("/", upload.array('files'), async (req, res) => {
             isdefault: imgInfo.isdefault || false,
             usercreated: imovelData.usercreated,
             usermodified: imovelData.usermodified,
-        } : null;
+          };
+        } else {
+          console.log(`   - ATENÇÃO: Nenhuma informação correspondente encontrada para "${file.originalname}"`);
+          return null;
+        }
+        // --- FIM DO DEBUG ---
       }).filter(img => img !== null);
 
       if (imagensParaCriar.length > 0) {
@@ -342,7 +360,14 @@ router.post("/", upload.array('files'), async (req, res) => {
     res.status(201).json(imovelCompleto);
   } catch (err) {
     await t.rollback();
-    console.error("--- [BACKEND-POST] ERRO AO CRIAR IMÓVEL ---", err);
+     // --- DEBUG DE ERRO ---
+    console.error("--- [ERRO FATAL] AO CRIAR IMÓVEL ---");
+    console.error("Mensagem do Erro:", err.message);
+    console.error("Stack do Erro:", err.stack);
+    if (err.original) {
+      console.error("Erro Original (do banco de dados):", err.original);
+    }
+    // --- FIM DO DEBUG DE ERRO ---
     res.status(500).json({ error: "Falha ao criar imóvel.", details: err.message });
   }
 });
@@ -355,6 +380,14 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         const imagensRemover = JSON.parse(req.body.imagensRemover || "[]");
         const { imagens, ...dadosPrincipaisImovel } = imovelData;
         const hoje = new Date();
+
+        // --- INÍCIO DO DEBUG ---
+        console.log("--- [DEBUG] ROTA POST /api/imoveis ---");
+        console.log("1. Dados recebidos (imovelData):", JSON.stringify(imovelData, null, 2));
+        if (req.files) {
+          console.log("2. Arquivos recebidos (req.files):", req.files.map(f => f.originalname));
+        }
+        // --- FIM DO DEBUG ---
 
         const dadosProcessados = processMonetaryFields(dadosPrincipaisImovel);
 
@@ -436,19 +469,29 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         }
 
         if (req.files && req.files.length > 0) {
-            const imagensParaCriar = req.files.map(file => {
-                const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
-                const sanitizedName = sanitizeFilename(file.originalname);
-                return imgInfo ? {
-                    idimovel: id,
-                    nomearquivo: sanitizedName,
-                    imagem: file.buffer,
-                    ordem: imgInfo.ordem,
-                    isdefault: imgInfo.isdefault || false,
-                    usercreated: imovelData.usermodified,
-                    usermodified: imovelData.usermodified,
-                } : null;
-            }).filter(img => img !== null);
+      const imagensParaCriar = req.files.map(file => {
+        // --- DEBUG DENTRO DO MAP ---
+        console.log(`3. Processando arquivo: "${file.originalname}"`);
+        const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
+        
+        if (imgInfo) {
+          const sanitizedName = sanitizeFilename(file.originalname);
+          console.log(`   - Info encontrada. Nome sanitizado será: "${sanitizedName}"`);
+          return {
+            idimovel: newImovel.idimovel,
+            nomearquivo: sanitizedName,
+            imagem: file.buffer,
+            ordem: imgInfo.ordem,
+            isdefault: imgInfo.isdefault || false,
+            usercreated: imovelData.usercreated,
+            usermodified: imovelData.usermodified,
+          };
+          } else {
+            console.log(`   - ATENÇÃO: Nenhuma informação correspondente encontrada para "${file.originalname}"`);
+            return null;
+          }
+          // --- FIM DO DEBUG ---
+        }).filter(img => img !== null);
 
             if (imagensParaCriar.length > 0) {
                 await Imagem.bulkCreate(imagensParaCriar, { transaction: t });
@@ -461,7 +504,14 @@ router.put("/:id", upload.array('files'), async (req, res) => {
 
     } catch (err) {
         await t.rollback();
-        console.error(`--- [BACKEND-PUT] ERRO AO ATUALIZAR IMÓVEL ${id} ---`, err);
+         // --- DEBUG DE ERRO ---
+        console.error("--- [ERRO FATAL] AO CRIAR IMÓVEL ---");
+        console.error("Mensagem do Erro:", err.message);
+        console.error("Stack do Erro:", err.stack);
+        if (err.original) {
+          console.error("Erro Original (do banco de dados):", err.original);
+        }
+        // --- FIM DO DEBUG DE ERRO ---
         res.status(500).json({ error: "Falha ao atualizar imóvel.", details: err.message });
     }
 });
