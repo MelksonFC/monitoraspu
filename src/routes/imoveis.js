@@ -11,6 +11,20 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// FUNÇÃO DE SANITIZAÇÃO ADICIONADA AQUI
+function sanitizeFilename(filename) {
+  if (!filename) return "";
+  // Converte para NFD (Normalization Form D), onde os acentos são separados dos caracteres
+  // e depois remove os caracteres de acentuação (range U+0300 a U+036f)
+  const withoutAccents = filename.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+  // Remove caracteres especiais, mantendo apenas letras, números, pontos, hífens e underscores
+  // e substitui espaços por underscore
+  const sanitized = withoutAccents.replace(/[^a-zA-Z0-9._-]/g, '_');
+  
+  return sanitized;
+}
+
 const parseCurrencyToFloat = (value) => {
   if (typeof value !== 'string') {
     return value;
@@ -306,9 +320,10 @@ router.post("/", upload.array('files'), async (req, res) => {
     if (req.files && req.files.length > 0) {
       const imagensParaCriar = req.files.map(file => {
         const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
+        const sanitizedName = sanitizeFilename(file.originalname);
         return imgInfo ? {
             idimovel: newImovel.idimovel,
-            nomearquivo: file.originalname,
+            nomearquivo: sanitizedName,
             imagem: file.buffer,
             ordem: imgInfo.ordem,
             isdefault: imgInfo.isdefault || false,
@@ -423,9 +438,10 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         if (req.files && req.files.length > 0) {
             const imagensParaCriar = req.files.map(file => {
                 const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
+                const sanitizedName = sanitizeFilename(file.originalname);
                 return imgInfo ? {
                     idimovel: id,
-                    nomearquivo: file.originalname,
+                    nomearquivo: sanitizedName,
                     imagem: file.buffer,
                     ordem: imgInfo.ordem,
                     isdefault: imgInfo.isdefault || false,
