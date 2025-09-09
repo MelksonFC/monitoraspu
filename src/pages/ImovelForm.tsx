@@ -24,6 +24,10 @@ import { useAuth } from "../AuthContext";
 import MapaLeaflet from "./MapaLeaflet";
 import SafePdfButton from '../components/SafePdfButton';
 import { SafeNumberField } from '../components/SafeNumberField';
+import MapIcon from "@mui/icons-material/Map";
+import TerrainIcon from "@mui/icons-material/Terrain";
+import LandscapeIcon from "@mui/icons-material/Landscape";
+import PoligonoTerrenoDialog from "./PoligonoTerrenoDialog";
 
 // Ícones para Navegação
 import FirstPageIcon from '@mui/icons-material/FirstPage';
@@ -275,6 +279,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
     const [deleteConfirm, setDeleteConfirm] = useState<{ type: DialogType, id: number } | null>(null);
     const [mapaAberto, setMapaAberto] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+    const [poligonoDialogOpen, setPoligonoDialogOpen] = useState(false);
 
     // MUDANÇA: Variável para determinar se está em modo de edição
     const isEditMode = !!imovel?.idimovel;
@@ -867,6 +872,45 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                   error={!!validationErrors.areaterreno}
                   helperText={validationErrors.areaterreno}
                 />
+                {!form.idimovel ? (
+                  <Tooltip title="Demarcar terreno">
+                    <span>
+                      <IconButton disabled
+                        aria-label="Demarcar terreno"
+                        sx={{
+                          ml: 1, 
+                          borderRadius: "100%",
+                        }}
+                      >
+                        <MapIcon/>
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <>
+                    <Tooltip title="Demarcar terreno">
+                    <span>
+                    <IconButton
+                      aria-label="Demarcar terreno"
+                      onClick={() => setPoligonoDialogOpen(true)}
+                      sx={{
+                          ml: 1, 
+                          borderRadius: "100%",
+                        }}
+                    >
+                      <MapIcon/>
+                    </IconButton>
+                    </span>
+                    </Tooltip>
+                    <PoligonoTerrenoDialog
+                      open={poligonoDialogOpen}
+                      onClose={() => setPoligonoDialogOpen(false)}
+                      idimovel={form.idimovel}
+                      lat={form.latitude}
+                      lng={form.longitude}
+                    />
+                  </>
+                )}
               </Box>
             </Paper>
             <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
