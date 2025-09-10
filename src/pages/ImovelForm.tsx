@@ -206,13 +206,13 @@ async function checkUnicityAPI(form: ImovelFormState): Promise<{ [field: string]
   const errors: { [field: string]: string } = {};
   try {
     // Matricula
-    if (form.matricula) {
-      const res = await axios.get(`${API_URL}/api/imoveis?matricula=${encodeURIComponent(form.matricula)}`);
-      if (Array.isArray(res.data)) {
-        const found = res.data.find((i: any) => i.matricula === form.matricula && i.idimovel !== form.idimovel);
-        if (found) errors.matricula = "Matrícula já cadastrada";
-      }
-    }
+    //if (form.matricula) {
+    //  const res = await axios.get(`${API_URL}/api/imoveis?matricula=${encodeURIComponent(form.matricula)}`);
+    //  if (Array.isArray(res.data)) {
+    //    const found = res.data.find((i: any) => i.matricula === form.matricula && i.idimovel !== form.idimovel);
+    //    if (found) errors.matricula = "Matrícula já cadastrada";
+    //  }
+    //}
     // RIP Utilização
     if (form.riputilizacao) {
       const res = await axios.get(`${API_URL}/api/imoveis?ripUtilizacao=${encodeURIComponent(form.riputilizacao)}`);
