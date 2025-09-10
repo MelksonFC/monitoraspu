@@ -1,6 +1,6 @@
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, Alert, IconButton, Tooltip, CircularProgress, LinearProgress
+  Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, Alert, IconButton, Tooltip, LinearProgress, Collapse
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -9,7 +9,6 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import axios from "axios";
 import { MapContainer, TileLayer, Polygon, Marker, FeatureGroup, Popup } from "react-leaflet";
-import { EditControl } from "react-leaflet-draw";
 import L, { Map } from "leaflet";
 import { FixedSizeList as List } from 'react-window';
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -32,10 +31,7 @@ type PoligonoTerreno = {
 };
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-const BATCH_SIZE = 2000; // Processar em lotes de 2000
-
-// Função para pausar e permitir que a UI atualize
+const BATCH_SIZE = 2000;
 const yieldToMain = () => new Promise(resolve => setTimeout(resolve, 0));
 
 export default function PoligonoTerrenoDialog({
@@ -58,6 +54,7 @@ export default function PoligonoTerrenoDialog({
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
   const mapRef = useRef<Map>(null);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
@@ -65,8 +62,10 @@ export default function PoligonoTerrenoDialog({
 
   useEffect(() => {
     if (!open || !idimovel) return;
+    setCoords([]);
     setLoading(true);
     setError(null);
+    setImportSuccess(null);
     axios.get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`)
       .then((res) => {
         const dados: PoligonoTerreno[] = (Array.isArray(res.data) ? res.data : []).map((p: any) => ({
@@ -74,20 +73,10 @@ export default function PoligonoTerrenoDialog({
           coordinates: p.area?.coordinates?.[0] ?? [],
         }));
         if (dados.length > 0 && dados[0].coordinates.length > 0) {
-          const loadedCoords = dados[0].coordinates;
           setPoligono(dados[0]);
-          setCoords(loadedCoords);
-          if (featureGroupRef.current) {
-            featureGroupRef.current.clearLayers();
-            const polygonLayer = L.polygon(loadedCoords, { color: 'red' });
-            featureGroupRef.current.addLayer(polygonLayer);
-            if (mapRef.current) {
-              mapRef.current.fitBounds(polygonLayer.getBounds());
-            }
-          }
+          setCoords(dados[0].coordinates);
         } else {
           setPoligono(null);
-          setCoords([]);
         }
       })
       .catch(() => setError("Falha ao carregar o polígono do imóvel."))
@@ -100,6 +89,24 @@ export default function PoligonoTerrenoDialog({
       return () => clearTimeout(timer);
     }
   }, [open]);
+
+  useEffect(() => {
+    const fg = featureGroupRef.current;
+    const map = mapRef.current;
+    if (!fg || !map) return;
+
+    fg.clearLayers();
+    if (coords.length > 2) {
+      try {
+        const polygonLayer = L.polygon(coords, { color: 'blue' });
+        fg.addLayer(polygonLayer);
+        map.fitBounds(polygonLayer.getBounds(), { padding: [50, 50] });
+      } catch (e) {
+        console.error("Erro ao desenhar polígono no Leaflet:", e);
+        setError("Coordenadas inválidas para o desenho no mapa.");
+      }
+    }
+  }, [coords]);
 
   const handleSave = () => {
     if (!usuario) return setError("Usuário não autenticado.");
@@ -124,24 +131,18 @@ export default function PoligonoTerrenoDialog({
     }
   };
 
-  const asyncParseCoordinates = async (fileContent: string) => {
+  const asyncParseCoordinates = async (fileContent: string): Promise<[number, number][]> => {
     const text = fileContent.trim();
     
-    // Tentativa de processar como JSON
     if (text.startsWith('[') && text.endsWith(']')) {
       try {
         const parsed = JSON.parse(text);
-        // Validação rigorosa do tipo para corrigir o erro do TypeScript
         if (Array.isArray(parsed) && parsed.every(p => Array.isArray(p) && p.length === 2 && typeof p[0] === 'number' && typeof p[1] === 'number')) {
-            setCoords(parsed as [number, number][]); // Cast seguro após a validação
-            setImportProgress(100);
-            await yieldToMain();
-            return;
+            return parsed as [number, number][];
         }
-      } catch (e) { /* Ignora e tenta o próximo formato */ }
+      } catch (e) { /* Fallback */ }
     }
     
-    // Tentativa de processar como CSV
     const lines = text.split('\n').filter(line => line.trim() !== '');
     if (lines.length === 0) throw new Error("Arquivo vazio ou em formato não reconhecido.");
 
@@ -157,9 +158,9 @@ export default function PoligonoTerrenoDialog({
       });
       newCoords.push(...processedBatch);
       setImportProgress(Math.round(((i + batch.length) / lines.length) * 100));
-      await yieldToMain(); // Pausa para a UI atualizar
+      await yieldToMain();
     }
-    setCoords(newCoords);
+    return newCoords;
   };
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,16 +169,20 @@ export default function PoligonoTerrenoDialog({
 
     setIsImporting(true);
     setError(null);
+    setImportSuccess(null);
     setImportProgress(0);
 
     const reader = new FileReader();
     reader.onload = async (e) => {
       const text = e.target?.result as string;
       try {
-        await asyncParseCoordinates(text);
+        const newCoords = await asyncParseCoordinates(text);
+        setCoords(newCoords);
+        setImportSuccess(`${newCoords.length} coordenadas importadas com sucesso!`);
+        setTimeout(() => setImportSuccess(null), 5000);
       } catch (err: any) {
         setError(err.message);
-        setCoords([]); // Limpa coordenadas em caso de erro
+        setCoords([]);
       } finally {
         setIsImporting(false);
         if (event.target) event.target.value = '';
@@ -197,7 +202,6 @@ export default function PoligonoTerrenoDialog({
         <TableCell component="div"><TextField type="number" value={coord[0]} onChange={(e) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" /></TableCell>
         <TableCell component="div"><TextField type="number" value={coord[1]} onChange={(e) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" /></TableCell>
         <TableCell component="div">
-            {/* Ações desabilitadas na lista virtualizada para simplicidade */}
             <IconButton size="small" disabled><ArrowUpwardIcon /></IconButton>
             <IconButton size="small" disabled><ArrowDownwardIcon /></IconButton>
             <IconButton size="small" disabled><DeleteIcon /></IconButton>
@@ -212,14 +216,17 @@ export default function PoligonoTerrenoDialog({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle>Polígono do Terreno</DialogTitle>
       <DialogContent>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <Collapse in={!!error}>
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>
+        </Collapse>
+        <Collapse in={!!importSuccess}>
+            <Alert severity="success" sx={{ mb: 2 }} onClose={() => setImportSuccess(null)}>{importSuccess}</Alert>
+        </Collapse>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
           <Box sx={{ flex: 1, height: '500px', minHeight: '300px' }}>
             <MapContainer center={center} zoom={15} style={{ height: "100%", width: "100%" }} ref={mapRef}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <FeatureGroup ref={featureGroupRef}>
-                 {coords.length > 2 && <Polygon positions={coords} color="blue" />}
-              </FeatureGroup>
+              <FeatureGroup ref={featureGroupRef} />
               {lat && lng && <Marker position={[lat, lng]}><Popup>Local do Imóvel</Popup></Marker>}
             </MapContainer>
           </Box>
