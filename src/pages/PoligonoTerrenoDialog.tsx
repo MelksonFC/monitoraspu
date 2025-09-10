@@ -211,8 +211,13 @@ export default function PoligonoTerrenoDialog({
                 width: "100%",
                 height: 300,
                 mb: 2,
-                "& .leaflet-draw-toolbar": { zIndex: 1400 },
-                "& .leaflet-draw-tooltip": { zIndex: 1400 },
+                "& .leaflet-container": {
+                  zIndex: 1,
+                },
+                // Garante que a barra de ferramentas e as dicas fiquem na frente de tudo
+                "& .leaflet-draw-toolbar, & .leaflet-draw-tooltip": {
+                  zIndex: 1400, // Maior que o z-index do Dialog (1300)
+                },
               }}>
                 <MapContainer
                   center={
