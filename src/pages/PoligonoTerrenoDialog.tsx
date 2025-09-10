@@ -7,6 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import axios from "axios";
 import { MapContainer, TileLayer, Polygon, Marker, FeatureGroup, Popup } from "react-leaflet";
 import L, { Map } from "leaflet";
@@ -122,6 +123,12 @@ export default function PoligonoTerrenoDialog({
       .finally(() => setLoading(false));
   };
 
+  const handleInvertCoords = () => {
+    if (coords.length === 0) return;
+    const invertedCoords = coords.map(([lat, lng]) => [lng, lat] as [number, number]);
+    setCoords(invertedCoords);
+  };
+
   const handleCoordChange = (index: number, value: string, latOrLng: 'lat' | 'lng') => {
     const newCoords = [...coords];
     const numValue = parseFloat(value);
@@ -232,7 +239,7 @@ export default function PoligonoTerrenoDialog({
           </Box>
           <Box sx={{ flex: 1, maxHeight: '500px', display: 'flex', flexDirection: 'column' }}>
             <Typography variant="h6">Coordenadas</Typography>
-            <Box sx={{ my: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, my: 1 }}>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} accept=".json,.txt,.csv" />
               {isImporting ? (
                 <Box sx={{ width: '100%' }}>
@@ -240,9 +247,18 @@ export default function PoligonoTerrenoDialog({
                   <Typography variant="caption" display="block" textAlign="center">{`${importProgress}%`}</Typography>
                 </Box>
               ) : (
-                <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => fileInputRef.current?.click()}>
-                  Importar de Arquivo
-                </Button>
+                <>
+                  <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => fileInputRef.current?.click()}>
+                    Importar de Arquivo
+                  </Button>
+                  <Tooltip title="Inverter Latitude/Longitude em todos os pontos">
+                    <span>
+                      <IconButton onClick={handleInvertCoords} disabled={coords.length === 0}>
+                        <SwapHorizIcon />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </>
               )}
             </Box>
             <Box sx={{ flexGrow: 1, border: '1px solid #ccc', borderRadius: '4px' }}>
