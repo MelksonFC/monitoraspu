@@ -9,7 +9,14 @@ const { Imovel, Municipio, Estado, Imagem, UnidadeGestora, RegimeUtilizacao, Hst
 
 const router = express.Router();
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    // Corrige o problema de encoding no nome do arquivo
+    file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    cb(null, true);
+  }
+});
 
 // FUNÇÃO DE SANITIZAÇÃO ADICIONADA AQUI
 function sanitizeFilename(filename) {
@@ -87,8 +94,6 @@ router.get('/com-relacoes', async (req, res) => {
       ripImovel, ripUtilizacao, tipoData, dataInicio, dataFim
     } = req.query;
 
-    // --- INÍCIO DA CORREÇÃO ---
-
     // 1. Cláusula WHERE para o modelo principal (Imovel)
     const imovelWhere = {};
     if (matricula) imovelWhere.matricula = { [Op.iLike]: `%${matricula}%` };
@@ -116,8 +121,6 @@ router.get('/com-relacoes', async (req, res) => {
       if (tipoData === 'avaliacao') imovelWhere.data_ultima_avaliacao = dateRange;
       if (tipoData === 'fiscalizacao') imovelWhere.data_ultima_fiscalizacao = dateRange;
     }
-
-    // --- FIM DA CORREÇÃO ---
 
     const imoveis = await Imovel.findAll({
       // --- MUDANÇA: Aplica a cláusula where principal ---
@@ -265,11 +268,11 @@ router.post("/", upload.array('files'), async (req, res) => {
     const { imagens, ...dadosPrincipaisImovel } = imovelData;
 
     // --- INÍCIO DO DEBUG ---
-    console.log("--- [DEBUG] ROTA POST /api/imoveis ---");
-    console.log("1. Dados recebidos (imovelData):", JSON.stringify(imovelData, null, 2));
-    if (req.files) {
-      console.log("2. Arquivos recebidos (req.files):", req.files.map(f => f.originalname));
-    }
+    //console.log("--- [DEBUG] ROTA POST /api/imoveis ---");
+    //console.log("1. Dados recebidos (imovelData):", JSON.stringify(imovelData, null, 2));
+    //if (req.files) {
+    //  console.log("2. Arquivos recebidos (req.files):", req.files.map(f => f.originalname));
+    //}
     // --- FIM DO DEBUG ---
 
     const dadosProcessados = processMonetaryFields(dadosPrincipaisImovel);
@@ -328,12 +331,12 @@ router.post("/", upload.array('files'), async (req, res) => {
     if (req.files && req.files.length > 0) {
       const imagensParaCriar = req.files.map(file => {
         // --- DEBUG DENTRO DO MAP ---
-        console.log(`3. Processando arquivo: "${file.originalname}"`);
+        // console.log(`3. Processando arquivo: "${file.originalname}"`);
         const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
         
-        if (imgInfo) {
+        //if (imgInfo) {
           const sanitizedName = sanitizeFilename(file.originalname);
-          console.log(`   - Info encontrada. Nome sanitizado será: "${sanitizedName}"`);
+          //console.log(`   - Info encontrada. Nome sanitizado será: "${sanitizedName}"`);
           return {
             idimovel: newImovel.idimovel,
             nomearquivo: sanitizedName,
@@ -343,10 +346,10 @@ router.post("/", upload.array('files'), async (req, res) => {
             usercreated: imovelData.usercreated,
             usermodified: imovelData.usermodified,
           };
-        } else {
-          console.log(`   - ATENÇÃO: Nenhuma informação correspondente encontrada para "${file.originalname}"`);
+        //} else {
+        //  console.log(`   - ATENÇÃO: Nenhuma informação correspondente encontrada para "${file.originalname}"`);
           return null;
-        }
+        // }
         // --- FIM DO DEBUG ---
       }).filter(img => img !== null);
 
@@ -361,12 +364,12 @@ router.post("/", upload.array('files'), async (req, res) => {
   } catch (err) {
     await t.rollback();
      // --- DEBUG DE ERRO ---
-    console.error("--- [ERRO FATAL] AO CRIAR IMÓVEL ---");
-    console.error("Mensagem do Erro:", err.message);
-    console.error("Stack do Erro:", err.stack);
-    if (err.original) {
-      console.error("Erro Original (do banco de dados):", err.original);
-    }
+    //console.error("--- [ERRO FATAL] AO CRIAR IMÓVEL ---");
+    //console.error("Mensagem do Erro:", err.message);
+    //console.error("Stack do Erro:", err.stack);
+    //if (err.original) {
+    //  console.error("Erro Original (do banco de dados):", err.original);
+    //}
     // --- FIM DO DEBUG DE ERRO ---
     res.status(500).json({ error: "Falha ao criar imóvel.", details: err.message });
   }
@@ -382,11 +385,11 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         const hoje = new Date();
 
         // --- INÍCIO DO DEBUG ---
-        console.log("--- [DEBUG] ROTA POST /api/imoveis ---");
-        console.log("1. Dados recebidos (imovelData):", JSON.stringify(imovelData, null, 2));
-        if (req.files) {
-          console.log("2. Arquivos recebidos (req.files):", req.files.map(f => f.originalname));
-        }
+        //console.log("--- [DEBUG] ROTA POST /api/imoveis ---");
+        //console.log("1. Dados recebidos (imovelData):", JSON.stringify(imovelData, null, 2));
+        //if (req.files) {
+        //  console.log("2. Arquivos recebidos (req.files):", req.files.map(f => f.originalname));
+        //}
         // --- FIM DO DEBUG ---
 
         const dadosProcessados = processMonetaryFields(dadosPrincipaisImovel);
@@ -471,12 +474,12 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         if (req.files && req.files.length > 0) {
       const imagensParaCriar = req.files.map(file => {
         // --- DEBUG DENTRO DO MAP ---
-        console.log(`3. Processando arquivo: "${file.originalname}"`);
+        //console.log(`3. Processando arquivo: "${file.originalname}"`);
         const imgInfo = imagens.find(img => img.isNew && img.nomearquivo === file.originalname);
         
-        if (imgInfo) {
+       //if (imgInfo) {
           const sanitizedName = sanitizeFilename(file.originalname);
-          console.log(`   - Info encontrada. Nome sanitizado será: "${sanitizedName}"`);
+        //  console.log(`   - Info encontrada. Nome sanitizado será: "${sanitizedName}"`);
           return {
             idimovel: newImovel.idimovel,
             nomearquivo: sanitizedName,
@@ -486,10 +489,10 @@ router.put("/:id", upload.array('files'), async (req, res) => {
             usercreated: imovelData.usercreated,
             usermodified: imovelData.usermodified,
           };
-          } else {
-            console.log(`   - ATENÇÃO: Nenhuma informação correspondente encontrada para "${file.originalname}"`);
+        //  } else {
+        //    console.log(`   - ATENÇÃO: Nenhuma informação correspondente encontrada para "${file.originalname}"`);
             return null;
-          }
+        //  }
           // --- FIM DO DEBUG ---
         }).filter(img => img !== null);
 
@@ -505,12 +508,12 @@ router.put("/:id", upload.array('files'), async (req, res) => {
     } catch (err) {
         await t.rollback();
          // --- DEBUG DE ERRO ---
-        console.error("--- [ERRO FATAL] AO CRIAR IMÓVEL ---");
-        console.error("Mensagem do Erro:", err.message);
-        console.error("Stack do Erro:", err.stack);
-        if (err.original) {
-          console.error("Erro Original (do banco de dados):", err.original);
-        }
+        //console.error("--- [ERRO FATAL] AO CRIAR IMÓVEL ---");
+        //console.error("Mensagem do Erro:", err.message);
+        //console.error("Stack do Erro:", err.stack);
+        //if (err.original) {
+        //  console.error("Erro Original (do banco de dados):", err.original);
+        //}
         // --- FIM DO DEBUG DE ERRO ---
         res.status(500).json({ error: "Falha ao atualizar imóvel.", details: err.message });
     }
