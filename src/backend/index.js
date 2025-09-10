@@ -62,6 +62,7 @@ const corsOptions = {
 // 3. Use as opções de CORS no seu app
 // Esta linha substitui a antiga "app.use(cors());"
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 // --- FIM DA CORREÇÃO DE CORS ---
 
 // AUMENTAR O LIMITE DO PAYLOAD AQUI
