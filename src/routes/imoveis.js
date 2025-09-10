@@ -73,12 +73,12 @@ async function isRipUtilizacaoDuplicada(riputilizacao, ripimovel, idimovel = nul
   return !!found;
 }
 
-async function isNProcessoDuplicado(nprocesso, idimovel = null) {
-  const where = { nprocesso };
-  if (idimovel) where.idimovel = { [Op.ne]: idimovel };
-  const found = await Imovel.findOne({ where });
-  return !!found;
-}
+//async function isNProcessoDuplicado(nprocesso, idimovel = null) {
+//  const where = { nprocesso };
+//  if (idimovel) where.idimovel = { [Op.ne]: idimovel };
+//  const found = await Imovel.findOne({ where });
+//  return !!found;
+//}
 
 // Restrições de arquivo
 const MAX_FILES = 5;
@@ -282,10 +282,10 @@ router.post("/", upload.array('files'), async (req, res) => {
       await t.rollback();
       return res.status(400).json({ error: "RIP Utilização já existe para esse RIP Imóvel." });
     }
-    if (dadosPrincipaisImovel.nprocesso && await isNProcessoDuplicado(dadosPrincipaisImovel.nprocesso)) {
+    /*if (dadosPrincipaisImovel.nprocesso && await isNProcessoDuplicado(dadosPrincipaisImovel.nprocesso)) {
       await t.rollback();
       return res.status(400).json({ error: "Número de Processo já cadastrado." });
-    }
+    }*/
     // === FIM VALIDAÇÃO ===
 
     // === VALIDAÇÃO DE ARQUIVOS ===
@@ -374,10 +374,10 @@ router.put("/:id", upload.array('files'), async (req, res) => {
           await t.rollback();
           return res.status(400).json({ error: "RIP Utilização já existe para esse RIP Imóvel." });
         }
-        if (dadosPrincipaisImovel.nprocesso && await isNProcessoDuplicado(dadosPrincipaisImovel.nprocesso, id)) {
+        /*if (dadosPrincipaisImovel.nprocesso && await isNProcessoDuplicado(dadosPrincipaisImovel.nprocesso, id)) {
           await t.rollback();
           return res.status(400).json({ error: "Número de Processo já cadastrado." });
-        }
+        }*/
         // === FIM VALIDAÇÃO ===
 
         // === VALIDAÇÃO DE ARQUIVOS ===

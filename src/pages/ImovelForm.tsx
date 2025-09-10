@@ -222,13 +222,13 @@ async function checkUnicityAPI(form: ImovelFormState): Promise<{ [field: string]
       }
     }
     // Nº Processo
-    if (form.nprocesso) {
-      const res = await axios.get(`${API_URL}/api/imoveis?nprocesso=${encodeURIComponent(form.nprocesso)}`);
-      if (Array.isArray(res.data)) {
-        const found = res.data.find((i: any) => i.nprocesso === form.nprocesso && i.idimovel !== form.idimovel);
-        if (found) errors.nprocesso = "Número de Processo já cadastrado";
-      }
-    }
+    //if (form.nprocesso) {
+    //  const res = await axios.get(`${API_URL}/api/imoveis?nprocesso=${encodeURIComponent(form.nprocesso)}`);
+    //  if (Array.isArray(res.data)) {
+    //    const found = res.data.find((i: any) => i.nprocesso === form.nprocesso && i.idimovel !== form.idimovel);
+    //    if (found) errors.nprocesso = "Número de Processo já cadastrado";
+    //  }
+    // }
   } catch (err) {
     // silencioso, backend retorna vazio se não encontrar
   }

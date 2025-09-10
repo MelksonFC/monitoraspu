@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Imovel.init({
     idimovel: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    matricula: { type: DataTypes.STRING, unique: true },
+    matricula: { type: DataTypes.STRING },
     nome: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false },
     endereco: { type: DataTypes.STRING, allowNull: false },
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     idestado: { type: DataTypes.INTEGER, allowNull: false },
     idpais: { type: DataTypes.INTEGER, allowNull: false },
     nomecartorio: { type: DataTypes.STRING, allowNull: false },
-    nprocesso: { type: DataTypes.STRING, unique: true },
+    nprocesso: { type: DataTypes.STRING },
     latitude: { type: DataTypes.DECIMAL(10, 8), allowNull: true },
     longitude: { type: DataTypes.DECIMAL(11, 8), allowNull: true },
     areaterreno: { type: DataTypes.DECIMAL(18, 2) },
