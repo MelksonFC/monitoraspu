@@ -16,7 +16,6 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-// 1. IMPORTAÇÃO DO CONTEXTO DE AUTENTICAÇÃO
 import { useAuth } from "../AuthContext";
 
 L.Icon.Default.mergeOptions({
@@ -45,9 +44,7 @@ export default function PoligonoTerrenoDialog({
   lat?: number;
   lng?: number;
 }) {
-  // 2. OBTENÇÃO DO USUÁRIO LOGADO A PARTIR DO CONTEXTO
-  const { usuario } = useAuth();
-  
+  const { usuario } = useAuth();  
   const [poligono, setPoligono] = useState<PoligonoTerreno | null>(null);
   const [coords, setCoords] = useState<[number, number][]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,6 +53,12 @@ export default function PoligonoTerrenoDialog({
 
   useEffect(() => {
     if (!open || !idimovel) return;
+
+    const fg = featureGroupRef.current;
+    if (fg) {
+      fg.clearLayers(); // Limpa camadas antigas
+    }
+
     setLoading(true);
     axios
       .get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`)
@@ -66,9 +69,13 @@ export default function PoligonoTerrenoDialog({
             coordinates: p.area?.coordinates?.[0] ?? [],
           })
         );
-        if (dados.length > 0) {
+        if (dados.length > 0 && dados[0].coordinates.length > 0) {
           setPoligono(dados[0]);
           setCoords(dados[0].coordinates);
+          if (fg) {
+            const polygonLayer = L.polygon(dados[0].coordinates, { color: 'red' });
+            fg.addLayer(polygonLayer);
+          }
         } else {
           setPoligono(null);
           setCoords([]);
@@ -78,13 +85,12 @@ export default function PoligonoTerrenoDialog({
   }, [open, idimovel]);
 
   const handleMapCreated = (e: any) => {
-    if (e.layer instanceof L.Polygon) {
-      const pts = e.layer.getLatLngs()[0].map((latlng: L.LatLng) => [
-        Number(latlng.lat),
-        Number(latlng.lng),
-      ]);
-      setCoords(pts as [number, number][]);
-    }
+    const { layer } = e;
+    const pts = layer.getLatLngs()[0].map((latlng: L.LatLng) => [
+      Number(latlng.lat),
+      Number(latlng.lng),
+    ]);
+    setCoords(pts as [number, number][]);
   };
 
   const handleCoordChange = (idx: number, field: "lat" | "lng", value: string) => {
@@ -99,21 +105,14 @@ export default function PoligonoTerrenoDialog({
   const handleDeletePoint = (idx: number) => {
     setCoords(coords.filter((_, i) => i !== idx));
   };
-
-   const handleAddPoint = () => {
-    // Declara explicitamente que 'center' será uma tupla [number, number]
+  
+  const handleAddPoint = () => {
     let center: [number, number];
-
-    // Usa um if/else claro para a atribuição.
-    // Dentro deste bloco, o TypeScript sabe que 'lat' e 'lng' são do tipo 'number'.
     if (lat !== undefined && lng !== undefined) {
       center = [lat, lng];
     } else {
-      // O fallback também é uma tupla válida.
       center = [0, 0];
     }
-
-    // Agora, 'center' tem o tipo garantido de [number, number], e o erro desaparece.
     setCoords([...coords, center]);
   };
 
@@ -238,17 +237,16 @@ export default function PoligonoTerrenoDialog({
                       position="topright"
                       onCreated={handleMapCreated}
                       draw={{
-                        polygon: {
-                          allowIntersection: false,
-                          shapeOptions: { color: 'blue' }
+                        polygon: { 
+                          shapeOptions: { color: 'blue' } 
                         },
-                        polyline: false,
-                        rectangle: false,
-                        circle: false,
-                        marker: false,
+                        polyline: false, 
+                        rectangle: false, 
+                        circle: false, 
+                        marker: false, 
                         circlemarker: false,
                       }}
-                      edit={{ edit: false, remove: false }}
+                      edit={{ remove: true }}
                     />
                     {coords.length > 0 && (
                       <Polygon positions={coords} pathOptions={{ color: "red" }} />
