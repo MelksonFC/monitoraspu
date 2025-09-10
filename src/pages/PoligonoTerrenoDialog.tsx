@@ -204,11 +204,17 @@ export default function PoligonoTerrenoDialog({
 
   const Row = useCallback(({ index, style }: { index: number, style: React.CSSProperties }) => {
     const coord = coords[index];
+    const cellSx = { borderBottom: 'none' }; // <-- ESTILO DE CORREÇÃO
+
     return (
       <TableRow style={style} key={index} component="div">
-        <TableCell component="div"><TextField type="number" value={coord[0]} onChange={(e) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" /></TableCell>
-        <TableCell component="div"><TextField type="number" value={coord[1]} onChange={(e) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" /></TableCell>
-        <TableCell component="div">
+        <TableCell component="div" sx={cellSx}> {/* <-- APLICAÇÃO DO ESTILO */}
+            <TextField type="number" value={coord[0]} onChange={(e) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" />
+        </TableCell>
+        <TableCell component="div" sx={cellSx}> {/* <-- APLICAÇÃO DO ESTILO */}
+            <TextField type="number" value={coord[1]} onChange={(e) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" />
+        </TableCell>
+        <TableCell component="div" sx={cellSx}> {/* <-- APLICAÇÃO DO ESTILO */}
             <IconButton size="small" disabled><ArrowUpwardIcon /></IconButton>
             <IconButton size="small" disabled><ArrowDownwardIcon /></IconButton>
             <IconButton size="small" disabled><DeleteIcon /></IconButton>
