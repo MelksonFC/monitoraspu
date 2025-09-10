@@ -1,12 +1,12 @@
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, TableBody, Alert, IconButton, Tooltip
+  Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, TableBody, Alert, IconButton, Tooltip, CircularProgress
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import axios from "axios";
 import { MapContainer, TileLayer, Polygon, Marker, FeatureGroup, Popup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
@@ -49,11 +49,12 @@ export default function PoligonoTerrenoDialog({
   const [poligono, setPoligono] = useState<PoligonoTerreno | null>(null);
   const [coords, setCoords] = useState<[number, number][]>([]);
   const [loading, setLoading] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [importText, setImportText] = useState("");
 
   const mapRef = useRef<Map>(null);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open || !idimovel) return;
@@ -169,9 +170,9 @@ export default function PoligonoTerrenoDialog({
     setCoords(newCoords);
   };
 
-  const handleImportCoords = () => {
+  const parseCoordinatesFromFile = (fileContent: string) => {
     setError(null);
-    const text = importText.trim();
+    const text = fileContent.trim();
 
     // Tenta processar como JSON (lista de listas)
     if (text.startsWith('[') && text.endsWith(']')) {
@@ -179,11 +180,10 @@ export default function PoligonoTerrenoDialog({
         const parsed = JSON.parse(text);
         if (Array.isArray(parsed) && parsed.every(p => Array.isArray(p) && p.length === 2 && typeof p[0] === 'number' && typeof p[1] === 'number')) {
           setCoords(parsed as [number, number][]);
-          setImportText("");
           return;
         }
       } catch (e) {
-        // Ignora o erro de parsing JSON e tenta o próximo formato
+        // Ignora o erro e tenta o próximo formato
       }
     }
 
@@ -197,12 +197,39 @@ export default function PoligonoTerrenoDialog({
 
       if (newCoords.every(c => !isNaN(c[0]) && !isNaN(c[1]))) {
         setCoords(newCoords);
-        setImportText("");
         return;
       }
     }
     
-    setError("Formato de importação inválido. Use um array JSON de coordenadas [[lat, lng], ...] ou uma lista de 'lat,lng' por linha.");
+    throw new Error("Formato de arquivo inválido. Use um array JSON de coordenadas [[lat, lng], ...] ou uma lista de 'lat,lng' por linha.");
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      try {
+        parseCoordinatesFromFile(text);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsImporting(false);
+        if(event.target) {
+          event.target.value = '';
+        }
+      }
+    };
+    reader.onerror = () => {
+      setError("Falha ao ler o arquivo.");
+      setIsImporting(false);
+    };
+    reader.readAsText(file);
   };
 
   const center: [number, number] = (lat && lng) ? [lat, lng] : [-15.77972, -47.92972];
@@ -211,7 +238,7 @@ export default function PoligonoTerrenoDialog({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle>Polígono do Terreno</DialogTitle>
       <DialogContent>
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
           <Box sx={{ flex: 1, height: '500px', minHeight: '300px' }}>
             <MapContainer center={center} zoom={15} style={{ height: "100%", width: "100%" }} ref={mapRef}>
@@ -249,20 +276,23 @@ export default function PoligonoTerrenoDialog({
           </Box>
           <Box sx={{ flex: 1, maxHeight: '500px', overflowY: 'auto' }}>
             <Typography variant="h6">Coordenadas</Typography>
-            <Box sx={{ display: 'flex', gap: 1, my: 1 }}>
-              <TextField
-                label="Importar Coordenadas"
-                multiline
-                rows={2}
-                value={importText}
-                onChange={(e) => setImportText(e.target.value)}
-                variant="outlined"
-                fullWidth
-                placeholder="Cole aqui: [[lat,lng],...] ou lat,lng por linha"
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, my: 1 }}>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                accept=".json,.txt,.csv"
               />
-              <Tooltip title="Importar/Colar">
-                <IconButton onClick={handleImportCoords} color="primary"><ContentPasteIcon /></IconButton>
-              </Tooltip>
+              <Button
+                variant="outlined"
+                startIcon={<UploadFileIcon />}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isImporting}
+              >
+                {isImporting ? "Importando..." : "Importar de Arquivo"}
+              </Button>
+              {isImporting && <CircularProgress size={24} />}
             </Box>
             <Table size="small">
               <TableHead>
