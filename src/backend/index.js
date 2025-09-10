@@ -64,11 +64,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // --- FIM DA CORREÇÃO DE CORS ---
 
-// AUMENTAR O LIMITE DO PAYLOAD AQUI
-// O padrão é 100kb, o que é muito pouco para 17.000 coordenadas.
-// Aumentamos para 50mb para acomodar polígonos grandes.
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json());
 
 // ===================================================================
 // FUNÇÕES E CONFIGURAÇÕES AUXILIARES

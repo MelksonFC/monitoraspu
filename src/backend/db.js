@@ -17,14 +17,8 @@ const pool = new Pool({
   
   // Configuração de SSL segura usando o certificado CA.
   ssl: {
-    rejectUnauthorized: true // É uma boa prática de segurança manter isso como true.
+    ca: fs.readFileSync(caCertPath).toString(),
   }
-});
-
-// Adiciona um listener para erros de conexão no pool, para facilitar o debug no futuro.
-pool.on('error', (err, client) => {
-  console.error('Erro inesperado no cliente do pool de banco de dados', err);
-  process.exit(-1);
 });
 
 
