@@ -192,7 +192,7 @@ export default function PoligonoTerrenoDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth disableEnforceFocus>
       <DialogTitle>Polígono do Terreno</DialogTitle>
       <DialogContent>
         {loading ? (
