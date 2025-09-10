@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, TableBody
+  Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, TableBody, Alert
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -16,6 +16,8 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
+// 1. IMPORTAÇÃO DO CONTEXTO DE AUTENTICAÇÃO
+import { useAuth } from "../AuthContext";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -43,16 +45,17 @@ export default function PoligonoTerrenoDialog({
   lat?: number;
   lng?: number;
 }) {
+  // 2. OBTENÇÃO DO USUÁRIO LOGADO A PARTIR DO CONTEXTO
+  const { usuario } = useAuth();
+  
   const [poligono, setPoligono] = useState<PoligonoTerreno | null>(null);
   const [coords, setCoords] = useState<[number, number][]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Referência para o FeatureGroup (necessário para EditControl)
   const featureGroupRef = useRef<L.FeatureGroup>(null);
 
-  // Carrega polígono ao abrir
   useEffect(() => {
-    if (!open) return;
+    if (!open || !idimovel) return;
     setLoading(true);
     axios
       .get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`)
@@ -74,18 +77,16 @@ export default function PoligonoTerrenoDialog({
       .finally(() => setLoading(false));
   }, [open, idimovel]);
 
-  // Mapa: ao desenhar polígono, atualiza coords
   const handleMapCreated = (e: any) => {
-    if (e.layer instanceof window.L.Polygon) {
-      const pts = e.layer.getLatLngs()[0].map((latlng: any) => [
+    if (e.layer instanceof L.Polygon) {
+      const pts = e.layer.getLatLngs()[0].map((latlng: L.LatLng) => [
         Number(latlng.lat),
         Number(latlng.lng),
       ]);
-      setCoords(pts);
+      setCoords(pts as [number, number][]);
     }
   };
 
-  // Edita ponto manualmente
   const handleCoordChange = (idx: number, field: "lat" | "lng", value: string) => {
     const updated = coords.map((c, i) =>
       i === idx
@@ -95,17 +96,27 @@ export default function PoligonoTerrenoDialog({
     setCoords(updated as [number, number][]);
   };
 
-  // Exclui ponto
   const handleDeletePoint = (idx: number) => {
     setCoords(coords.filter((_, i) => i !== idx));
   };
 
-  // Adiciona ponto manual
-  const handleAddPoint = () => {
-    setCoords([...coords, [0, 0]]);
+   const handleAddPoint = () => {
+    // Declara explicitamente que 'center' será uma tupla [number, number]
+    let center: [number, number];
+
+    // Usa um if/else claro para a atribuição.
+    // Dentro deste bloco, o TypeScript sabe que 'lat' e 'lng' são do tipo 'number'.
+    if (lat !== undefined && lng !== undefined) {
+      center = [lat, lng];
+    } else {
+      // O fallback também é uma tupla válida.
+      center = [0, 0];
+    }
+
+    // Agora, 'center' tem o tipo garantido de [number, number], e o erro desaparece.
+    setCoords([...coords, center]);
   };
 
-  // Mover ponto para cima/baixo
   const handleMovePoint = (idx: number, dir: "up" | "down") => {
     const updated = [...coords];
     const swap = dir === "up" ? idx - 1 : idx + 1;
@@ -114,50 +125,70 @@ export default function PoligonoTerrenoDialog({
     setCoords(updated);
   };
 
-  // Salvar polígono novo ou editado
   const handleSave = async () => {
+    // 3. VERIFICAÇÃO DE SEGURANÇA
+    if (!usuario?.id) {
+      alert("Usuário não autenticado. Por favor, faça login para salvar.");
+      return;
+    }
     if (coords.length < 3) {
       alert("Um polígono precisa de pelo menos 3 pontos.");
       return;
     }
     setLoading(true);
-    if (!poligono) {
-      await axios.post(`${API_URL}/api/poligonosterreno`, {
-        idimovel,
-        coordinates: coords,
-        usercreated: 1,
-        usermodified: 1,
-      });
-    } else {
-      await axios.put(`${API_URL}/api/poligonosterreno/${poligono.id}`, {
-        coordinates: coords,
-        usermodified: 1,
-      });
+    
+    // 4. USO DO ID DO USUÁRIO LOGADO
+    const payload = {
+      coordinates: coords,
+      usermodified: usuario.id,
+    };
+    
+    try {
+      if (!poligono) {
+        await axios.post(`${API_URL}/api/poligonosterreno`, {
+          ...payload,
+          idimovel,
+          usercreated: usuario.id, // Uso do ID do usuário aqui
+        });
+      } else {
+        await axios.put(`${API_URL}/api/poligonosterreno/${poligono.id}`, payload);
+      }
+      const res = await axios.get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`);
+      const dados: PoligonoTerreno[] = (Array.isArray(res.data) ? res.data : []).map((p: any) => ({
+        id: p.id,
+        coordinates: p.area?.coordinates?.[0] ?? [],
+      }));
+      if (dados.length > 0) {
+        setPoligono(dados[0]);
+        setCoords(dados[0].coordinates);
+      }
+    } catch (error) {
+      console.error("Erro ao salvar polígono:", error);
+      alert("Falha ao salvar o polígono.");
+    } finally {
+      setLoading(false);
     }
-    // Recarrega polígono
-    const res = await axios.get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`);
-    const dados: PoligonoTerreno[] = (Array.isArray(res.data) ? res.data : []).map((p: any) => ({
-      id: p.id,
-      coordinates: p.area?.coordinates?.[0] ?? [],
-    }));
-    if (dados.length > 0) {
-      setPoligono(dados[0]);
-      setCoords(dados[0].coordinates);
-    } else {
-      setPoligono(null);
-      setCoords([]);
-    }
-    setLoading(false);
   };
 
-  // Excluir polígono
   const handleDeletePoligono = async () => {
     if (!poligono) return;
-    setLoading(true);
-    await axios.delete(`${API_URL}/api/poligonosterreno/${poligono.id}`);
-    setPoligono(null);
-    setCoords([]);
-    setLoading(false);
+    if (!usuario?.id) { // Verificação de segurança também na exclusão
+      alert("Usuário não autenticado. Por favor, faça login para excluir.");
+      return;
+    }
+    if (window.confirm("Tem certeza que deseja excluir este polígono?")) {
+      setLoading(true);
+      try {
+        await axios.delete(`${API_URL}/api/poligonosterreno/${poligono.id}`);
+        setPoligono(null);
+        setCoords([]);
+      } catch (error) {
+        console.error("Erro ao excluir polígono:", error);
+        alert("Falha ao excluir o polígono.");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -175,7 +206,14 @@ export default function PoligonoTerrenoDialog({
               <Typography variant="subtitle1" gutterBottom>
                 {poligono ? "Editar Polígono" : "Criar Polígono"}
               </Typography>
-              <Box sx={{ width: "100%", height: 300, mb: 2 }}>
+              {!usuario?.id && <Alert severity="warning" sx={{mb: 2}}>Você precisa estar logado para salvar ou excluir um polígono.</Alert>}
+              <Box sx={{
+                width: "100%",
+                height: 300,
+                mb: 2,
+                "& .leaflet-draw-toolbar": { zIndex: 1400 },
+                "& .leaflet-draw-tooltip": { zIndex: 1400 },
+              }}>
                 <MapContainer
                   center={
                     coords[0] ? coords[0] :
@@ -185,7 +223,6 @@ export default function PoligonoTerrenoDialog({
                   style={{ height: "100%", width: "100%" }}
                 >
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  {/* Marker do imóvel */}
                   {lat !== undefined && lng !== undefined && (
                     <Marker position={[lat, lng]}>
                       <Popup>Localização do imóvel</Popup>
@@ -196,7 +233,10 @@ export default function PoligonoTerrenoDialog({
                       position="topright"
                       onCreated={handleMapCreated}
                       draw={{
-                        polygon: true,
+                        polygon: {
+                          allowIntersection: false,
+                          shapeOptions: { color: 'blue' }
+                        },
                         polyline: false,
                         rectangle: false,
                         circle: false,
@@ -204,20 +244,13 @@ export default function PoligonoTerrenoDialog({
                         circlemarker: false,
                       }}
                       edit={{ edit: false, remove: false }}
-                      //featureGroup={featureGroupRef.current}
                     />
                     {coords.length > 0 && (
-                      <>
-                        <Polygon positions={coords.map((c) => [c[0], c[1]])} pathOptions={{ color: "red" }} />
-                        {coords.map((c, i) => (
-                          <Marker key={i} position={[c[0], c[1]]} />
-                        ))}
-                      </>
+                      <Polygon positions={coords} pathOptions={{ color: "red" }} />
                     )}
                   </FeatureGroup>
                 </MapContainer>
               </Box>
-              {/* Lista editável dos pontos */}
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -232,49 +265,29 @@ export default function PoligonoTerrenoDialog({
                     <TableRow key={idx}>
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>
-                        <TextField
-                          type="number"
-                          value={lat}
-                          onChange={(e) => handleCoordChange(idx, "lat", e.target.value)}
-                          size="small"
-                        />
+                        <TextField type="number" value={lat} onChange={(e) => handleCoordChange(idx, "lat", e.target.value)} size="small" variant="standard" />
                       </TableCell>
                       <TableCell>
-                        <TextField
-                          type="number"
-                          value={lng}
-                          onChange={(e) => handleCoordChange(idx, "lng", e.target.value)}
-                          size="small"
-                        />
+                        <TextField type="number" value={lng} onChange={(e) => handleCoordChange(idx, "lng", e.target.value)} size="small" variant="standard" />
                       </TableCell>
                       <TableCell>
-                        <Button onClick={() => handleMovePoint(idx, "up")} disabled={idx === 0} size="small">
-                          <ArrowUpwardIcon fontSize="small" />
-                        </Button>
-                        <Button
-                          onClick={() => handleMovePoint(idx, "down")}
-                          disabled={idx === coords.length - 1}
-                          size="small"
-                        >
-                          <ArrowDownwardIcon fontSize="small" />
-                        </Button>
-                        <Button color="error" onClick={() => handleDeletePoint(idx)} size="small">
-                          <DeleteIcon fontSize="small" />
-                        </Button>
+                        <Button onClick={() => handleMovePoint(idx, "up")} disabled={idx === 0} size="small" sx={{minWidth: 30}}><ArrowUpwardIcon fontSize="small" /></Button>
+                        <Button onClick={() => handleMovePoint(idx, "down")} disabled={idx === coords.length - 1} size="small" sx={{minWidth: 30}}><ArrowDownwardIcon fontSize="small" /></Button>
+                        <Button color="error" onClick={() => handleDeletePoint(idx)} size="small" sx={{minWidth: 30}}><DeleteIcon fontSize="small" /></Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-                <Button onClick={handleAddPoint} variant="outlined" startIcon={<AddIcon />}>
+                <Button onClick={handleAddPoint} variant="outlined" startIcon={<AddIcon />} disabled={!usuario?.id}>
                   Adicionar ponto
                 </Button>
-                <Button variant="contained" color="primary" onClick={handleSave}>
+                <Button variant="contained" color="primary" onClick={handleSave} disabled={!usuario?.id}>
                   Salvar
                 </Button>
                 {poligono && (
-                  <Button variant="outlined" color="error" onClick={handleDeletePoligono}>
+                  <Button variant="outlined" color="error" onClick={handleDeletePoligono} disabled={!usuario?.id}>
                     Excluir Polígono
                   </Button>
                 )}
