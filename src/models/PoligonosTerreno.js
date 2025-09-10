@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     datecreated: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW }
   }, {
     sequelize,
-    modelName: 'PoligonosTerreno',
+    modelName: 'PoligonoTerreno',
     tableName: 'poligonosterreno',
     schema: 'dbo',
     timestamps: false,
