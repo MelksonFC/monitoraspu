@@ -10,7 +10,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import axios from "axios";
 import { MapContainer, TileLayer, Polygon, Marker, FeatureGroup, Popup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
-import L from "leaflet";
+import L, { Map } from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -49,6 +49,7 @@ export default function PoligonoTerrenoDialog({
   const [coords, setCoords] = useState<[number, number][]>([]);
   const [loading, setLoading] = useState(false);
 
+  const mapRef = useRef<Map>(null);
   const featureGroupRef = useRef<L.FeatureGroup>(null);
 
   useEffect(() => {
@@ -83,6 +84,26 @@ export default function PoligonoTerrenoDialog({
       })
       .finally(() => setLoading(false));
   }, [open, idimovel]);
+
+  // 2. NOVO EFEITO PARA INVALIDAR O TAMANHO DO MAPA
+  useEffect(() => {
+    // Se o diálogo não estiver aberto, não faça nada
+    if (!open) {
+      return;
+    }
+
+    // Usamos um pequeno timeout para garantir que o Dialog esteja 100% renderizado
+    const timer = setTimeout(() => {
+      const map = mapRef.current;
+      if (map) {
+        // Esta é a função mágica que corrige o problema
+        map.invalidateSize();
+      }
+    }, 100); // 100ms é geralmente suficiente
+
+    // Limpa o timeout se o componente for desmontado
+    return () => clearTimeout(timer);
+  }, [open]); // Dispare este efeito sempre que o 'open' mudar
 
   const handleMapCreated = (e: any) => {
     const { layer } = e;
@@ -206,16 +227,10 @@ export default function PoligonoTerrenoDialog({
                 {poligono ? "Editar Polígono" : "Criar Polígono"}
               </Typography>
               {!usuario?.id && <Alert severity="warning" sx={{mb: 2}}>Você precisa estar logado para salvar ou excluir um polígono.</Alert>}
-              <Box sx={{
-                width: "100%",
-                height: 300,
-                mb: 2,
-                "& .leaflet-container": {
-                  zIndex: 1,
-                },
-                // Garante que a barra de ferramentas e as dicas fiquem na frente de tudo
+              <Box sx={{ width: "100%", height: 300, mb: 2,
+                "& .leaflet-container": { zIndex: 1, },
                 "& .leaflet-draw-toolbar, & .leaflet-draw-tooltip": {
-                  zIndex: 1400, // Maior que o z-index do Dialog (1300)
+                  zIndex: 1400, 
                 },
               }}>
                 <MapContainer
@@ -225,6 +240,7 @@ export default function PoligonoTerrenoDialog({
                   }
                   zoom={18}
                   style={{ height: "100%", width: "100%" }}
+                  ref={mapRef}
                 >
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   {lat !== undefined && lng !== undefined && (
