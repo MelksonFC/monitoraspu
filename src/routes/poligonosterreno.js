@@ -18,15 +18,29 @@ const getGeometryFromRequest = (body) => {
     }
     
     const topojsonData = JSON.parse(geometria);
-    const objectName = Object.keys(topojsonData.objects)[0];
-    if (!objectName) throw new Error("TopoJSON inválido: não contém objetos.");
+
+    // --- CORREÇÃO PRINCIPAL AQUI ---
+    // Em vez de adivinhar a chave, usamos o nome exato que o frontend cria: "collection".
+    const objectName = "collection"; 
+    // --- FIM DA CORREÇÃO ---
+
+    if (!topojsonData.objects || !topojsonData.objects[objectName]) {
+        throw new Error("TopoJSON inválido: não contém o objeto 'collection' esperado.");
+    }
 
     const geojsonFeatureCollection = topojson.feature(topojsonData, topojsonData.objects[objectName]);
+    
+    // A verificação abaixo agora funciona de forma confiável
     if (geojsonFeatureCollection && geojsonFeatureCollection.features && geojsonFeatureCollection.features.length > 0) {
-        return geojsonFeatureCollection.features[0].geometry;
-    } else {
-        throw new Error("Não foi possível extrair uma geometria válida do TopoJSON.");
+        // Garante que a geometria extraída não é nula
+        const firstGeometry = geojsonFeatureCollection.features[0].geometry;
+        if (firstGeometry) {
+            return firstGeometry;
+        }
     }
+    
+    // Se chegarmos aqui, algo deu errado na extração.
+    throw new Error("Não foi possível extrair uma geometria válida do TopoJSON.");
 };
 
 // ===================================================================
