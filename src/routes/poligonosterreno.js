@@ -13,16 +13,21 @@ router.get("/imovel/:idimovel", async (req, res) => res.json(await PoligonoTerre
 // Função para extrair a geometria e converter
 const getGeometryFromRequest = (body) => {
     const { geometria, formato } = body;
+    
+    // --- LOGS DE DEPURAÇÃO ADICIONADOS AQUI ---
+    console.log("Backend recebeu a string 'geometria':", geometria);
+    // --- FIM DO LOG ---
+
     if (formato !== 'TopoJSON' || !geometria) {
         throw new Error("Formato de geometria inválido. Esperado TopoJSON.");
     }
     
     const topojsonData = JSON.parse(geometria);
-
-    // --- CORREÇÃO PRINCIPAL AQUI ---
-    // Em vez de adivinhar a chave, usamos o nome exato que o frontend cria: "collection".
     const objectName = "collection"; 
-    // --- FIM DA CORREÇÃO ---
+
+    // --- MAIS LOGS DE DEPURAÇÃO ---
+    console.log("Dados TopoJSON parseados:", JSON.stringify(topojsonData, null, 2));
+    // --- FIM DO LOG ---
 
     if (!topojsonData.objects || !topojsonData.objects[objectName]) {
         throw new Error("TopoJSON inválido: não contém o objeto 'collection' esperado.");
@@ -30,18 +35,21 @@ const getGeometryFromRequest = (body) => {
 
     const geojsonFeatureCollection = topojson.feature(topojsonData, topojsonData.objects[objectName]);
     
-    // A verificação abaixo agora funciona de forma confiável
+    // --- ÚLTIMO LOG ANTES DO ERRO ---
+    console.log("Resultado da conversão para GeoJSON:", JSON.stringify(geojsonFeatureCollection, null, 2));
+    // --- FIM DO LOG ---
+
     if (geojsonFeatureCollection && geojsonFeatureCollection.features && geojsonFeatureCollection.features.length > 0) {
-        // Garante que a geometria extraída não é nula
         const firstGeometry = geojsonFeatureCollection.features[0].geometry;
         if (firstGeometry) {
             return firstGeometry;
         }
     }
     
-    // Se chegarmos aqui, algo deu errado na extração.
+    // Esta é a linha 43 que está dando erro
     throw new Error("Não foi possível extrair uma geometria válida do TopoJSON.");
 };
+
 
 // ===================================================================
 // ROTA DE CRIAÇÃO (POST) - VERSÃO FINAL

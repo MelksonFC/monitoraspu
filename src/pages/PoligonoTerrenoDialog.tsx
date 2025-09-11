@@ -171,6 +171,11 @@ export default function PoligonoTerrenoDialog({
       usermodified: usuario.id 
     };
 
+    // --- LOG DE DEPURAÇÃO ADICIONADO AQUI ---
+    console.log("Dados enviados para o backend:", data);
+    console.log("String 'geometria' (TopoJSON):", simplifiedTopoJSON);
+    // --- FIM DO LOG ---
+
     const request = poligono
       ? axios.put(`${API_URL}/api/poligonosterreno/${poligono.id}`, data)
       : axios.post(`${API_URL}/api/poligonosterreno`, data);
