@@ -115,6 +115,47 @@ export default function PoligonoTerrenoDialog({
     }
   }, [coords]);
 
+  useEffect(() => {
+  // Roda esta lógica sempre que as coordenadas mudarem.
+  const reprocessCoordinates = async () => {
+    // Só processa se tivermos um polígono válido (mais de 2 pontos)
+    if (coords.length < 3) {
+      setSimplifiedTopoJSON(null); // Limpa se o polígono se tornar inválido
+      return;
+    }
+
+    // GeoJSON exige que o primeiro e o último ponto sejam idênticos (polígono fechado).
+    const closedCoords = [...coords, coords[0]];
+
+    // Monta um objeto GeoJSON que a nossa função de simplificação entende.
+    const geojsonFeature = {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "Polygon",
+        coordinates: [closedCoords], // GeoJSON espera um array de anéis
+      },
+    };
+
+    try {
+      // Converte para string e chama a função de simplificação
+      const geojsonString = JSON.stringify(geojsonFeature);
+      const { simplifiedTopoJSON: newSimplifiedData } = await simplifyAndConvertToTopoJSON(geojsonString, 0.01);
+      
+      // Atualiza o estado com a nova geometria, habilitando o botão "Atualizar"
+      setSimplifiedTopoJSON(newSimplifiedData);
+      setSimplificationInfo("Pronto para salvar as alterações.");
+
+    } catch (err) {
+      console.error("Falha ao reprocessar coordenadas:", err);
+      setError("Não foi possível processar as coordenadas editadas.");
+      setSimplifiedTopoJSON(null); // Desabilita o botão em caso de erro
+    }
+  };
+
+  reprocessCoordinates();
+}, [coords]); // A "magia" acontece aqui: este código roda sempre que 'coords' muda.
+
   const handleSave = () => {
     if (!usuario) return setError("Usuário não autenticado.");
     if (!simplifiedTopoJSON) return setError("Não há dados simplificados para salvar. Por favor, importe um arquivo primeiro.");
@@ -148,23 +189,29 @@ export default function PoligonoTerrenoDialog({
 
   // NOVO: Função para excluir o polígono inteiro
   const handleDeletePolygon = () => {
-    if (!poligono) return;
+  if (!poligono) return;
 
-    if (!window.confirm("Tem certeza que deseja excluir todo o polígono deste imóvel? Esta ação não pode ser desfeita.")) {
-      return;
-    }
+  if (!window.confirm("Tem certeza que deseja excluir todo o polígono deste imóvel? Esta ação não pode ser desfeita.")) {
+    return;
+  }
 
-    setLoading(true);
-    setError(null);
+  setLoading(true);
+  setError(null);
 
-    axios.delete(`${API_URL}/api/poligonosterreno/${poligono.id}`)
-      .then(() => {
-        setImportSuccess("Polígono excluído com sucesso!");
-        clearState(); // Limpa a tela
-      })
-      .catch(() => setError("Falha ao excluir o polígono."))
-      .finally(() => setLoading(false));
-  };
+  axios.delete(`${API_URL}/api/poligonosterreno/${poligono.id}`)
+    .then(() => {
+      setImportSuccess("Polígono excluído com sucesso!");
+
+      // Remove o foco do botão "Excluir" antes de a UI reagir.
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      
+      clearState(); 
+    })
+    .catch(() => setError("Falha ao excluir o polígono."))
+    .finally(() => setLoading(false));
+};
 
   const handleInvertCoords = () => {
     if (coords.length === 0) return;
