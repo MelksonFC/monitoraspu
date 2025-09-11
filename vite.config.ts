@@ -1,30 +1,33 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import path from "path";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+// Importe o plugin que acabamos de instalar
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig({
-  plugins: [react()],
-  define: {
-    'global': {},
-    'process.env': {}
-  },
+  // A ordem dos plugins não importa aqui
+  plugins: [
+    react(),
+    // Chame o plugin. Ele fará a mágica de encontrar e injetar o 'buffer' e outros.
+    nodePolyfills({
+      // Opções para garantir que tudo seja incluído
+      // Inclui polyfills para variáveis globais
+      globals: {
+        Buffer: true, // ==> Adiciona o polyfill global para Buffer
+        global: true,
+        process: true,
+      },
+      // Especifica quais módulos devem ter polyfill. 'buffer' é o nosso alvo principal.
+      protocolImports: true,
+    }),
+  ],
   base: "/monitoraspu",
   resolve: {
     alias: {
+      // Seu alias para o diretório 'src' continua aqui, está perfeito.
       "@": path.resolve(__dirname, "./src"),
-      buffer: 'buffer/',
     },
   },
-   optimizeDeps: {
-    esbuildOptions: {
-      // Define 'global' para o objeto 'window' do navegador
-      define: {
-        global: 'globalThis',
-      },
-      // Habilita o suporte para plugins do esbuild, necessário para injetar os polyfills
-      plugins: [
-        // Adicione outros polyfills de Node aqui se necessário (ex: 'path', 'stream')
-      ],
-    },
-  },
-})
+  // Não precisamos mais das seções 'define' ou 'optimizeDeps' manuais
+  // para este problema, pois o plugin cuida disso.
+});
