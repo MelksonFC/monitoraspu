@@ -5,62 +5,80 @@ const topojson = require("topojson-client");
 
 const router = express.Router();
 
-// Função para extrair a geometria e converter (VERSÃO CORRIGIDA)
+/**
+ * Extrai e converte a geometria TopoJSON da requisição para um objeto GeoJSON.
+ * Esta versão é robusta e lida com diferentes estruturas de GeoJSON resultantes.
+ * @param {object} body - O corpo da requisição express.
+ * @returns {object} A geometria no formato GeoJSON, pronta para ser usada pelo PostGIS.
+ * @throws {Error} Se a geometria não puder ser extraída ou convertida.
+ */
 const getGeometryFromRequest = (body) => {
     const { geometria, formato } = body;
 
     if (formato !== 'TopoJSON' || !geometria) {
-        throw new Error("Formato de geometria inválido. Esperado TopoJSON.");
+        throw new Error("Formato de geometria inválido. O corpo da requisição deve conter 'formato: \"TopoJSON\"' e a 'geometria'.");
     }
     
-    // 1. Parseia a string TopoJSON recebida do frontend
+    // 1. Parseia a string TopoJSON recebida do frontend.
     const topology = JSON.parse(geometria);
     const objectName = "collection"; 
 
-    // 2. Valida se a topologia e o objeto 'collection' existem
-    if (!topology.objects || !topology.objects[objectName]) {
-        throw new Error("TopoJSON inválido: não contém o objeto 'collection' esperado.");
+    // 2. Valida se a topologia e o objeto 'collection' existem.
+    if (!topology || !topology.objects || !topology.objects[objectName]) {
+        throw new Error("TopoJSON inválido: não contém o objeto 'objects.collection' esperado.");
     }
 
-    // --- A CORREÇÃO PRINCIPAL ESTÁ AQUI ---
-    // 3. Extrai o objeto específico que queremos converter
+    // 3. Extrai o objeto específico ('collection') que queremos converter.
     const objectToConvert = topology.objects[objectName];
 
-    // 4. Converte o objeto para GeoJSON usando a topologia completa.
-    // A função `topojson.feature` recebe a topologia inteira e o objeto específico a ser convertido.
-    const geojsonFeatureCollection = topojson.feature(topology, objectToConvert);
-    // --- FIM DA CORREÇÃO ---
+    // 4. Converte o objeto TopoJSON para GeoJSON.
+    // A função `topojson.feature` pode retornar uma Feature ou uma FeatureCollection.
+    const geojsonResult = topojson.feature(topology, objectToConvert);
     
-    // 5. Valida o resultado da conversão
-    if (geojsonFeatureCollection && geojsonFeatureCollection.features && geojsonFeatureCollection.features.length > 0) {
-        const firstGeometry = geojsonFeatureCollection.features[0].geometry;
-        if (firstGeometry) {
-            return firstGeometry; // Retorna a geometria GeoJSON, que o PostGIS entende.
+    // 5. Extrai a geometria do resultado da conversão, tratando ambos os casos.
+    if (geojsonResult) {
+        // Caso A: O resultado é uma FeatureCollection.
+        if (geojsonResult.type === 'FeatureCollection' && geojsonResult.features.length > 0) {
+            const firstGeometry = geojsonResult.features[0].geometry;
+            if (firstGeometry) {
+                return firstGeometry; // Retorna a geometria da primeira feature.
+            }
+        }
+        // Caso B: O resultado é uma única Feature.
+        else if (geojsonResult.type === 'Feature' && geojsonResult.geometry) {
+            return geojsonResult.geometry; // Retorna a geometria da feature.
         }
     }
     
-    // Se chegou aqui, a conversão falhou
-    throw new Error("Não foi possível extrair uma geometria válida do TopoJSON.");
+    // Se chegou até aqui, a conversão falhou ou resultou em um objeto vazio.
+    throw new Error("Não foi possível extrair uma geometria válida do TopoJSON após a conversão.");
 };
 
 
+// --- ROTAS DA API ---
+
 router.get("/", async (req, res) => res.json(await PoligonoTerreno.findAll()));
+
 router.get("/:id", async (req, res) => res.json(await PoligonoTerreno.findByPk(req.params.id)));
-router.get("/imovel/:idimovel", async (req, res) => res.json(await PoligonoTerreno.findAll({ where: { idimovel: req.params.idimovel } })));
 
+router.get("/imovel/:idimovel", async (req, res) => {
+    const poligonos = await PoligonoTerreno.findAll({ where: { idimovel: req.params.idimovel } });
+    res.json(poligonos);
+});
 
-// ROTA DE CRIAÇÃO (POST) - Sem alterações aqui
+// Rota para criar um novo polígono
 router.post("/", async (req, res) => {
   try {
     const { idimovel, usercreated, usermodified } = req.body;
-    // A função corrigida agora retorna um GeoJSON padrão
+    
+    // A função robusta extrai a geometria no formato GeoJSON padrão.
     const polygonGeoJSON = getGeometryFromRequest(req.body);
 
-    // Usamos a função do PostGIS para converter o GeoJSON para um tipo geometry
-    const areaGeom = sequelize.fn('dbo.ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
+    // Usa a função do PostGIS para converter o objeto GeoJSON para o tipo 'geometry' do banco.
+    const areaGeom = sequelize.fn('ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
 
     const now = new Date();
-    const novo = await PoligonoTerreno.create({
+    const novoPoligono = await PoligonoTerreno.create({
       idimovel,
       area: areaGeom,
       usercreated,
@@ -68,41 +86,47 @@ router.post("/", async (req, res) => {
       datecreated: now,
       datemodified: now
     });
-    res.status(201).json(novo);
+    res.status(201).json(novoPoligono);
 
   } catch (error) {
-    // Log do erro real no servidor para depuração
     console.error("Erro detalhado ao criar polígono:", error); 
-    // Envia uma mensagem de erro genérica para o cliente
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: `Falha ao criar polígono: ${error.message}` });
   }
 });
 
-// ROTA DE ATUALIZAÇÃO (PUT) - Aplicando a mesma lógica
+// Rota para atualizar um polígono existente
 router.put("/:id", async (req, res) => {
   try {
     const { usermodified } = req.body;
     const polygonGeoJSON = getGeometryFromRequest(req.body);
 
-    const areaGeom = sequelize.fn('dbo.ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
+    const areaGeom = sequelize.fn('ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
 
     const now = new Date();
-    await PoligonoTerreno.update(
+    const [updateCount] = await PoligonoTerreno.update(
       { area: areaGeom, usermodified, datemodified: now },
       { where: { id: req.params.id } }
     );
+
+    if (updateCount === 0) {
+        return res.status(404).json({ error: "Polígono não encontrado." });
+    }
+
     res.json(await PoligonoTerreno.findByPk(req.params.id));
   } catch (error) {
     console.error("Erro detalhado ao atualizar polígono:", error);
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: `Falha ao atualizar polígono: ${error.message}` });
   }
 });
 
-
-// Suas outras rotas (DELETE) podem continuar como estão
+// Rota para deletar um polígono
 router.delete("/:id", async (req, res) => {
-  await PoligonoTerreno.destroy({ where: { id: req.params.id } });
-  res.json({ deleted: true });
+  const deleted = await PoligonoTerreno.destroy({ where: { id: req.params.id } });
+  if (deleted) {
+      res.status(200).json({ message: "Polígono deletado com sucesso." });
+  } else {
+      res.status(404).json({ error: "Polígono não encontrado." });
+  }
 });
 
 module.exports = router;
