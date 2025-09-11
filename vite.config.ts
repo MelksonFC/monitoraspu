@@ -15,4 +15,16 @@ export default defineConfig({
       buffer: 'buffer/',
     },
   },
+   optimizeDeps: {
+    esbuildOptions: {
+      // Define 'global' para o objeto 'window' do navegador
+      define: {
+        global: 'globalThis',
+      },
+      // Habilita o suporte para plugins do esbuild, necessário para injetar os polyfills
+      plugins: [
+        // Adicione outros polyfills de Node aqui se necessário (ex: 'path', 'stream')
+      ],
+    },
+  },
 })
