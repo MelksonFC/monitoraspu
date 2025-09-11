@@ -2,24 +2,22 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, Alert, IconButton, Tooltip, LinearProgress, Collapse
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+// Remova importações não utilizadas como AddIcon, etc., para limpeza
 import DeleteIcon from "@mui/icons-material/Delete";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import axios from "axios";
-import { MapContainer, TileLayer, Polygon, FeatureGroup, Popup, Marker } from "react-leaflet";
+import { MapContainer, TileLayer, FeatureGroup, Popup, Marker } from "react-leaflet";
 import L, { Map } from "leaflet";
-import { FixedSizeList as List } from 'react-window';
+import { FixedSizeList as List, ListChildComponentProps } from 'react-window'; // CORREÇÃO: Importa o tipo para a propriedade do componente Row
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useAuth } from "../AuthContext";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { simplifyAndConvertToTopoJSON } from "../utils/geometryUtils"; 
+import React, { useState, useEffect, useRef, useCallback } from "react"; // CORREÇÃO: Importa o React explicitamente
+import { simplifyAndConvertToTopoJSON } from "../utils/geometryUtils";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -50,10 +48,8 @@ export default function PoligonoTerrenoDialog({
   const { usuario } = useAuth();
   const [poligono, setPoligono] = useState<PoligonoTerreno | null>(null);
   const [coords, setCoords] = useState<[number, number][]>([]);
-  // --- NOVOS ESTADOS ---
   const [simplifiedTopoJSON, setSimplifiedTopoJSON] = useState<string | null>(null);
   const [simplificationInfo, setSimplificationInfo] = useState<string | null>(null);
-  // -------------------
   const [loading, setLoading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,8 +76,6 @@ export default function PoligonoTerrenoDialog({
     setLoading(true);
     axios.get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`)
       .then((res) => {
-        // Lógica para carregar polígonos existentes (agora pode vir como TopoJSON)
-        // Por enquanto, vamos manter a lógica GeoJSON simples que você tinha.
         const dados = (Array.isArray(res.data) ? res.data : []).map((p: any) => ({
           id: p.id,
           coordinates: p.area?.coordinates?.[0] ?? [],
@@ -110,7 +104,10 @@ export default function PoligonoTerrenoDialog({
     fg.clearLayers();
     if (coords.length > 2) {
       try {
-        const polygonLayer = L.polygon(coords.map(c => [c[1], c[0]]), { color: 'blue' }); // Invertido para [lat, lng]
+        // CORREÇÃO: Coordenadas em Leaflet são [latitude, longitude].
+        // GeoJSON é [longitude, latitude]. Assumindo que 'coords' está em [lng, lat].
+        const leafletCoords: [number, number][] = coords.map(c => [c[1], c[0]]);
+        const polygonLayer = L.polygon(leafletCoords, { color: 'blue' });
         fg.addLayer(polygonLayer);
         map.fitBounds(polygonLayer.getBounds(), { padding: [50, 50] });
       } catch (e) {
@@ -120,7 +117,6 @@ export default function PoligonoTerrenoDialog({
     }
   }, [coords]);
 
-  // --- FUNÇÃO DE SALVAR ATUALIZADA ---
   const handleSave = () => {
     if (!usuario) return setError("Usuário não autenticado.");
     if (!simplifiedTopoJSON) return setError("Não há dados simplificados para salvar. Por favor, importe um arquivo primeiro.");
@@ -128,11 +124,10 @@ export default function PoligonoTerrenoDialog({
     setLoading(true);
     setError(null);
 
-    // Envia o TopoJSON simplificado
     const data = { 
       idimovel, 
       geometria: simplifiedTopoJSON, 
-      formato: 'TopoJSON', // Informa ao backend o formato dos dados
+      formato: 'TopoJSON', 
       usercreated: usuario.id, 
       usermodified: usuario.id 
     };
@@ -144,7 +139,7 @@ export default function PoligonoTerrenoDialog({
     request
       .then(() => {
         setImportSuccess("Polígono salvo com sucesso!");
-        setTimeout(onClose, 1500); // Fecha o dialog após sucesso
+        setTimeout(onClose, 1500);
       })
       .catch((err) => setError(err.response?.data?.error || "Falha ao salvar o polígono."))
       .finally(() => setLoading(false));
@@ -160,18 +155,15 @@ export default function PoligonoTerrenoDialog({
     const newCoords = [...coords];
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
-      // Note: O estado `coords` armazena [lng, lat]
       newCoords[index] = latOrLng === 'lat' ? [newCoords[index][0], numValue] : [numValue, newCoords[index][1]];
       setCoords(newCoords);
     }
   };
   
-  // --- FUNÇÃO DE UPLOAD DE ARQUIVO ATUALIZADA ---
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Limpa estados anteriores
     clearState();
     setIsImporting(true);
 
@@ -179,10 +171,9 @@ export default function PoligonoTerrenoDialog({
     reader.onload = async (e) => {
       const text = e.target?.result as string;
       try {
-        // Simplifica e extrai os dados em um único passo
-        const { simplifiedTopoJSON, originalCount } = await simplifyAndConvertToTopoJSON(text, 1);
+        // CORREÇÃO: Usar 0.01 para 1% com a nova biblioteca
+        const { simplifiedTopoJSON, originalCount } = await simplifyAndConvertToTopoJSON(text, 0.01);
         
-        // Extrai as coordenadas originais para visualização
         const geojsonData = JSON.parse(text);
         const originalCoords = (geojsonData.features?.[0]?.geometry?.coordinates?.[0] || geojsonData.coordinates?.[0] || []) as [number, number][];
 
@@ -192,7 +183,7 @@ export default function PoligonoTerrenoDialog({
         
         setCoords(originalCoords);
         setSimplifiedTopoJSON(simplifiedTopoJSON);
-        setSimplificationInfo(`Geometria simplificada de ${originalCount} para uma versão otimizada (1%). Valide o desenho e salve.`);
+        setSimplificationInfo(`Geometria simplificada de ${originalCount} para uma versão otimizada. Valide o desenho e salve.`);
 
       } catch (err: any) {
         setError(err.message);
@@ -209,24 +200,26 @@ export default function PoligonoTerrenoDialog({
     reader.readAsText(file);
   };
 
-  // Ajustado para mostrar Lng/Lat, pois é o padrão GeoJSON
-  const Row = useCallback(({ index, style }: { index: number, style: React.CSSProperties }) => {
+  // CORREÇÃO: Tipagem explícita para os parâmetros da função Row
+  const Row = useCallback(({ index, style }: ListChildComponentProps) => {
     const coord = coords[index];
     const cellSx = { borderBottom: 'none' };
     return (
       <TableRow style={style} key={index} component="div">
         <TableCell component="div" sx={cellSx}>
-            <TextField type="number" value={coord[0]} onChange={(e) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" />
+            {/* CORREÇÃO: Tipagem para o evento 'e' */}
+            <TextField type="number" value={coord[0]} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" />
         </TableCell>
         <TableCell component="div" sx={cellSx}>
-            <TextField type="number" value={coord[1]} onChange={(e) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" />
+            {/* CORREÇÃO: Tipagem para o evento 'e' */}
+            <TextField type="number" value={coord[1]} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" />
         </TableCell>
         <TableCell component="div" sx={cellSx}>
             <IconButton size="small" disabled><DeleteIcon /></IconButton>
         </TableCell>
       </TableRow>
     );
-  }, [coords]);
+  }, [coords, handleCoordChange]); // CORREÇÃO: Adiciona handleCoordChange às dependências do useCallback
 
   const center: [number, number] = (lat && lng) ? [lat, lng] : [-15.77972, -47.92972];
 
@@ -240,11 +233,9 @@ export default function PoligonoTerrenoDialog({
         <Collapse in={!!importSuccess}>
             <Alert severity="success" sx={{ mb: 2 }} onClose={() => setImportSuccess(null)}>{importSuccess}</Alert>
         </Collapse>
-        {/* --- NOVA MENSAGEM DE SIMPLIFICAÇÃO --- */}
         <Collapse in={!!simplificationInfo}>
             <Alert severity="info" sx={{ mb: 2 }}>{simplificationInfo}</Alert>
         </Collapse>
-
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
           <Box sx={{ flex: 1, height: '500px', minHeight: '300px' }}>
             <MapContainer center={center} zoom={15} style={{ height: "100%", width: "100%" }} ref={mapRef}>

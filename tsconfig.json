@@ -1,30 +1,32 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "skipLibCheck": true,
+
+    /* --- ESTA É A PARTE MAIS IMPORTANTE --- */
+    "moduleResolution": "bundler", // Alinha com o Vite, corrigindo os erros de JSX
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "react-jsx", // Correto para o React moderno
 
-    /* ---- A PARTE MAIS IMPORTANTE ---- */
-    /* Define a base para os caminhos relativos */
+    /* Linting (Boas práticas) */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Aliases (Seu alias já estava correto) */
     "baseUrl": ".",
-    /* Define o alias '@' para apontar para a pasta 'src' */
     "paths": {
       "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
-  /* Garanta que as referências estejam vazias ou remova a linha inteira */
-  "references": [] 
+  // A referência correta para o Vite
+  "references": [{ "path": "./tsconfig.node.json" }] 
 }
