@@ -172,8 +172,8 @@ export default function PoligonoTerrenoDialog({
     };
 
     // --- LOG DE DEPURAÇÃO ADICIONADO AQUI ---
-    console.log("Dados enviados para o backend:", data);
-    console.log("String 'geometria' (TopoJSON):", simplifiedTopoJSON);
+    //console.log("Dados enviados para o backend:", data);
+    //console.log("String 'geometria' (TopoJSON):", simplifiedTopoJSON);
     // --- FIM DO LOG ---
 
     const request = poligono
