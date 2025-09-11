@@ -91,14 +91,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
     }
   }
 
-  const handleOpenResetDialog = () => {
-    // Limpa estados anteriores ao abrir o dialog
-    setResetEmail("");
-    setResetMsg("");
-    setResetError("");
-    setShowReset(true);
-  };
-
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   return (

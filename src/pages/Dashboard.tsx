@@ -372,7 +372,7 @@ export default function ShadcnDashboard() {
                                 <Bar dataKey="value"
                                     fill="var(--color-value)"
                                     radius={4}
-                                    onClick={(data, index) => {
+                                    onClick={(_data, index) => {
                                     const municipio = dataMunicipio[index].name;
                                     setSelectedMunicipio(municipio);
                                     setDrillImoveis(getImoveisPorMunicipio(municipio));

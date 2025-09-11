@@ -7,7 +7,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
-import logoSpuPng from '/public/assets/LogoSPU.png';
+//import logoSpuPng from '/public/assets/LogoSPU.png';
 
 const Header: React.FC = () => {
   const { usuario, logout } = useAuth();

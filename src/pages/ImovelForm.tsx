@@ -3,7 +3,7 @@ import {
   TextField, Button, DialogActions, MenuItem, Select, InputLabel,
   FormControl, Typography, IconButton, Box, Tooltip, Paper, Container, FormControlLabel, Checkbox, Dialog, DialogContent, DialogTitle,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Accordion, AccordionSummary, AccordionDetails, CircularProgress
+  Accordion, AccordionSummary, AccordionDetails
 } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,8 +25,6 @@ import MapaLeaflet from "./MapaLeaflet";
 import SafePdfButton from '../components/SafePdfButton';
 import { SafeNumberField } from '../components/SafeNumberField';
 import MapIcon from "@mui/icons-material/Map";
-import TerrainIcon from "@mui/icons-material/Terrain";
-import LandscapeIcon from "@mui/icons-material/Landscape";
 import PoligonoTerrenoDialog from "./PoligonoTerrenoDialog";
 
 // Ícones para Navegação

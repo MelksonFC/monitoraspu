@@ -253,7 +253,7 @@ const Configuracoes: React.FC = () => {
   };
 
   // 2. Função para mostrar a mensagem de status e limpá-la após 5 segundos
-   const showStatusMessage = (message: string, severity: "info" | "error" = "info") => {
+   const showStatusMessage = (message: string, _severity: "info" | "error" = "info") => {
     setStatusMsg(message);
     setTimeout(() => {
       setStatusMsg("");
@@ -321,23 +321,6 @@ const Configuracoes: React.FC = () => {
     }
   };
   
-  const handleToggleAtivo = async (user: any) => {
-    if (!user || !user.id) {
-        showStatusMessage("Erro: Não foi possível alterar o status do usuário.", "error");
-        return;
-    }
-    try {
-        const novoStatus = user.ativo === 1 ? 0 : 1;
-        await axios.put(`${apiUrl}/api/usuarios/${user.id}`, { ativo: novoStatus });
-        // 3. Usa as novas funções para atualizar a lista e mostrar a mensagem
-        fetchUsuarios();
-        showStatusMessage(`Usuário ${novoStatus === 1 ? 'ativado' : 'desativado'} com sucesso.`);
-    } catch (error: any) {
-        const errorMessage = error.response?.data?.error || "Erro ao alterar status do usuário.";
-        showStatusMessage(errorMessage);
-    }
-  };
-
   if (usuarioAtual.idpermissao !== 1) {
     return <Typography variant="h6" sx={{ p: 4 }}>Acesso restrito a administradores.</Typography>;
   }

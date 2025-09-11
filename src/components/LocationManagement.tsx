@@ -3,7 +3,7 @@ import { Box, Typography, List, ListItemText, ListItemButton, Paper, Button, Ico
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import LocationDialog from './LocationDialog';
 

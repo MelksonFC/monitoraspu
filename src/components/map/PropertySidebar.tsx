@@ -4,7 +4,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
 import type { ImovelComCoordenadas } from '../../pages/MapPage';
 import ImageIcon from '@mui/icons-material/Image';
-import { useAuth } from '../../AuthContext';
 import { formatValorBR } from '../../pages/ImovelForm';
 
 type SortOption = 'nome' | 'valorimovel' | 'ripimovel';
@@ -19,7 +18,6 @@ interface PropertySidebarProps {
 
 export default function PropertySidebar({ imoveis, onImovelSelect, selectedImovel, onClearFilters, isFilterApplied }: PropertySidebarProps) {
     const navigate = useNavigate();
-    const { usuario } = useAuth();
     const listRef = useRef<HTMLUListElement>(null);
     const [sortOption, setSortOption] = useState<SortOption>('nome');
 

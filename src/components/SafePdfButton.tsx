@@ -131,7 +131,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     return currentY;
   }
 
-  function drawSectionTitle(doc: jsPDF, text: string, y: number, columns: number, margin = 15) {
+  function drawSectionTitle(doc: jsPDF, text: string, y: number, _columns: number, margin = 15) {
     const tableWidth = doc.internal.pageSize.getWidth() - margin * 2;
     const rectHeight = 9;
     doc.setFillColor(230, 240, 255);

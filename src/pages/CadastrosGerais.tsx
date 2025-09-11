@@ -35,7 +35,7 @@ function TabPanel(props: TabPanelProps) {
 export default function CadastrosGerais() {
   const [value, setValue] = useState(0);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
