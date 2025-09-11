@@ -4,13 +4,15 @@ import { defineConfig } from "vite"
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'global': {},
+    'process.env': {}
+  },
   base: "/monitoraspu",
   resolve: {
     alias: {
-      // Aqui está a mágica: estamos dizendo ao Vite
-      // que qualquer import que comece com '@'
-      // deve ser resolvido a partir da pasta 'src'.
       "@": path.resolve(__dirname, "./src"),
+      buffer: 'buffer/',
     },
   },
 })
