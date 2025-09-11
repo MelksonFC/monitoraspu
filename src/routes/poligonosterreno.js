@@ -1,11 +1,13 @@
 const express = require("express");
 const db = require('../models/index.js');
 const { PoligonoTerreno } = db;
+const topojson = require("topojson-client");
 
 const router = express.Router();
 
-// Função de validação de coordenadas
+// Função de validação antiga (não será mais usada para TopoJSON)
 function validaCoordenadas(coordinates) {
+  // ... (código existente, mantido para retrocompatibilidade se necessário)
   if (!Array.isArray(coordinates)) return 'coordinates precisa ser um array';
   if (coordinates.length < 3) return 'Um polígono precisa de pelo menos 3 pontos';
   for (let i = 0; i < coordinates.length; i++) {
@@ -28,42 +30,106 @@ router.get("/:id", async (req, res) => res.json(await PoligonoTerreno.findByPk(r
 // Busca polígonos por idimovel
 router.get("/imovel/:idimovel", async (req, res) => res.json(await PoligonoTerreno.findAll({ where: { idimovel: req.params.idimovel } })));
 
-// Cria polígono com validação
+// ===================================================================
+// ROTA DE CRIAÇÃO (POST) - ATUALIZADA
+// ===================================================================
 router.post("/", async (req, res) => {
   try {
-    const { idimovel, coordinates, usercreated, usermodified } = req.body;
-    const erro = validaCoordenadas(coordinates);
-    if (erro) return res.status(400).json({ error: erro });
-    const polygon = { type: "Polygon", coordinates: [coordinates] };
+    // Extrai os novos campos do body
+    const { idimovel, geometria, formato, usercreated, usermodified } = req.body;
+    let polygonToSave;
+
+    // Verifica se o formato é TopoJSON (enviado pelo novo frontend)
+    if (formato === 'TopoJSON' && geometria) {
+      // 1. Parse da string TopoJSON para um objeto
+      const topojsonData = JSON.parse(geometria);
+      
+      // 2. Extrai o nome do objeto principal do TopoJSON (geralmente o nome do arquivo original)
+      const objectName = Object.keys(topojsonData.objects)[0];
+      if (!objectName) {
+        return res.status(400).json({ error: "Arquivo TopoJSON inválido: não contém objetos." });
+      }
+
+      // 3. Converte TopoJSON para GeoJSON (resulta em uma FeatureCollection)
+      const geojsonFeatureCollection = topojson.feature(topojsonData, topojsonData.objects[objectName]);
+      
+      // 4. Extrai a geometria do primeiro "feature" da coleção
+      // O banco espera apenas o objeto de geometria, não a "Feature" inteira.
+      if (geojsonFeatureCollection && geojsonFeatureCollection.features && geojsonFeatureCollection.features.length > 0) {
+        polygonToSave = geojsonFeatureCollection.features[0].geometry;
+      } else {
+        return res.status(400).json({ error: "Não foi possível extrair uma geometria válida do TopoJSON." });
+      }
+
+    } else {
+      // Lógica antiga (fallback, caso ainda receba o formato de 'coordinates')
+      const { coordinates } = req.body;
+      const erro = validaCoordenadas(coordinates);
+      if (erro) return res.status(400).json({ error: erro });
+      polygonToSave = { type: "Polygon", coordinates: [coordinates] };
+    }
+
+    if (!polygonToSave) {
+        return res.status(400).json({ error: "Nenhuma geometria válida para salvar." });
+    }
+
     const now = new Date();
     const novo = await PoligonoTerreno.create({
       idimovel,
-      area: polygon,
+      area: polygonToSave, // Salva o objeto GeoJSON convertido
       usercreated,
       usermodified,
       datecreated: now,
       datemodified: now
     });
-    res.json(novo);
+    res.status(201).json(novo);
+
   } catch (error) {
+    console.error("Erro ao criar polígono:", error);
     res.status(400).json({ error: error.message });
   }
 });
 
-// Atualiza polígono com validação
+
+// ===================================================================
+// ROTA DE ATUALIZAÇÃO (PUT) - ATUALIZADA
+// ===================================================================
 router.put("/:id", async (req, res) => {
   try {
-    const { coordinates, usermodified } = req.body;
-    const erro = validaCoordenadas(coordinates);
-    if (erro) return res.status(400).json({ error: erro });
-    const polygon = { type: "Polygon", coordinates: [coordinates] };
+    const { geometria, formato, usermodified } = req.body;
+    let polygonToSave;
+
+    if (formato === 'TopoJSON' && geometria) {
+      const topojsonData = JSON.parse(geometria);
+      const objectName = Object.keys(topojsonData.objects)[0];
+      if (!objectName) return res.status(400).json({ error: "TopoJSON inválido." });
+      
+      const geojsonFeatureCollection = topojson.feature(topojsonData, topojsonData.objects[objectName]);
+      
+      if (geojsonFeatureCollection && geojsonFeatureCollection.features && geojsonFeatureCollection.features.length > 0) {
+        polygonToSave = geojsonFeatureCollection.features[0].geometry;
+      } else {
+        return res.status(400).json({ error: "Não foi possível extrair geometria do TopoJSON." });
+      }
+    } else {
+      const { coordinates } = req.body;
+      const erro = validaCoordenadas(coordinates);
+      if (erro) return res.status(400).json({ error: erro });
+      polygonToSave = { type: "Polygon", coordinates: [coordinates] };
+    }
+
+    if (!polygonToSave) {
+        return res.status(400).json({ error: "Nenhuma geometria válida para salvar." });
+    }
+
     const now = new Date();
     await PoligonoTerreno.update(
-      { area: polygon, usermodified, datemodified: now },
+      { area: polygonToSave, usermodified, datemodified: now },
       { where: { id: req.params.id } }
     );
     res.json(await PoligonoTerreno.findByPk(req.params.id));
   } catch (error) {
+    console.error("Erro ao atualizar polígono:", error);
     res.status(400).json({ error: error.message });
   }
 });
