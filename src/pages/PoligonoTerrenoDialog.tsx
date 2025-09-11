@@ -2,21 +2,20 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, Typography, Box, TextField, Table, TableHead, TableRow, TableCell, Alert, IconButton, Tooltip, LinearProgress, Collapse
 } from "@mui/material";
-// Remova importações não utilizadas como AddIcon, etc., para limpeza
 import DeleteIcon from "@mui/icons-material/Delete";
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import axios from "axios";
 import { MapContainer, TileLayer, FeatureGroup, Popup, Marker } from "react-leaflet";
 import L, { Map } from "leaflet";
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window'; // CORREÇÃO: Importa o tipo para a propriedade do componente Row
+import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import { useAuth } from "../AuthContext";
-import React, { useState, useEffect, useRef, useCallback } from "react"; // CORREÇÃO: Importa o React explicitamente
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { simplifyAndConvertToTopoJSON } from "../utils/geometryUtils";
 
 L.Icon.Default.mergeOptions({
@@ -65,7 +64,7 @@ export default function PoligonoTerrenoDialog({
     setSimplifiedTopoJSON(null);
     setSimplificationInfo(null);
     setError(null);
-    setImportSuccess(null);
+    // Não limpe a mensagem de sucesso aqui para que ela possa ser exibida após a exclusão
     setLoading(false);
     setIsImporting(false);
   };
@@ -73,6 +72,7 @@ export default function PoligonoTerrenoDialog({
   useEffect(() => {
     if (!open || !idimovel) return;
     clearState();
+    setImportSuccess(null); // Limpa o sucesso ao abrir
     setLoading(true);
     axios.get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`)
       .then((res) => {
@@ -104,8 +104,6 @@ export default function PoligonoTerrenoDialog({
     fg.clearLayers();
     if (coords.length > 2) {
       try {
-        // CORREÇÃO: Coordenadas em Leaflet são [latitude, longitude].
-        // GeoJSON é [longitude, latitude]. Assumindo que 'coords' está em [lng, lat].
         const leafletCoords: [number, number][] = coords.map(c => [c[1], c[0]]);
         const polygonLayer = L.polygon(leafletCoords, { color: 'blue' });
         fg.addLayer(polygonLayer);
@@ -139,9 +137,32 @@ export default function PoligonoTerrenoDialog({
     request
       .then(() => {
         setImportSuccess("Polígono salvo com sucesso!");
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
         setTimeout(onClose, 1500);
       })
       .catch((err) => setError(err.response?.data?.error || "Falha ao salvar o polígono."))
+      .finally(() => setLoading(false));
+  };
+
+  // NOVO: Função para excluir o polígono inteiro
+  const handleDeletePolygon = () => {
+    if (!poligono) return;
+
+    if (!window.confirm("Tem certeza que deseja excluir todo o polígono deste imóvel? Esta ação não pode ser desfeita.")) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    axios.delete(`${API_URL}/api/poligonosterreno/${poligono.id}`)
+      .then(() => {
+        setImportSuccess("Polígono excluído com sucesso!");
+        clearState(); // Limpa a tela
+      })
+      .catch(() => setError("Falha ao excluir o polígono."))
       .finally(() => setLoading(false));
   };
 
@@ -159,6 +180,12 @@ export default function PoligonoTerrenoDialog({
       setCoords(newCoords);
     }
   };
+
+  // NOVO: Função para remover uma coordenada específica
+  const handleRemoveCoord = (indexToRemove: number) => {
+    const newCoords = coords.filter((_, index) => index !== indexToRemove);
+    setCoords(newCoords);
+  };
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -171,7 +198,6 @@ export default function PoligonoTerrenoDialog({
     reader.onload = async (e) => {
       const text = e.target?.result as string;
       try {
-        // CORREÇÃO: Usar 0.01 para 1% com a nova biblioteca
         const { simplifiedTopoJSON, originalCount } = await simplifyAndConvertToTopoJSON(text, 0.01);
         
         const geojsonData = JSON.parse(text);
@@ -200,26 +226,26 @@ export default function PoligonoTerrenoDialog({
     reader.readAsText(file);
   };
 
-  // CORREÇÃO: Tipagem explícita para os parâmetros da função Row
   const Row = useCallback(({ index, style }: ListChildComponentProps) => {
     const coord = coords[index];
-    const cellSx = { borderBottom: 'none' };
+    const cellSx = { borderBottom: 'none', paddingY: 0.5 };
     return (
       <TableRow style={style} key={index} component="div">
         <TableCell component="div" sx={cellSx}>
-            {/* CORREÇÃO: Tipagem para o evento 'e' */}
             <TextField type="number" value={coord[0]} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" />
         </TableCell>
         <TableCell component="div" sx={cellSx}>
-            {/* CORREÇÃO: Tipagem para o evento 'e' */}
             <TextField type="number" value={coord[1]} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" />
         </TableCell>
-        <TableCell component="div" sx={cellSx}>
-            <IconButton size="small" disabled><DeleteIcon /></IconButton>
+        <TableCell component="div" sx={{...cellSx, width: '60px', textAlign: 'right' }}>
+            {/* ALTERADO: Ativa o botão de exclusão da coordenada */}
+            <IconButton size="small" onClick={() => handleRemoveCoord(index)}>
+                <DeleteIcon fontSize="small" />
+            </IconButton>
         </TableCell>
       </TableRow>
     );
-  }, [coords, handleCoordChange]); // CORREÇÃO: Adiciona handleCoordChange às dependências do useCallback
+  }, [coords, handleCoordChange, handleRemoveCoord]); // ALTERADO: Adiciona dependências
 
   const center: [number, number] = (lat && lng) ? [lat, lng] : [-15.77972, -47.92972];
 
@@ -271,22 +297,30 @@ export default function PoligonoTerrenoDialog({
                         <TableRow component="div">
                             <TableCell component="div">Longitude</TableCell>
                             <TableCell component="div">Latitude</TableCell>
-                            <TableCell component="div">Ações</TableCell>
+                            <TableCell component="div" sx={{ width: '60px' }}>Ações</TableCell>
                         </TableRow>
                     </TableHead>
                 </Table>
-                <List height={350} itemCount={coords.length} itemSize={53} width="100%">
+                <List height={350} itemCount={coords.length} itemSize={40} width="100%">
                     {Row}
                 </List>
             </Box>
           </Box>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="secondary" disabled={loading || isImporting}>Cancelar</Button>
-        <Button onClick={handleSave} variant="contained" disabled={loading || isImporting || !simplifiedTopoJSON}>
-          {loading ? "Salvando..." : (poligono ? "Atualizar" : "Salvar")}
-        </Button>
+      <DialogActions sx={{ justifyContent: 'space-between' }}> {/* ALTERADO: para alinhar os botões */}
+        {/* NOVO: Botão para excluir o polígono inteiro */}
+        {poligono && (
+            <Button onClick={handleDeletePolygon} color="error" disabled={loading || isImporting}>
+                Excluir Polígono
+            </Button>
+        )}
+        <Box>
+            <Button onClick={onClose} color="secondary" disabled={loading || isImporting}>Cancelar</Button>
+            <Button onClick={handleSave} variant="contained" disabled={loading || isImporting || !simplifiedTopoJSON}>
+              {loading ? "Salvando..." : (poligono ? "Atualizar" : "Salvar")}
+            </Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );
