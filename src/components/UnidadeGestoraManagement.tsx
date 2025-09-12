@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Box, Typography } from '@mui/material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Box, Typography, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import ManagementDialog from './ManagementDialog';
+import ManagementDialog from './ManagementDialog'; // Seu componente de diálogo
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const API_URL = `${apiUrl}/api/unidadegestora`;
@@ -15,17 +15,26 @@ interface Unidade {
   nome: string;
 }
 
+// Define um tipo para o item que pode não ter um ID ainda (ao criar)
+type EditableUnidade = Partial<Unidade>;
+
 export default function UnidadeGestoraManagement() {
   const [unidades, setUnidades] = useState<Unidade[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentItem, setCurrentItem] = useState<Unidade | null>(null);
+  // O estado agora armazena um objeto parcial, nunca nulo quando o diálogo está aberto
+  const [currentItem, setCurrentItem] = useState<EditableUnidade | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      const { data } = await axios.get(API_URL);
+      const { data } = await axios.get<Unidade[]>(API_URL);
       setUnidades(data);
     } catch (error) {
       toast.error("Falha ao carregar unidades gestoras.");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -33,69 +42,84 @@ export default function UnidadeGestoraManagement() {
     fetchData();
   }, [fetchData]);
 
-  const handleOpenDialog = (item: Unidade | null = null) => {
-    setCurrentItem(item);
+  const handleOpenDialog = (item: EditableUnidade | null = null) => {
+    // --- PONTO PRINCIPAL DA CORREÇÃO ---
+    // Se o item for nulo (clicou em "Adicionar"), iniciamos com um objeto vazio.
+    // Isso garante que o ManagementDialog sempre receba um objeto, nunca `null`.
+    setCurrentItem(item || { nome: '' });
     setDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    setCurrentItem(null);
+    setCurrentItem(null); // Limpa o item ao fechar
   };
 
-  const handleSave = async (item: Unidade) => {
+  const handleSave = async (item: EditableUnidade) => {
+    // Validação simples para não salvar nomes vazios
+    if (!item.nome || item.nome.trim() === '') {
+        toast.warn('O nome da unidade não pode estar vazio.');
+        return;
+    }
+
     const isEditing = !!item.id;
     const url = isEditing ? `${API_URL}/${item.id}` : API_URL;
     const method = isEditing ? 'put' : 'post';
 
     try {
       await axios[method](url, { nome: item.nome });
-      toast.success("Unidade salva com sucesso!");
+      toast.success(`Unidade ${isEditing ? 'atualizada' : 'salva'} com sucesso!`);
       handleCloseDialog();
-      fetchData();
+      fetchData(); // Recarrega os dados
     } catch (error) {
       toast.error("Falha ao salvar unidade.");
+      console.error(error);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm("Tem certeza que deseja excluir esta unidade?")) {
+    if (window.confirm("Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita.")) {
       try {
         await axios.delete(`${API_URL}/${id}`);
         toast.success("Unidade excluída com sucesso!");
-        fetchData();
+        fetchData(); // Recarrega os dados
       } catch (error) {
-        toast.error("Falha ao excluir unidade. Verifique se não está em uso.");
+        toast.error("Falha ao excluir unidade. Verifique se ela não está sendo utilizada em algum registro.");
+        console.error(error);
       }
     }
   };
 
   return (
     <>
-      <Paper variant="outlined">
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Paper variant="outlined" sx={{ m: 2 }}>
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
           <Typography variant="h6">Gerenciar Unidades Gestoras</Typography>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
             Adicionar Nova
           </Button>
         </Box>
         <TableContainer>
-          <Table>
+          <Table stickyHeader>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
+                <TableCell sx={{ width: '10%' }}>ID</TableCell>
                 <TableCell>Nome</TableCell>
-                <TableCell align="right">Ações</TableCell>
+                <TableCell align="right" sx={{ width: '15%' }}>Ações</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {unidades.map((unidade) => (
-                <TableRow key={unidade.id}>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={3} align="center"><CircularProgress /></TableCell>
+                </TableRow>
+              ) : unidades.map((unidade) => (
+                <TableRow key={unidade.id} hover>
                   <TableCell>{unidade.id}</TableCell>
                   <TableCell>{unidade.nome}</TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleOpenDialog(unidade)}><EditIcon /></IconButton>
-                    <IconButton onClick={() => handleDelete(unidade.id)}><DeleteIcon /></IconButton>
+                    <IconButton color="primary" onClick={() => handleOpenDialog(unidade)}><EditIcon /></IconButton>
+                    <IconButton color="error" onClick={() => handleDelete(unidade.id)}><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -103,16 +127,19 @@ export default function UnidadeGestoraManagement() {
           </Table>
         </TableContainer>
       </Paper>
-      {/* Aqui especificamos o tipo <Unidade> */}
-      <ManagementDialog<Unidade>
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        onSave={handleSave}
-        item={currentItem}
-        title={currentItem ? 'Editar Unidade Gestora' : 'Nova Unidade Gestora'}
-        label="Nome da Unidade"
-        fieldName="nome"
-      />
+
+      {/* O diálogo só é renderizado quando `currentItem` não é nulo */}
+      {currentItem && (
+        <ManagementDialog<EditableUnidade>
+          open={dialogOpen}
+          onClose={handleCloseDialog}
+          onSave={handleSave}
+          item={currentItem}
+          title={currentItem.id ? 'Editar Unidade Gestora' : 'Nova Unidade Gestora'}
+          label="Nome da Unidade"
+          fieldName="nome"
+        />
+      )}
     </>
   );
 }
