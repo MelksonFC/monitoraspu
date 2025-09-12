@@ -52,28 +52,53 @@ export default function MapPage() {
   const [selectedImovel, setSelectedImovel] = useState<ImovelComCoordenadas | null>(null);
   const [isFilterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  const [selectedPolygon, setSelectedPolygon] = useState<any | null>(null); 
+  const [isPolygonLoading, setIsPolygonLoading] = useState(false);
   
   const [appliedFiltros, setAppliedFiltros] = useState<FiltrosState>(estadoInicialFiltros);
   const [tempFiltros, setTempFiltros] = useState<FiltrosState>(estadoInicialFiltros);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
 
-  // --- INÍCIO DA CORREÇÃO ---
-  // 1. Criamos uma função de tratamento de seleção que lida com selecionar e desselecionar.
-  const handleImovelSelection = (imovel: ImovelComCoordenadas | null) => {
-    // Se nenhum imóvel for passado, ou se o imóvel clicado já for o selecionado, limpa a seleção.
+  const handleImovelSelection = useCallback((imovel: ImovelComCoordenadas | null) => {
+    // Caso 1: Desselecionar (clicar no mesmo imóvel ou limpar seleção)
     if (!imovel || (selectedImovel && selectedImovel.idimovel === imovel.idimovel)) {
       setSelectedImovel(null);
-    } else {
-      // Caso contrário, define o novo imóvel como selecionado.
-      setSelectedImovel(imovel);
+      setSelectedPolygon(null); // Limpa o polígono
+      return;
     }
-  };
-  // --- FIM DA CORREÇÃO ---
+
+    // Caso 2: Selecionar um novo imóvel
+    setSelectedImovel(imovel);
+    setSelectedPolygon(null); // Limpa o polígono anterior imediatamente
+    setIsPolygonLoading(true);
+
+    // Busca a geometria do novo imóvel selecionado (Lazy Loading)
+    axios.get(`${API_URL}/api/poligonosterreno/imovel/${imovel.idimovel}`)
+      .then(response => {
+        if (response.data && response.data.length > 0) {
+          const geometry = response.data[0].area;
+          if (geometry) {
+            setSelectedPolygon({
+              type: "Feature",
+              geometry: geometry,
+            });
+          }
+        }
+      })
+      .catch(() => {
+        console.warn(`Nenhum polígono encontrado para o imóvel ${imovel.idimovel}`);
+      })
+      .finally(() => {
+        setIsPolygonLoading(false);
+      });
+  }, [selectedImovel]); 
+
 
   const fetchImoveis = useCallback(async (currentFilters: FiltrosState) => {
     setLoading(true);
-    // Remove a seleção ao fazer uma nova busca para evitar inconsistências
     setSelectedImovel(null); 
+    setSelectedPolygon(null);
     try {
       const response = await axios.get(`${API_URL}/api/imoveis/com-relacoes`, {
         params: {
@@ -158,7 +183,7 @@ export default function MapPage() {
           onClick={handleOpenDrawer}
           filterCount={filterCount}
         />
-        {loading && (
+        {(loading || isPolygonLoading) && ( // Mostra loading para busca geral ou do polígono
           <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1100, p: 2, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
             <CircularProgress />
           </Box>
@@ -169,6 +194,7 @@ export default function MapPage() {
           imoveis={imoveis}
           selectedImovel={selectedImovel}
           onMarkerClick={handleImovelSelection}
+          selectedPolygon={selectedPolygon} 
         />
         {/* --- FIM DA CORREÇÃO --- */}
       </Box>

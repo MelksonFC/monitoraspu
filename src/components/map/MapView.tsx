@@ -1,7 +1,7 @@
-import { MapContainer, TileLayer, Marker, Tooltip, useMap, ZoomControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip, useMap, ZoomControl, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
-import type { LatLngExpression } from 'leaflet';
-import { useEffect } from 'react';
+import type { PathOptions, LatLngExpression } from 'leaflet';
+import { useEffect, useRef } from 'react';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import type { ImovelComCoordenadas } from '../../pages/MapPage';
 
@@ -9,8 +9,6 @@ import type { ImovelComCoordenadas } from '../../pages/MapPage';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-
-// --- INÍCIO DA MELHORIA ---
 
 // 1. Criamos os ícones usando SVG para fácil customização de cor e tamanho.
 // Ícone padrão (azul)
@@ -39,11 +37,17 @@ const createLeafletIcon = (svg: string, size: [number, number]) => {
 const defaultIcon = createLeafletIcon(defaultIconSVG, [28, 28]);
 const selectedIcon = createLeafletIcon(selectedIconSVG, [42, 42]);
 
-// --- FIM DA MELHORIA ---
-
+// Estilo para o polígono selecionado
+const selectedPolygonStyle: PathOptions = {
+  color: '#D32F2F',      // Cor da borda (vermelho)
+  weight: 3,            // Espessura da borda
+  opacity: 0.8,         // Opacidade da borda
+  fillColor: '#D32F2F',  // Cor do preenchimento
+  fillOpacity: 0.3,     // Opacidade do preenchimento
+};
 
 // O seu MapController continua exatamente o mesmo, ele já ajuda na experiência!
-function MapController({ imoveis, selectedImovel }: { imoveis: ImovelComCoordenadas[], selectedImovel: ImovelComCoordenadas | null }) {
+function MapController({ imoveis, selectedImovel, selectedPolygon }: { imoveis: ImovelComCoordenadas[], selectedImovel: ImovelComCoordenadas | null, selectedPolygon: any | null }) {
   const map = useMap();
   useEffect(() => {
     map.invalidateSize();
@@ -56,11 +60,15 @@ function MapController({ imoveis, selectedImovel }: { imoveis: ImovelComCoordena
     }
   }, [map, imoveis]);
 
+  // Efeito para focar no imóvel ou no polígono selecionado
   useEffect(() => {
-    if (selectedImovel?.latitude && selectedImovel?.longitude) {
+    if (selectedPolygon && selectedPolygon.geometry) {
+      const geoJsonLayer = L.geoJSON(selectedPolygon);
+      map.flyToBounds(geoJsonLayer.getBounds(), { padding: [50, 50] });
+    } else if (selectedImovel?.latitude && selectedImovel?.longitude) {
       map.flyTo([parseFloat(selectedImovel.latitude), parseFloat(selectedImovel.longitude)], 16);
     }
-  }, [map, selectedImovel]);
+  }, [map, selectedImovel, selectedPolygon]);
 
   return null;
 }
@@ -69,10 +77,16 @@ interface MapViewProps {
   imoveis: ImovelComCoordenadas[];
   selectedImovel: ImovelComCoordenadas | null;
   onMarkerClick: (imovel: ImovelComCoordenadas) => void;
+  selectedPolygon: any | null;
 }
 
-export default function MapView({ imoveis, selectedImovel, onMarkerClick }: MapViewProps) {
+export default function MapView({ imoveis, selectedImovel, onMarkerClick, selectedPolygon }: MapViewProps) {
   const position: LatLngExpression = [-15.77972, -47.92972];
+  const geoJsonRef = useRef<L.GeoJSON>(null);
+
+  useEffect(() => {
+    geoJsonRef.current?.bringToFront();
+  }, [selectedPolygon]);
 
   return (
     <MapContainer center={position} zoom={4} style={{ height: '100%', width: '100%' }} zoomControl={false}>
@@ -81,6 +95,16 @@ export default function MapView({ imoveis, selectedImovel, onMarkerClick }: MapV
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <ZoomControl position="bottomright" />
+
+      {/* 4. Renderiza o polígono se ele existir */}
+      {selectedPolygon && (
+        <GeoJSON
+          key={selectedImovel?.idimovel} // Chave para forçar a recriação ao mudar de imóvel
+          data={selectedPolygon}
+          style={selectedPolygonStyle}
+          ref={geoJsonRef}
+        />
+      )}
 
       <MarkerClusterGroup>
         {imoveis.map(imovel => (
@@ -112,7 +136,7 @@ export default function MapView({ imoveis, selectedImovel, onMarkerClick }: MapV
         ))}
       </MarkerClusterGroup>
 
-      <MapController imoveis={imoveis} selectedImovel={selectedImovel} />
+      <MapController imoveis={imoveis} selectedImovel={selectedImovel} selectedPolygon={selectedPolygon} />
     </MapContainer>
   );
 }
