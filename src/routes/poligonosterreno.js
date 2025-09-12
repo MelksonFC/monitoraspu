@@ -79,7 +79,7 @@ router.post("/", async (req, res) => {
     const polygonGeoJSON = getGeometryFromRequest(req.body);
 
     // Usa a função do PostGIS para converter o objeto GeoJSON para o tipo 'geometry' do banco.
-    const areaGeom = sequelize.fn('ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
+    const areaGeom = sequelize.fn('dbo.ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
 
     const now = new Date();
     const novoPoligono = await PoligonoTerreno.create({
@@ -104,7 +104,7 @@ router.put("/:id", async (req, res) => {
     const { usermodified } = req.body;
     const polygonGeoJSON = getGeometryFromRequest(req.body);
 
-    const areaGeom = sequelize.fn('ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
+    const areaGeom = sequelize.fn('dbo.ST_GeomFromGeoJSON', JSON.stringify(polygonGeoJSON));
 
     const now = new Date();
     const [updateCount] = await PoligonoTerreno.update(
