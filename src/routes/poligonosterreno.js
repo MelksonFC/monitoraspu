@@ -49,7 +49,11 @@ const getGeometryFromRequest = (body) => {
             return geojsonResult.geometry; // Retorna a geometria da feature.
         }
     }
-    
+     // --- LOG DE DEBUG ADICIONADO ---
+    console.error("DEBUG: Falha na conversão de TopoJSON para GeoJSON.");
+    console.error("DEBUG: TopoJSON recebido:", JSON.stringify(topology, null, 2));
+    console.error("DEBUG: Resultado da conversão (geojsonResult):", JSON.stringify(geojsonResult, null, 2));
+    // --- FIM DO LOG ---
     // Se chegou até aqui, a conversão falhou ou resultou em um objeto vazio.
     throw new Error("Não foi possível extrair uma geometria válida do TopoJSON após a conversão.");
 };
