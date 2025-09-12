@@ -298,7 +298,7 @@ export default function ShadcnDashboard() {
             {/* Linha de KPIs principais */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Imóvel (Distintos)</CardTitle><Library className="h-4 w-4 text-white/80" /></CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle><Library className="h-4 w-4 text-white/80" /></CardHeader>
                     <CardContent><div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div></CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
