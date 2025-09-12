@@ -406,6 +406,34 @@ export default function ImoveisTable() {
     });
   }, [imoveis, columns, filters, filterOps, filterRange, orderBy, orderDir, paises, estados, municipios, unidadesGestoras, regimes, usuarios]);
 
+  const dynamicLookupOptions = useMemo(() => {
+    const lookupColumns = ["idpais", "idestado", "idmunicipio", "idunidadegestora", "idregimeutilizacao", "usercreated", "usermodified"];
+    const options: { [key: string]: LookupItem[] } = {};
+
+    const fullLookupMap: { [key: string]: LookupItem[] } = {
+        idpais: paises,
+        idestado: estados,
+        idmunicipio: municipios,
+        idunidadegestora: unidadesGestoras,
+        idregimeutilizacao: regimes,
+        usercreated: usuarios,
+        usermodified: usuarios
+    };
+
+    lookupColumns.forEach(colId => {
+        // 1. Coleta todos os IDs únicos presentes na tabela (sorted) para esta coluna
+        const uniqueIds = new Set(sorted.map(item => item[colId]).filter(id => id !== null && id !== undefined));
+        
+        // 2. Busca os objetos completos (id, nome) a partir dos IDs únicos
+        const sourceList = fullLookupMap[colId] || [];
+        const filteredOptions = sourceList.filter(item => uniqueIds.has(item.id));
+        
+        options[colId] = filteredOptions;
+    });
+
+    return options;
+  }, [sorted, paises, estados, municipios, unidadesGestoras, regimes, usuarios]);
+
   const displayedImovelIds = useMemo(() => sorted.map(imovel => imovel.idimovel), [sorted]);
   const handleNavigate = async (newId: number) => {
     try {
@@ -664,7 +692,7 @@ export default function ImoveisTable() {
   const zebraColor = "#f7fafc";
   const rowColor = "#fff";
 
-  const lookupMap: { [key: string]: LookupItem[] } = { idpais: paises, idestado: estados, idmunicipio: municipios, idunidadegestora: unidadesGestoras, idregimeutilizacao: regimes, usercreated: usuarios, usermodified: usuarios };
+  //const lookupMap: { [key: string]: LookupItem[] } = { idpais: paises, idestado: estados, idmunicipio: municipios, idunidadegestora: unidadesGestoras, idregimeutilizacao: regimes, usercreated: usuarios, usermodified: usuarios };
   const rightAlignFields = ["valorimovel", "areaconstruida", "areaterreno"];
 
   return (
@@ -828,7 +856,8 @@ export default function ImoveisTable() {
               <FormControl fullWidth size="small">
                 <InputLabel>{currentFilteringCol.label}</InputLabel>
                 <Select multiple value={filters[currentFilteringCol.id] ?? []} onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: typeof e.target.value === "string" ? e.target.value.split(",") : e.target.value }))} input={<OutlinedInput label={currentFilteringCol.label} />} renderValue={selected => (selected as string[]).join(", ")}>
-                  {(lookupMap[currentFilteringCol.id] || []).map(item => (
+                  {/* Troca o lookupMap pelo dynamicLookupOptions */}
+                  {(dynamicLookupOptions[currentFilteringCol.id] || []).map(item => (
                     <MenuItem key={item.id} value={item.descricao || item.nome}>
                       <Checkbox checked={filters[currentFilteringCol.id]?.indexOf(item.descricao || item.nome) > -1} />
                       <ListItemText primary={item.descricao || item.nome} />
