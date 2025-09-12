@@ -58,7 +58,7 @@ export default function PoligonoTerrenoDialog({
   const featureGroupRef = useRef<L.FeatureGroup>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const clearState = () => {
+  const clearState = useCallback(() => {
     setCoords([]);
     setPoligono(null);
     setSimplifiedTopoJSON(null);
@@ -66,9 +66,10 @@ export default function PoligonoTerrenoDialog({
     setError(null);
     setLoading(false);
     setIsImporting(false);
-  };
+  }, []);
 
-  // NOVO: Função centralizada para processar e simplificar a geometria
+  // --- CORREÇÃO PRINCIPAL ---
+  // A dependência 'poligono' foi removida. A função agora é estável.
   const reprocessAndSetGeometry = useCallback(async (newCoords: [number, number][], infoMessage?: string) => {
     if (newCoords.length < 3) {
       setSimplifiedTopoJSON(null);
@@ -86,21 +87,20 @@ export default function PoligonoTerrenoDialog({
       
       if (infoMessage) {
         setSimplificationInfo(infoMessage.replace('{originalCount}', originalCount.toString()));
-      } else if (poligono) { // Se estamos editando um polígono existente
-        setSimplificationInfo("Geometria modificada. Pronto para atualizar.");
       }
-
     } catch (err) {
       setError("Falha ao processar a geometria.");
       setSimplifiedTopoJSON(null);
     }
-  }, [poligono]); // Depende do polígono para saber qual mensagem mostrar
+  }, []); // A lista de dependências agora está vazia, tornando a função estável.
 
   useEffect(() => {
     if (!open || !idimovel) return;
+    
     clearState();
     setImportSuccess(null);
     setLoading(true);
+
     axios.get(`${API_URL}/api/poligonosterreno/imovel/${idimovel}`)
       .then((res) => {
         const dados = (Array.isArray(res.data) ? res.data : []).map((p: any) => ({
@@ -109,7 +109,6 @@ export default function PoligonoTerrenoDialog({
         }));
         if (dados.length > 0 && dados[0].coordinates.length > 0) {
           const loadedCoords = dados[0].coordinates;
-          // Remove o último ponto se for igual ao primeiro (comum em GeoJSON)
           const last = loadedCoords[loadedCoords.length - 1];
           const first = loadedCoords[0];
           if (last[0] === first[0] && last[1] === first[1]) {
@@ -117,12 +116,13 @@ export default function PoligonoTerrenoDialog({
           }
           setPoligono(dados[0]);
           setCoords(loadedCoords);
-          reprocessAndSetGeometry(loadedCoords); // Processa a geometria carregada
+          reprocessAndSetGeometry(loadedCoords, "Geometria carregada. Modifique para atualizar."); // Mensagem inicial
         }
       })
       .catch(() => setError("Falha ao carregar o polígono do imóvel."))
       .finally(() => setLoading(false));
-  }, [open, idimovel, reprocessAndSetGeometry]);
+  // A dependência `reprocessAndSetGeometry` agora é estável, quebrando o loop.
+  }, [open, idimovel, reprocessAndSetGeometry, clearState]);
   
   useEffect(() => {
     if (open && mapRef.current) {
@@ -134,20 +134,24 @@ export default function PoligonoTerrenoDialog({
   useEffect(() => {
     const fg = featureGroupRef.current;
     const map = mapRef.current;
-    if (!fg || !map || coords.length < 3) {
-        fg?.clearLayers();
-        return;
-    };
+    if (!fg || !map) return;
+
     fg.clearLayers();
+    if (coords.length < 3) return;
+
     const leafletCoords: [number, number][] = coords.map(c => [c[1], c[0]]);
     const polygonLayer = L.polygon(leafletCoords, { color: 'blue' });
     fg.addLayer(polygonLayer);
-    map.fitBounds(polygonLayer.getBounds(), { padding: [50, 50] });
+    
+    // Apenas ajusta o zoom se houver coordenadas
+    if (leafletCoords.length > 0) {
+      map.fitBounds(polygonLayer.getBounds(), { padding: [50, 50] });
+    }
   }, [coords]);
 
   const handleSave = () => {
     if (!usuario) return setError("Usuário não autenticado.");
-    if (!simplifiedTopoJSON) return setError("Não há dados simplificados para salvar.");
+    if (!simplifiedTopoJSON) return setError("Não há dados de geometria para salvar.");
 
     setLoading(true);
     setError(null);
@@ -200,16 +204,13 @@ export default function PoligonoTerrenoDialog({
         const originalCoords = (geojsonData.features?.[0]?.geometry?.coordinates?.[0] || geojsonData.coordinates?.[0] || []) as [number, number][];
         if (originalCoords.length === 0) throw new Error("Não foi possível encontrar coordenadas no arquivo.");
         
-        // Remove o último ponto se for igual ao primeiro
         const last = originalCoords[originalCoords.length - 1];
         const first = originalCoords[0];
         if (last && first && last[0] === first[0] && last[1] === first[1]) {
             originalCoords.pop();
         }
-
         setCoords(originalCoords);
-        // Chama a função centralizada com a mensagem correta
-        reprocessAndSetGeometry(originalCoords, `Geometria simplificada de {originalCount} para uma versão otimizada. Valide e salve.`);
+        reprocessAndSetGeometry(originalCoords, `Geometria importada e otimizada. Valide e salve.`);
       } catch (err: any) {
         setError(err.message);
         setCoords([]);
@@ -221,19 +222,19 @@ export default function PoligonoTerrenoDialog({
     reader.readAsText(file);
   };
   
-  const handleRemoveCoord = (indexToRemove: number) => {
-    const newCoords = coords.filter((_, index) => index !== indexToRemove);
+  const handleCoordAction = useCallback((newCoords: [number, number][]) => {
     setCoords(newCoords);
-    reprocessAndSetGeometry(newCoords); // Reprocessa após remover um ponto
+    setSimplificationInfo("Geometria modificada. Pronto para salvar/atualizar.");
+    reprocessAndSetGeometry(newCoords);
+  }, [reprocessAndSetGeometry]);
+
+  const handleRemoveCoord = (indexToRemove: number) => {
+    handleCoordAction(coords.filter((_, index) => index !== indexToRemove));
   };
 
-  // Demais handlers (handleInvertCoords, handleCoordChange) e o JSX podem continuar como estavam,
-  // mas vamos garantir que eles também usem a nova função.
   const handleInvertCoords = () => {
     if (coords.length === 0) return;
-    const invertedCoords = coords.map(([lng, lat]) => [lat, lng] as [number, number]);
-    setCoords(invertedCoords);
-    reprocessAndSetGeometry(invertedCoords);
+    handleCoordAction(coords.map(([lng, lat]) => [lat, lng]));
   };
 
   const handleCoordChange = (index: number, value: string, latOrLng: 'lat' | 'lng') => {
@@ -241,24 +242,21 @@ export default function PoligonoTerrenoDialog({
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
       newCoords[index] = latOrLng === 'lat' ? [newCoords[index][0], numValue] : [numValue, newCoords[index][1]];
-      setCoords(newCoords);
-      reprocessAndSetGeometry(newCoords);
+      handleCoordAction(newCoords);
     }
   };
 
-
   const Row = useCallback(({ index, style }: ListChildComponentProps) => {
     const coord = coords[index];
-    const cellSx = { borderBottom: 'none', paddingY: 0.5 };
     return (
       <TableRow style={style} key={index} component="div">
-        <TableCell component="div" sx={cellSx}>
-            <TextField type="number" defaultValue={coord[0]} onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" />
+        <TableCell component="div" sx={{ borderBottom: 'none', paddingY: 0.5 }}>
+            <TextField type="number" defaultValue={coord[0]} onBlur={(e) => handleCoordChange(index, e.target.value, 'lng')} fullWidth variant="standard" />
         </TableCell>
-        <TableCell component="div" sx={cellSx}>
-            <TextField type="number" defaultValue={coord[1]} onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" />
+        <TableCell component="div" sx={{ borderBottom: 'none', paddingY: 0.5 }}>
+            <TextField type="number" defaultValue={coord[1]} onBlur={(e) => handleCoordChange(index, e.target.value, 'lat')} fullWidth variant="standard" />
         </TableCell>
-        <TableCell component="div" sx={{...cellSx, width: '60px', textAlign: 'right' }}>
+        <TableCell component="div" sx={{ borderBottom: 'none', paddingY: 0.5, width: '60px', textAlign: 'right' }}>
             <IconButton size="small" onClick={() => handleRemoveCoord(index)}>
                 <DeleteIcon fontSize="small" />
             </IconButton>
@@ -272,7 +270,7 @@ export default function PoligonoTerrenoDialog({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
       <DialogTitle>Polígono do Terreno</DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ p: { xs: 1, sm: 2 } }}>
         <Collapse in={!!error}><Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert></Collapse>
         <Collapse in={!!importSuccess}><Alert severity="success" sx={{ mb: 2 }} onClose={() => setImportSuccess(null)}>{importSuccess}</Alert></Collapse>
         <Collapse in={!!simplificationInfo}><Alert severity="info" sx={{ mb: 2 }}>{simplificationInfo}</Alert></Collapse>
@@ -295,7 +293,7 @@ export default function PoligonoTerrenoDialog({
                 </>
               )}
             </Box>
-            <Box sx={{ flexGrow: 1, border: '1px solid #ccc', borderRadius: '4px' }}>
+            <Box sx={{ flexGrow: 1, border: '1px solid #ccc', borderRadius: '4px', overflow: 'hidden' }}>
                 <Table component="div" size="small">
                     <TableHead component="div"><TableRow component="div"><TableCell component="div">Longitude</TableCell><TableCell component="div">Latitude</TableCell><TableCell component="div" sx={{ width: '60px' }}>Ações</TableCell></TableRow></TableHead>
                 </Table>
@@ -304,7 +302,7 @@ export default function PoligonoTerrenoDialog({
           </Box>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between' }}>
+      <DialogActions sx={{ justifyContent: 'space-between', p: 2 }}>
         {poligono && (<Button onClick={handleDeletePolygon} color="error" disabled={loading || isImporting}>Excluir Polígono</Button>)}
         <Box>
             <Button onClick={onClose} color="secondary" disabled={loading || isImporting}>Cancelar</Button>
