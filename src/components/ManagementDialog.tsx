@@ -46,14 +46,18 @@ export default function ManagementDialog<T extends BaseItem>({
   title,
   label,
   fieldName,
-  extraFields = [],
+  extraFields = [], // O valor padrão é mantido
 }: ManagementDialogProps<T>) {
-  // Inicializa todos os valores do formulário
+  
   const [formValues, setFormValues] = useState<any>({});
 
   useEffect(() => {
+    // Este efeito só deve rodar quando o diálogo é aberto, não a cada dígito.
     if (open) {
-      let initialValues: any = item ? { ...item } : { [fieldName]: '' };
+      // Começa com o item recebido (para edição) ou um objeto com o campo principal vazio (para criação)
+      const initialValues: any = item ? { ...item } : { [fieldName]: '' };
+      
+      // Preenche os valores padrão para os campos extras, se não estiverem já definidos no item
       extraFields.forEach(field => {
         if (!(field.name in initialValues)) {
           initialValues[field.name] = field.defaultValue ?? (field.type === 'checkbox' ? false : '');
@@ -61,7 +65,11 @@ export default function ManagementDialog<T extends BaseItem>({
       });
       setFormValues(initialValues);
     }
-  }, [item, open, fieldName, extraFields]);
+    // --- CORREÇÃO PRINCIPAL ---
+    // Removemos `extraFields` e `fieldName` da lista de dependências.
+    // O `useEffect` agora só será re-executado quando o diálogo for aberto (`open`)
+    // ou quando o item a ser editado mudar (`item`), que é o comportamento correto.
+  }, [item, open]);
 
   const handleFieldChange = (key: keyof T, value: any) => {
     setFormValues((prev: any) => ({
@@ -78,76 +86,88 @@ export default function ManagementDialog<T extends BaseItem>({
     onSave(formValues as T);
   };
 
+  // Permite salvar com Enter
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSaveClick();
+  };
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ mt: 2 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={label}
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formValues[fieldName] ?? ''}
-            onChange={(e) => handleFieldChange(fieldName, e.target.value)}
-            sx={{ mt: 2 }}
-          />
-          {extraFields.map(field => {
-            switch (field.type) {
-              case 'checkbox':
-                return (
-                  <FormControlLabel
-                    key={String(field.name)}
-                    control={
-                      <Checkbox
-                        checked={!!formValues[field.name]}
-                        onChange={e => handleFieldChange(field.name, e.target.checked)}
-                      />
-                    }
-                    label={field.label}
-                    sx={{ mt: 2 }}
-                  />
-                );
-              case 'text':
-                return (
-                  <TextField
-                    key={String(field.name)}
-                    margin="dense"
-                    label={field.label}
-                    type="text"
-                    fullWidth
-                    variant="outlined"
-                    value={formValues[field.name] ?? ''}
-                    onChange={e => handleFieldChange(field.name, e.target.value)}
-                    sx={{ mt: 2 }}
-                  />
-                );
-              case 'number':
-                return (
-                  <TextField
-                    key={String(field.name)}
-                    margin="dense"
-                    label={field.label}
-                    type="number"
-                    fullWidth
-                    variant="outlined"
-                    value={formValues[field.name] ?? ''}
-                    onChange={e => handleFieldChange(field.name, Number(e.target.value))}
-                    sx={{ mt: 2 }}
-                  />
-                );
-              default:
-                return null;
-            }
-          })}
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
-        <Button onClick={handleSaveClick} variant="contained">Salvar</Button>
-      </DialogActions>
+      {/* Adicionado o form para capturar o onSubmit */}
+      <Box component="form" onSubmit={handleFormSubmit} noValidate>
+        <DialogContent>
+          {/* O mt: 2 foi movido para o Box para um espaçamento inicial consistente */}
+          <Box sx={{ pt: 1 }}> 
+            <TextField
+              autoFocus
+              margin="dense"
+              label={label}
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={formValues[fieldName] ?? ''}
+              onChange={(e) => handleFieldChange(fieldName, e.target.value)}
+            />
+            {extraFields.map(field => {
+              switch (field.type) {
+                case 'checkbox':
+                  return (
+                    <FormControlLabel
+                      key={String(field.name)}
+                      control={
+                        <Checkbox
+                          checked={!!formValues[field.name]}
+                          onChange={e => handleFieldChange(field.name, e.target.checked)}
+                        />
+                      }
+                      label={field.label}
+                      sx={{ mt: 2, display: 'block' }} // Garante que ocupe a linha toda
+                    />
+                  );
+                case 'text':
+                  return (
+                    <TextField
+                      key={String(field.name)}
+                      margin="dense"
+                      label={field.label}
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                      value={formValues[field.name] ?? ''}
+                      onChange={e => handleFieldChange(field.name, e.target.value)}
+                      sx={{ mt: 2 }}
+                    />
+                  );
+                case 'number':
+                  return (
+                    <TextField
+                      key={String(field.name)}
+                      margin="dense"
+                      label={field.label}
+                      type="number"
+                      fullWidth
+                      variant="outlined"
+                      value={formValues[field.name] ?? ''}
+                      // Para campos numéricos, é melhor tratar o valor como string no estado
+                      // e converter apenas ao salvar, para evitar problemas de digitação.
+                      onChange={e => handleFieldChange(field.name, e.target.value)}
+                      sx={{ mt: 2 }}
+                    />
+                  );
+                default:
+                  return null;
+              }
+            })}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          {/* O botão agora é do tipo submit */}
+          <Button type="submit" variant="contained">Salvar</Button>
+        </DialogActions>
+      </Box>
     </Dialog>
   );
 }
