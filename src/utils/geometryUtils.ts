@@ -1,8 +1,8 @@
 import * as topojsonServer from 'topojson-server';
 import * as topojsonSimplify from 'topojson-simplify';
-import { Topology, Objects} from 'topojson-specification';
+import { Topology, Objects } from 'topojson-specification';
 
-// --- Interfaces GeoJSON (sem alterações) ---
+// --- Interfaces GeoJSON ---
 interface Polygon { type: 'Polygon'; coordinates: [number, number][][]; }
 interface MultiPolygon { type: 'MultiPolygon'; coordinates: [number, number][][][]; }
 type GeoJSONGeometry = Polygon | MultiPolygon;
@@ -10,6 +10,7 @@ interface GeoJSONFeature { type: 'Feature'; geometry: GeoJSONGeometry | null; pr
 interface GeoJSONFeatureCollection { type: 'FeatureCollection'; features: GeoJSONFeature[]; }
 type GeoJSONObject = GeoJSONGeometry | GeoJSONFeature | GeoJSONFeatureCollection;
 
+// Função para contar coordenadas (sem alterações)
 function countCoordinates(geojson: GeoJSONObject | null): number {
   if (!geojson) return 0;
   switch (geojson.type) {
@@ -27,6 +28,15 @@ function countCoordinates(geojson: GeoJSONObject | null): number {
   }
 }
 
+/*
+ * Valida se um objeto é uma geometria GeoJSON válida (Polygon ou MultiPolygon).
+ * @param obj O objeto a ser validado.
+ * @returns true se for uma geometria válida.
+ */
+function isValidGeometry(obj: any): obj is GeoJSONGeometry {
+    return obj && (obj.type === 'Polygon' || obj.type === 'MultiPolygon') && Array.isArray(obj.coordinates);
+}
+
 export async function simplifyAndConvertToTopoJSON(
   geojsonString: string,
   simplificationPercentage: number = 0.01
@@ -40,35 +50,45 @@ export async function simplifyAndConvertToTopoJSON(
   const originalCount = countCoordinates(geojsonData);
 
   if (originalCount === 0) {
-    throw new Error("Não foi possível extrair coordenadas válidas do GeoJSON.");
+    throw new Error("Não foi possível extrair coordenadas válidas do GeoJSON de entrada.");
   }
 
-  const geoJsonFeatureCollection: GeoJSONFeatureCollection = geojsonData.type === 'FeatureCollection'
-    ? geojsonData
-    : { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: geojsonData as GeoJSONGeometry, properties: {} }] };
+  let featureCollection: GeoJSONFeatureCollection;
+
+  // --- LÓGICA DE CONSTRUÇÃO CORRIGIDA ---
+  // Garante que estamos sempre trabalhando com uma FeatureCollection válida.
+  if (geojsonData.type === 'FeatureCollection') {
+    featureCollection = geojsonData;
+  } else if (geojsonData.type === 'Feature' && isValidGeometry(geojsonData.geometry)) {
+    featureCollection = { type: 'FeatureCollection', features: [geojsonData] };
+  } else if (isValidGeometry(geojsonData)) {
+    // Se a entrada for apenas uma geometria, encapsula em uma Feature e FeatureCollection.
+    featureCollection = {
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', geometry: geojsonData, properties: {} }]
+    };
+  } else {
+    // Se a entrada não for nenhum dos formatos esperados, lança um erro claro.
+    throw new Error('O GeoJSON de entrada não é uma FeatureCollection, Feature com geometria válida, ou uma Geometria (Polygon/MultiPolygon) válida.');
+  }
 
   try {
-    const topology = topojsonServer.topology({ collection: geoJsonFeatureCollection as any });
+    // Converte a FeatureCollection garantidamente válida para TopoJSON.
+    const topology = topojsonServer.topology({ collection: featureCollection });
     
-    // --- LÓGICA DE SIMPLIFICAÇÃO CORRIGIDA ---
-    // Apenas simplifica se houver arcos para simplificar.
+    // A lógica de simplificação segura que implementamos antes continua aqui.
     if (topology.arcs.length > 0) {
         const presimplified = topojsonSimplify.presimplify(topology as Topology<Objects<{}>>);
         const minWeight = topojsonSimplify.quantile(presimplified, simplificationPercentage);
 
-        // Verificação de segurança: Se minWeight for Infinity, significa que a simplificação
-        // removeria tudo. Nesse caso, não simplificamos.
         if (Number.isFinite(minWeight)) {
             const simplifiedTopology = topojsonSimplify.simplify(presimplified, minWeight);
-            const simplifiedTopoJSON = JSON.stringify(simplifiedTopology);
-            return { simplifiedTopoJSON, originalCount };
+            return { simplifiedTopoJSON: JSON.stringify(simplifiedTopology), originalCount };
         }
     }
     
-    // Se a simplificação não for possível ou não for segura, retorna o TopoJSON original (não simplificado).
     console.warn("A simplificação não foi aplicada para evitar a criação de uma geometria vazia. O TopoJSON original foi retornado.");
-    const originalTopoJSON = JSON.stringify(topology);
-    return { simplifiedTopoJSON: originalTopoJSON, originalCount };
+    return { simplifiedTopoJSON: JSON.stringify(topology), originalCount };
 
   } catch (error) {
     console.error("Erro durante o processo de simplificação para TopoJSON:", error);
