@@ -199,30 +199,47 @@ router.get('/com-relacoes', async (req, res) => {
 // Vou omitir o resto para ser breve, mas ele continua igual ao que você me enviou.
 router.get("/", async (req, res) => {
   try {
+    const { withImages } = req.query;
+    const include = [];
+
+    // Só inclui a imagem default se solicitado
+    if (withImages === "true") {
+      include.push({
+        model: Imagem,
+        as: 'imagens',
+        attributes: ['id', 'ordem', 'imagem', 'isdefault', 'nomearquivo'],
+        where: { isdefault: '1' }, // <-- SOMENTE A IMAGEM DEFAULT
+        required: false
+      });
+    }
+
     const imoveis = await Imovel.findAll({
-      include: [{ 
-        model: Imagem, 
-        as: 'imagens', 
-        attributes: ['id', 'ordem', 'imagem', 'isdefault', 'nomearquivo'] 
-      }],
-      order: [['idimovel', 'ASC'], [{ model: Imagem, as: 'imagens' }, 'ordem', 'ASC']]
+      include,
+      order: [['idimovel', 'ASC']]
     });
-    const imoveisComImagensBase64 = imoveis.map(imovel => {
-      const imovelJson = imovel.toJSON();
-      if (imovelJson.imagens && Array.isArray(imovelJson.imagens)) {
-        imovelJson.imagens = imovelJson.imagens.map(imagem => {
-          if (imagem.imagem && imagem.imagem.length > 0) {
-            return {
-              ...imagem,
-              url: `data:image/jpeg;base64,${Buffer.from(imagem.imagem).toString('base64')}`
-            };
-          }
-          return imagem;
-        });
-      }
-      return imovelJson;
-    });
-    res.json(imoveisComImagensBase64);
+
+    let result;
+    if (withImages === "true") {
+      result = imoveis.map(imovel => {
+        const imovelJson = imovel.toJSON();
+        if (imovelJson.imagens && Array.isArray(imovelJson.imagens)) {
+          imovelJson.imagens = imovelJson.imagens.map(imagem => {
+            if (imagem.imagem && imagem.imagem.length > 0) {
+              return {
+                ...imagem,
+                url: `data:image/jpeg;base64,${Buffer.from(imagem.imagem).toString('base64')}`
+              };
+            }
+            return imagem;
+          });
+        }
+        return imovelJson;
+      });
+    } else {
+      result = imoveis.map(imovel => imovel.toJSON());
+    }
+
+    res.json(result);
   } catch (err) {
     console.error("[BACKEND] Erro ao buscar imóveis:", err);
     res.status(500).json({ error: "Falha ao buscar imóveis." });
