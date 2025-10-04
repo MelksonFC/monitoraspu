@@ -539,7 +539,14 @@ export default function ShadcnDashboard() {
                                     <XAxis type="number" hide />
                                     <YAxis dataKey="name" type="category" hide />
                                     <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                    <Legend />
+                                    <Legend
+                                    payload={[
+                                        { value: chartConfigStatusFiscalizacao.emDia.label, type: "square", color: chartConfigStatusFiscalizacao.emDia.color },
+                                        { value: chartConfigStatusFiscalizacao.aVencer.label, type: "square", color: chartConfigStatusFiscalizacao.aVencer.color },
+                                        { value: chartConfigStatusFiscalizacao.vencido.label, type: "square", color: chartConfigStatusFiscalizacao.vencido.color },
+                                        { value: chartConfigStatusFiscalizacao.nuncaFiscalizado.label, type: "square", color: chartConfigStatusFiscalizacao.nuncaFiscalizado.color },
+                                    ]}
+                                    />
                                     <Bar dataKey="emDia" stackId="a" fill="var(--color-emDia)" radius={[4, 0, 0, 4]}
                                       onClick={() => {
                                         setSelectedStatus("emDia");
