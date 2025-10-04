@@ -4,6 +4,7 @@
 // IMPORTAÇÕES CONVERTIDAS PARA O PADRÃO "IMPORT"
 // ===================================================================
 const express = require("express");
+const compression = require("compression");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
@@ -36,6 +37,7 @@ const sequelize = require('../models/sequelize.js');
 // ===================================================================
 const app = express();
 
+
 // --- INÍCIO DA CORREÇÃO DE CORS ---
 // 1. Defina as origens que você quer permitir.
 const allowedOrigins = [
@@ -59,6 +61,8 @@ const corsOptions = {
   optionsSuccessStatus: 204 // Para navegadores antigos
 };
 
+
+app.use(compression());
 // 3. Use as opções de CORS no seu app
 // Esta linha substitui a antiga "app.use(cors());"
 app.use(cors(corsOptions));
