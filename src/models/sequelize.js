@@ -20,6 +20,13 @@ const sequelize = new Sequelize(
     dialect: 'postgres',
     port: process.env.DB_PORT,           
     
+    // --- POOL DE CONEXÕES ---
+    pool: {
+      max: 10,                // máximo de conexões simultâneas
+      min: 2,                 // mínimo de conexões mantidas abertas
+      acquire: 30000,         // tempo máximo esperando por conexão (ms)
+      idle: 10000             // tempo antes de fechar conexão ociosa (ms)
+    },
   
     define: {
       freezeTableName: true,

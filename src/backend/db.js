@@ -18,7 +18,12 @@ const pool = new Pool({
   // Configuração de SSL segura usando o certificado CA.
   ssl: {
     ca: fs.readFileSync(caCertPath).toString(),
-  }
+  },
+  // --- POOL DE CONEXÕES ---
+  max: 10,                 // máximo de conexões simultâneas
+  min: 2,                  // mínimo de conexões mantidas abertas
+  idleTimeoutMillis: 10000, // tempo antes de fechar conexão ociosa (ms)
+  connectionTimeoutMillis: 30000 // tempo máximo esperando por conexão (ms)
 });
 
 
