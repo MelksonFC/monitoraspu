@@ -5,6 +5,8 @@ const sequelize = require("../models/sequelize.js");
 const { Op } = require("sequelize");
 const db = require('../models/index.js');
 const multer = require("multer");
+const NodeCache = require("node-cache");
+const cache = new NodeCache({ stdTTL: 300 }); // cache 5 min
 const { Imovel, Municipio, Estado, Imagem, UnidadeGestora, RegimeUtilizacao, HstUnidadeGestora, HstRegimeUtilizacao } = db;
 
 const router = express.Router();
@@ -88,6 +90,9 @@ const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
 
 // ROTA PARA O MAPA - GET /api/imoveis/com-relacoes - ATUALIZADA COM FILTROS AVANÇADOS
 router.get('/com-relacoes', async (req, res) => {
+  const cacheKey = "imoveis_com_relacoes_" + JSON.stringify(req.query);
+  const cached = cache.get(cacheKey);
+  if (cached) return res.status(200).json(cached);
   try {
     const {
       pais, estado, municipio, unidades, regimes, matricula,
@@ -186,7 +191,8 @@ router.get('/com-relacoes', async (req, res) => {
       }
       return imovelJson;
     });
-
+    
+    cache.set(cacheKey, imoveisComUrlDeImagem);
     res.status(200).json(imoveisComUrlDeImagem);
 
   } catch (error) {
@@ -200,6 +206,10 @@ router.get('/com-relacoes', async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const { withImages } = req.query;
+    const cacheKey = "imoveis" + (withImages === "true" ? "_withImages" : "");
+    const cached = cache.get(cacheKey);
+    if (cached) return res.json(cached);
+
     const include = [];
 
     // Só inclui a imagem default se solicitado
@@ -239,7 +249,9 @@ router.get("/", async (req, res) => {
       result = imoveis.map(imovel => imovel.toJSON());
     }
 
+    cache.set(cacheKey, result);
     res.json(result);
+    
   } catch (err) {
     console.error("[BACKEND] Erro ao buscar imóveis:", err);
     res.status(500).json({ error: "Falha ao buscar imóveis." });
@@ -362,6 +374,10 @@ router.post("/", upload.array('files'), async (req, res) => {
     }
 
     await t.commit();
+    // INVALIDA cache
+    cache.del("imoveis");
+    cache.del("imoveis_withImages");
+    cache.flushAll();
     const imovelCompleto = await Imovel.findByPk(newImovel.idimovel, { include: ['imagens'] });
     res.status(201).json(imovelCompleto);
   } catch (err) {
@@ -480,6 +496,10 @@ router.put("/:id", upload.array('files'), async (req, res) => {
         }
         
         await t.commit();
+        // INVALIDA cache
+        cache.del("imoveis");
+        cache.del("imoveis_withImages");
+        cache.flushAll();
         const imovelAtualizado = await Imovel.findByPk(id, { include: [{ model: Imagem, as: 'imagens' }] });
         res.json(imovelAtualizado);
 
@@ -506,6 +526,10 @@ router.delete("/:id", async (req, res) => {
         }
         
         await t.commit();
+        // INVALIDA cache
+        cache.del("imoveis");
+        cache.del("imoveis_withImages");
+        cache.flushAll();
         res.status(204).send();
     } catch (err) {
         await t.rollback();

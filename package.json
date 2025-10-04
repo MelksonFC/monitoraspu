@@ -43,6 +43,7 @@
     "leaflet.markercluster": "^1.5.3",
     "lucide-react": "^0.540.0",
     "multer": "^2.0.2",
+    "node-cache": "^5.1.2",
     "nodemailer": "^7.0.5",
     "papaparse": "^5.5.3",
     "pg": "^8.16.3",
