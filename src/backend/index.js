@@ -41,7 +41,7 @@ const app = express();
 // --- INÍCIO DA CORREÇÃO DE CORS ---
 // 1. Defina as origens que você quer permitir.
 const allowedOrigins = [
-  'https://melksonfc.github.io', // Seu frontend em produção
+  'https://monitoraspurr.com.br', // Seu frontend em produção
   'http://localhost:5173',      // Seu frontend em desenvolvimento local
   'http://127.0.0.1:5173'       // Outra variação do localhost
 ];
