@@ -1,0 +1,33 @@
+/* src/styles/themes.css */
+
+/* Tema Azul */
+[data-theme="theme-blue"] {
+    --primary: #007bff;
+    --secondary: #0056b3;
+    --card-bg: #f0f9ff;
+    --text-primary: #003a75;
+}
+
+/* Tema Verde */
+[data-theme="theme-green"] {
+    --primary: #28a745;
+    --secondary: #1c7430;
+    --card-bg: #e3ffe8;
+    --text-primary: #155724;
+}
+
+/* Tema Laranja */
+[data-theme="theme-orange"] {
+    --primary: #fd7e14;
+    --secondary: #e8590c;
+    --card-bg: #fff6e5;
+    --text-primary: #843c00;
+}
+
+/* Tema Escuro */
+[data-theme="theme-dark"] {
+    --primary: #343a40;
+    --secondary: #495057;
+    --card-bg: #212529;
+    --text-primary: #dee2e6;
+}

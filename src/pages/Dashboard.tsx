@@ -5,15 +5,29 @@ import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '../types';
 
 // ÍCONES para os cards de KPI
-import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign } from 'lucide-react';
+import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "../AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// --- TEMAS DISPONÍVEIS ---
+const themes = [
+    { name: "theme-blue", label: "Azul", color: "#007bff" },
+    { name: "theme-green", label: "Verde", color: "#28a745" },
+    { name: "theme-orange", label: "Laranja", color: "#fd7e14" },
+    { name: "theme-dark", label: "Escuro", color: "#343a40" },
+];
+
 // --- FUNÇÕES UTILITÁRIAS ---
+// Função para aplicar o tema ao elemento raiz do documento
+const applyTheme = (themeName: string) => {
+    document.documentElement.setAttribute('data-theme', themeName);
+};
+
 const formatFullNumber = (num: number): string => {
     return num.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 };
@@ -79,6 +93,7 @@ function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscaliz
 // --- DASHBOARD ---
 export default function ShadcnDashboard() {
     // Hooks de Estado
+    const { usuario } = useAuth();
     const [imoveis, setImoveis] = useState<Imovel[]>([]);
     const [municipios, setMunicipios] = useState<any[]>([]);
     const [regimes, setRegimes] = useState<any[]>([]);
@@ -95,16 +110,52 @@ export default function ShadcnDashboard() {
     const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
     const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
 
+    // Estados para o menu de temas
+    const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+    const [currentTheme, setCurrentTheme] = useState("theme-blue"); // Tema padrão inicial
+
+    // Função para alterar e salvar o tema
+    const handleThemeChange = async (newThemeName: string) => {
+        if (!usuario?.id) {
+            console.warn("ID do usuário não encontrado para salvar o tema.");
+            return;
+        }
+        
+        applyTheme(newThemeName);
+        setCurrentTheme(newThemeName);
+
+        try {
+            await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, { themepreference: newThemeName });
+        } catch (error) {
+            console.error("Falha ao salvar preferência de tema:", error);
+            // Opcional: Reverter para o tema anterior se a chamada falhar
+        }
+    };
+
     useEffect(() => {
+        if (!usuario?.id) {
+            setLoading(false); // Para de carregar se não houver usuário
+            return;
+        }
         const fetchData = async () => {
             try {
-                const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes] = await Promise.all([
+                const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes, themeRes] = await Promise.all([
                     axios.get(`${API_URL}/api/imoveis?situacao=true`),
                     axios.get(`${API_URL}/api/municipios`),
                     axios.get(`${API_URL}/api/regimeutilizacao`),
                     axios.get(`${API_URL}/api/fiscalizacoes`),
                     axios.get(`${API_URL}/api/avaliacoes`),
+                    axios.get(`${API_URL}/api/userpreferences/${usuario.id}`),
                 ]);
+
+                // Aplica o tema buscado do banco de dados
+                if (themeRes.data && themeRes.data.themepreference) {
+                    const savedTheme = themeRes.data.themepreference;
+                    setCurrentTheme(savedTheme);
+                    applyTheme(savedTheme);
+                } else {
+                    applyTheme(currentTheme); // Aplica o tema padrão se não houver salvo
+                }
                 
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
                 const regimesData = Array.isArray(regimesRes.data) ? regimesRes.data : [];
@@ -132,7 +183,7 @@ export default function ShadcnDashboard() {
             }
         };
         fetchData();
-    }, []);
+    }, [usuario?.id]);
 
     // --- PROCESSAMENTO E CONFIGURAÇÃO DE DADOS ---
     const municipioMap = new Map(municipios.map((m: any) => [m.idmunicipio, m.nome]));
@@ -299,6 +350,38 @@ export default function ShadcnDashboard() {
 
     return (
         <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
+            {/* Menu de Personalização de Tema */}
+            <div className="absolute top-4 right-4 z-50">
+                <button
+                    onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                    className="p-2 rounded-full bg-card text-card-foreground shadow-md hover:bg-muted"
+                    aria-label="Personalizar Tema"
+                >
+                    <Settings className="h-6 w-6" />
+                </button>
+                {isThemeMenuOpen && (
+                    <div className="absolute top-12 right-0 w-64 rounded-lg bg-card shadow-lg border p-4">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Palette className="h-5 w-5" />
+                            <h3 className="font-semibold">Escolha um Tema</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            {themes.map((theme) => (
+                                <button
+                                    key={theme.name}
+                                    onClick={() => handleThemeChange(theme.name)}
+                                    className={`p-2 rounded-md text-sm text-center font-medium border-2 ${currentTheme === theme.name ? 'border-primary' : 'border-transparent'}`}
+                                >
+                                    <div className="flex items-center justify-center gap-2">
+                                        <span className="block w-4 h-4 rounded-full" style={{ backgroundColor: theme.color }}></span>
+                                        <span>{theme.label}</span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
             {/* Linha de KPIs principais */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
