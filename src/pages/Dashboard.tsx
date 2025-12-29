@@ -21,9 +21,9 @@ const formatFullNumber = (num: number): string => {
 const formatCompactNumber = (num: number, options: { style?: 'currency', currency?: string } = {}) => {
     if (isNaN(num)) return '0';
     const prefix = options.style === 'currency' ? 'R$ ' : '';
-    if (num >= 1e9) return `${prefix}${(num / 1e9).toFixed(2).replace('.', ',')} Bi`;
-    if (num >= 1e6) return `${prefix}${(num / 1e6).toFixed(2).replace('.', ',')} Mi`;
-    if (num >= 1e3) return `${prefix}${(num / 1e3).toFixed(1).replace('.', ',')} mil`;
+    if (num >= 1e9) return `${prefix}${(num / 1e9).toFixed(3)} Bi`;
+    if (num >= 1e6) return `${prefix}${(num / 1e6).toFixed(3)} Mi`;
+    if (num >= 1e3) return `${prefix}${(num / 1e3).toFixed(2)} mil`;
     return `${prefix}${num.toLocaleString('pt-BR')}`;
 };
 
