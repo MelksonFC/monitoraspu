@@ -14,6 +14,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const API_URL = import.meta.env.VITE_API_URL;
 
 // --- FUNÇÕES UTILITÁRIAS ---
+const formatFullNumber = (num: number): string => {
+    return num.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+};
+
 const formatCompactNumber = (num: number, options: { style?: 'currency', currency?: string } = {}) => {
     if (isNaN(num)) return '0';
     const prefix = options.style === 'currency' ? 'R$ ' : '';
@@ -311,7 +315,10 @@ export default function ShadcnDashboard() {
                         <LandPlot className="h-4 w-4 text-white/80" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold">{formatCompactNumber(Number(totalAreaTerreno), { style: 'currency' })} 
+                        <div className="text-2xl font-bold"
+                            title={formatFullNumber(Number(totalAreaTerreno))}
+                        >
+                            {formatCompactNumber(Number(totalAreaTerreno), { style: 'currency' })} 
                             <span className="text-xs opacity-80">
                                 {formattedAreaTerreno.unit}
                             </span>
@@ -330,7 +337,10 @@ export default function ShadcnDashboard() {
                         <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
                         <Building2 className="h-4 w-4 text-white/80" /></CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{formatCompactNumber(Number(totalAreaConstruida), { style: 'currency' })}
+                        <div className="text-2xl font-bold"
+                            title={formatFullNumber(Number(totalAreaConstruida))}
+                        >
+                            {formatCompactNumber(Number(totalAreaConstruida), { style: 'currency' })}
                             <span className="text-xs opacity-80">
                                 {formattedAreaConstruida.unit}
                             </span>
@@ -343,7 +353,10 @@ export default function ShadcnDashboard() {
                         <CircleDollarSign className="h-4 w-4 text-white/80" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold">{formatCompactNumber(valorTotalImoveis, { style: 'currency' })}</div>
+                        <div className="text-2xl font-bold"
+                            title={formatFullNumber(Number(valorTotalImoveis))}
+                        >
+                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}</div>
                         <div
                             className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
                             
