@@ -10,16 +10,21 @@ import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "../AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 // --- TEMAS DISPONÍVEIS ---
 const themes = [
-    { name: "theme-blue", label: "Azul", color: "#007bff" },
-    { name: "theme-green", label: "Verde", color: "#28a745" },
-    { name: "theme-orange", label: "Laranja", color: "#fd7e14" },
+    { name: "theme-blue", label: "Padrão (Azul)", color: "#007bff" },
+    { name: "theme-green", label: "Verde Clássico", color: "#28a745" },
+    { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14" },
     { name: "theme-dark", label: "Escuro", color: "#343a40" },
+    { name: "theme-forest", label: "Floresta Tropical", color: "#3A8E5A" },
+    { name: "theme-ocean", label: "Oceano Profundo", color: "#007BFF" },
+    { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946" },
+    { name: "theme-neon", label: "Energia Neon", color: "#F94144" },
 ];
 
 // --- FUNÇÕES UTILITÁRIAS ---
@@ -112,22 +117,35 @@ export default function ShadcnDashboard() {
 
     // Estados para o menu de temas
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-    const [currentTheme, setCurrentTheme] = useState("theme-blue"); // Tema padrão inicial
+    const [currentTheme, setCurrentTheme] = useState("theme-blue"); // Tema ativo na UI
+    const [selectedTheme, setSelectedTheme] = useState("theme-blue"); // Tema selecionado no dropdown
 
-    // Função para alterar e salvar o tema
-    const handleThemeChange = async (newThemeName: string) => {
-        if (!usuario?.id) {
-            console.warn("ID do usuário não encontrado para salvar o tema.");
-            return;
-        }
-        
-        applyTheme(newThemeName);
-        setCurrentTheme(newThemeName);
+    // Abre o menu e sincroniza a seleção
+    const openThemeMenu = () => {
+        setSelectedTheme(currentTheme); // Garante que o dropdown mostre o tema ativo
+        setIsThemeMenuOpen(true);
+    };
+
+    // Apenas atualiza o valor do dropdown
+    const handleThemeSelectionChange = (newThemeName: string) => {
+        setSelectedTheme(newThemeName);
+    };
+
+    // Aplica o tema selecionado
+    const handleApplyTheme = async () => {
+        if (!usuario?.id || selectedTheme === currentTheme) return;
+
+        applyTheme(selectedTheme);
+        setCurrentTheme(selectedTheme);
+        setIsThemeMenuOpen(false); // Fecha o menu ao aplicar
 
         try {
-            await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, { themepreference: newThemeName });
+            await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, { themepreference: selectedTheme });
         } catch (error) {
             console.error("Falha ao salvar preferência de tema:", error);
+            // Opcional: Reverter para o tema anterior em caso de erro
+            applyTheme(currentTheme);
+            setCurrentTheme(currentTheme);
         }
     };
 
@@ -148,13 +166,10 @@ export default function ShadcnDashboard() {
                     axios.get(`${API_URL}/api/userpreferences/${usuario.id}`),
                 ]);
 
-                if (themeRes.data && themeRes.data.themepreference) {
-                    const savedTheme = themeRes.data.themepreference;
-                    setCurrentTheme(savedTheme);
-                    applyTheme(savedTheme);
-                } else {
-                    applyTheme(currentTheme);
-                }
+                const savedTheme = themeRes.data?.themepreference || "theme-blue";
+                setCurrentTheme(savedTheme);
+                setSelectedTheme(savedTheme);
+                applyTheme(savedTheme);
                 
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
                 const regimesData = Array.isArray(regimesRes.data) ? regimesRes.data : [];
@@ -342,97 +357,120 @@ export default function ShadcnDashboard() {
 
     return (
         <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative">
-            {/* --- AJUSTE [1]: Adicionado 'relative' ao <main> --- */}
-            {/* Menu de Personalização de Tema */}
+            {/* --- MENU DE PERSONALIZAÇÃO DE TEMA (ATUALIZADO) --- */}
             <div className="absolute top-4 right-4 z-50">
-                <button
-                    onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-                    className="p-2 rounded-full bg-card text-card-foreground shadow-md hover:bg-muted"
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={openThemeMenu}
                     aria-label="Personalizar Tema"
                 >
-                    <Settings className="h-6 w-6" />
-                </button>
+                    <Settings className="h-5 w-5" />
+                </Button>
                 {isThemeMenuOpen && (
-                    <div className="absolute top-14 right-0 w-64 rounded-lg bg-card shadow-lg border p-4">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Palette className="h-5 w-5" />
-                            <h3 className="font-semibold">Escolha um Tema</h3>
+                    <div 
+                        className="absolute top-14 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95"
+                        // Adiciona um listener para fechar o menu se clicar fora
+                        onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsThemeMenuOpen(false); }}
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <Palette className="h-5 w-5 text-muted-foreground" />
+                            <h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            {themes.map((theme) => (
-                                <button
-                                    key={theme.name}
-                                    onClick={() => handleThemeChange(theme.name)}
-                                    className={`p-2 rounded-md text-sm text-center font-medium border-2 ${currentTheme === theme.name ? 'border-primary' : 'border-transparent'}`}
-                                >
-                                    <div className="flex items-center justify-center gap-2">
-                                        <span className="block w-4 h-4 rounded-full" style={{ backgroundColor: theme.color }}></span>
-                                        <span>{theme.label}</span>
-                                    </div>
-                                </button>
-                            ))}
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-muted-foreground">Tema</label>
+                                <Select value={selectedTheme} onValueChange={handleThemeSelectionChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione um tema" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {themes.map((theme) => (
+                                            <SelectItem key={theme.name} value={theme.name}>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.color }} />
+                                                    {theme.label}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button
+                                onClick={handleApplyTheme}
+                                disabled={selectedTheme === currentTheme}
+                                className="w-full"
+                            >
+                                Aplicar
+                            </Button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* --- AJUSTE [2]: Cards de KPI agora usam variáveis de tema --- */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-12">
-                <Card className="bg-card text-card-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle>
-                        <Library className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-primary">{totalRipImoveis.toLocaleString('pt-BR')}</div>
-                    </CardContent>
+            {/* Linha de KPIs principais */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-14">
+                {/* ... Seus cards ... */}
+                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle><Library className="h-4 w-4 text-white/80" /></CardHeader>
+                    <CardContent><div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div></CardContent>
                 </Card>
-                <Card className="bg-card text-card-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">RIP Utilização</CardTitle>
-                        <ClipboardList className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-primary">{totalRipUtilizacao.toLocaleString('pt-BR')}</div>
-                    </CardContent>
+                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Utilização</CardTitle><ClipboardList className="h-4 w-4 text-white/80" /></CardHeader>
+                    <CardContent><div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div></CardContent>
                 </Card>
-                <Card className="bg-card text-card-foreground">
+                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                        <LandPlot className="h-4 w-4 text-muted-foreground" />
+                        <LandPlot className="h-4 w-4 text-white/80" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold text-primary" title={formatFullNumber(Number(totalAreaTerreno))}>
-                            {formattedAreaTerreno.value}
-                            <span className="text-xs text-muted-foreground ml-1">{formattedAreaTerreno.unit}</span>
+                        <div className="text-2xl font-bold"
+                            title={formatFullNumber(Number(totalAreaTerreno))}
+                        >
+                            {formatCompactNumber(Number(totalAreaTerreno), { style: 'currency' })} 
+                            <span className="text-xs opacity-80">
+                                {formattedAreaTerreno.unit}
+                            </span>
                         </div>
-                        <div className="absolute bottom-2 right-4 text-xs text-muted-foreground px-2 py-0.5 rounded">
+                        {/* Rodapé flutuante da informação extra */}
+                        <div
+                            className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
+                            
+                        >
                             Sem edificação: {totalSemEdificacao}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-card text-card-foreground">
+                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
+                        <Building2 className="h-4 w-4 text-white/80" /></CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-primary" title={formatFullNumber(Number(totalAreaConstruida))}>
-                            {formattedAreaConstruida.value}
-                            <span className="text-xs text-muted-foreground ml-1">{formattedAreaConstruida.unit}</span>
+                        <div className="text-2xl font-bold"
+                            title={formatFullNumber(Number(totalAreaConstruida))}
+                        >
+                            {formatCompactNumber(Number(totalAreaConstruida), { style: 'currency' })}
+                            <span className="text-xs opacity-80">
+                                {formattedAreaConstruida.unit}
+                            </span>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-card text-card-foreground">
+                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                        <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+                        <CircleDollarSign className="h-4 w-4 text-white/80" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold text-primary" title={formatFullNumber(Number(valorTotalImoveis))}>
-                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
-                        </div>
-                        <div className="absolute bottom-2 right-4 text-xs text-muted-foreground px-2 py-0.5 rounded">
+                        <div className="text-2xl font-bold"
+                            title={formatFullNumber(Number(valorTotalImoveis))}
+                        >
+                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}</div>
+                        <div
+                            className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
+                            
+                        >
                             Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
                         </div>
                     </CardContent>

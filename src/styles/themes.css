@@ -1,33 +1,77 @@
 /* src/styles/themes.css */
 
-/* Tema Azul */
+/* Tema Azul (Padrão) */
 [data-theme="theme-blue"] {
-    --primary: #007bff;
-    --secondary: #0056b3;
-    --card-bg: #f0f9ff;
-    --text-primary: #003a75;
+    --primary: 210 100% 50%; /* HSL para azul */
+    --secondary: 210 100% 35%;
+    --card-bg: 210 100% 98%;
+    --text-primary: 210 100% 20%;
+    --chart-1: 210 100% 50%;
+    --chart-2: 150 100% 40%;
+    --chart-3: 45 100% 50%;
+    --chart-4: 0 100% 60%;
 }
 
-/* Tema Verde */
+/* Tema Verde Clássico */
 [data-theme="theme-green"] {
-    --primary: #28a745;
-    --secondary: #1c7430;
-    --card-bg: #e3ffe8;
-    --text-primary: #155724;
+    --primary: 134 61% 41%; /* HSL para verde */
+    --secondary: 134 61% 31%;
+    --card-bg: 134 61% 96%;
+    --text-primary: 134 61% 15%;
+    --chart-1: 134 61% 41%;
+    --chart-2: 198 53% 54%;
+    --chart-3: 45 86% 61%;
+    --chart-4: 24 92% 64%;
 }
 
-/* Tema Laranja */
-[data-theme="theme-orange"] {
-    --primary: #fd7e14;
-    --secondary: #e8590c;
-    --card-bg: #fff6e5;
-    --text-primary: #843c00;
+/* ... outros temas que você já tinha ... */
+
+/* --- NOVOS TEMAS --- */
+
+/* Tema Floresta Tropical */
+[data-theme="theme-forest"] {
+    --primary: 147 48% 39%; /* #3A8E5A */
+    --secondary: 147 48% 29%;
+    --card-bg: 140 5% 15%; /* Cinza escuro */
+    --text-primary: 140 15% 95%; /* Texto claro */
+    --chart-1: 147 48% 39%; /* #3A8E5A */
+    --chart-2: 43 100% 67%; /* #FFC857 */
+    --chart-3: 191 80% 40%; /* #17A2B8 */
+    --chart-4: 2 64% 60%;   /* #D9534F */
 }
 
-/* Tema Escuro */
-[data-theme="theme-dark"] {
-    --primary: #343a40;
-    --secondary: #495057;
-    --card-bg: #212529;
-    --text-primary: #dee2e6;
+/* Tema Oceano Profundo */
+[data-theme="theme-ocean"] {
+    --primary: 217 100% 50%; /* #007BFF */
+    --secondary: 217 100% 40%;
+    --card-bg: 215 35% 15%; /* Azul marinho */
+    --text-primary: 215 20% 95%;
+    --chart-1: 217 100% 50%; /* #007BFF */
+    --chart-2: 177 56% 58%; /* #4ECDC4 */
+    --chart-3: 51 100% 50%; /* #FFD700 */
+    --chart-4: 0 0% 94%;     /* #F0F0F0 */
+}
+
+/* Tema Vulcão Ativo */
+[data-theme="theme-volcano"] {
+    --primary: 356 79% 56%; /* #E63946 */
+    --secondary: 356 79% 46%;
+    --card-bg: 220 9% 25%;  /* Cinza chumbo */
+    --text-primary: 220 10% 92%;
+    --chart-1: 356 79% 56%; /* #E63946 */
+    --chart-2: 33 89% 63%;  /* #F4A261 */
+    --chart-3: 172 61% 39%; /* #2A9D8F */
+    --chart-4: 45 80% 63%;  /* #E9C46A */
+}
+
+/* Tema Energia Neon */
+[data-theme="theme-neon"] {
+    --primary: 359 93% 62%; /* #F94144 */
+    --secondary: 359 93% 52%;
+    --card-bg: 255 10% 8%;   /* Quase preto */
+    --text-primary: 255 10% 90%;
+    --chart-1: 359 93% 62%; /* #F94144 */
+    --chart-2: 32 94% 53%;  /* #F8961E */
+    --chart-3: 84 44% 58%;  /* #90BE6D */
+    --chart-4: 159 45% 40%; /* #43AA8B */
 }
