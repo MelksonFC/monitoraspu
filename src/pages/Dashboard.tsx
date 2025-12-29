@@ -406,67 +406,61 @@ export default function ShadcnDashboard() {
 
             {/* Linha de KPIs principais */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-14">
-                {/* ... Seus cards ... */}
-                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle><Library className="h-4 w-4 text-white/80" /></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div></CardContent>
+                <Card className="bg-primary text-primary-foreground">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle>
+                        <Library className="h-4 w-4 text-primary-foreground/70" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div>
+                    </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Utilização</CardTitle><ClipboardList className="h-4 w-4 text-white/80" /></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div></CardContent>
+                <Card className="bg-primary text-primary-foreground">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">RIP Utilização</CardTitle>
+                        <ClipboardList className="h-4 w-4 text-primary-foreground/70" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div>
+                    </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                <Card className="bg-primary text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                        <LandPlot className="h-4 w-4 text-white/80" />
+                        <LandPlot className="h-4 w-4 text-primary-foreground/70" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold"
-                            title={formatFullNumber(Number(totalAreaTerreno))}
-                        >
-                            {formatCompactNumber(Number(totalAreaTerreno), { style: 'currency' })} 
-                            <span className="text-xs opacity-80">
-                                {formattedAreaTerreno.unit}
-                            </span>
+                        <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaTerreno))}>
+                            {formatCompactNumber(Number(totalAreaTerreno))}
+                            <span className="text-xs opacity-80 ml-1">{formattedAreaTerreno.unit}</span>
                         </div>
-                        {/* Rodapé flutuante da informação extra */}
-                        <div
-                            className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
-                            
-                        >
+                        <div className="absolute bottom-2 right-4 text-xs text-primary-foreground/80">
                             Sem edificação: {totalSemEdificacao}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                <Card className="bg-primary text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                        <Building2 className="h-4 w-4 text-white/80" /></CardHeader>
+                        <Building2 className="h-4 w-4 text-primary-foreground/70" />
+                    </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold"
-                            title={formatFullNumber(Number(totalAreaConstruida))}
-                        >
-                            {formatCompactNumber(Number(totalAreaConstruida), { style: 'currency' })}
-                            <span className="text-xs opacity-80">
-                                {formattedAreaConstruida.unit}
-                            </span>
+                        <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaConstruida))}>
+                            {formatCompactNumber(Number(totalAreaConstruida))}
+                            <span className="text-xs opacity-80 ml-1">{formattedAreaConstruida.unit}</span>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                <Card className="bg-primary text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                        <CircleDollarSign className="h-4 w-4 text-white/80" />
+                        <CircleDollarSign className="h-4 w-4 text-primary-foreground/70" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold"
-                            title={formatFullNumber(Number(valorTotalImoveis))}
-                        >
-                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}</div>
-                        <div
-                            className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
-                            
-                        >
+                        <div className="text-2xl font-bold" title={formatFullNumber(Number(valorTotalImoveis))}>
+                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
+                        </div>
+                        <div className="absolute bottom-2 right-4 text-xs text-primary-foreground/80">
                             Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
                         </div>
                     </CardContent>
