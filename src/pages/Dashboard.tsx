@@ -33,6 +33,21 @@ const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
 };
 
+// --- Função para gerar configuração de gráfico dinâmica ---
+const generateChartConfig = (data: { name: string }[]): ChartConfig => {
+    const config: ChartConfig = {};
+    data.forEach((item, index) => {
+        // Gera uma chave amigável para CSS (ex: 'vago-para-uso')
+        const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        config[key] = {
+            label: item.name,
+            // Usa a paleta de cores do tema de forma cíclica
+            color: `hsl(var(--chart-${(index % 6) + 1}))`,
+        };
+    });
+    return config;
+};
+
 const formatFullNumber = (num: number): string => {
     return num.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 };
@@ -221,7 +236,7 @@ export default function ShadcnDashboard() {
     
     const chartConfigMunicipio: ChartConfig = {
       value: { label: "Nº de Imóveis", color: "hsl(var(--chart-1))" },
-      label: { color: "hsl(var(--card))" },
+      ...generateChartConfig(dataMunicipio)
     };
 
     const imoveisPorRegime = imoveis.reduce<Record<string, number>>((acc, imovel: Imovel) => {
@@ -234,11 +249,7 @@ export default function ShadcnDashboard() {
     const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0);
     const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
     
-    const chartConfigRegime = dataRegime.reduce<ChartConfig>((acc, { name }, index) => {
-        const key = name.replace(/\s+/g, '-').toLowerCase();
-        acc[key] = { label: name, color: `hsl(var(--chart-${(index % 4) + 1}))` };
-        return acc;
-    }, {});
+    const chartConfigRegime = generateChartConfig(dataRegime);
 
     const activeIndexRegime = React.useMemo(() => dataRegime.findIndex((item) => item.name === activeRegime), [activeRegime, dataRegime]);
     const regimeNames = React.useMemo(() => dataRegime.map((item) => item.name), [dataRegime]);
@@ -251,7 +262,7 @@ export default function ShadcnDashboard() {
         return groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange);
     }, [avaliacoes, fiscalizacoes, timeRange]);
 
-    const chartConfigTimeline: ChartConfig = {
+     const chartConfigTimeline: ChartConfig = {
       avaliacoes: { label: "Avaliações", color: "hsl(var(--chart-1))" },
       fiscalizacoes: { label: "Fiscalizações", color: "hsl(var(--chart-2))" },
     };
