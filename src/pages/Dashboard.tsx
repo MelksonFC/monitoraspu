@@ -406,43 +406,50 @@ export default function ShadcnDashboard() {
 
             {/* Linha de KPIs principais */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-14">
-                <Card className="bg-primary text-primary-foreground">
+                {/* RIP Imóvel */}
+                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle>
-                        <Library className="h-4 w-4 text-primary-foreground/70" />
+                        <Library className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-primary text-primary-foreground">
+
+                {/* RIP Utilização */}
+                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">RIP Utilização</CardTitle>
-                        <ClipboardList className="h-4 w-4 text-primary-foreground/70" />
+                        <ClipboardList className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-primary text-primary-foreground">
+
+                {/* Área Terreno */}
+                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                        <LandPlot className="h-4 w-4 text-primary-foreground/70" />
+                        <LandPlot className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
                         <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaTerreno))}>
-                            {formatCompactNumber(Number(totalAreaTerreno))}
+                            {formatCompactNumber(Number(totalAreaTerreno))} 
                             <span className="text-xs opacity-80 ml-1">{formattedAreaTerreno.unit}</span>
                         </div>
-                        <div className="absolute bottom-2 right-4 text-xs text-primary-foreground/80">
+                        <div className="absolute bottom-2 right-4 text-xs">
                             Sem edificação: {totalSemEdificacao}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-primary text-primary-foreground">
+
+                {/* Área Construída */}
+                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                        <Building2 className="h-4 w-4 text-primary-foreground/70" />
+                        <Building2 className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaConstruida))}>
@@ -451,16 +458,18 @@ export default function ShadcnDashboard() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-primary text-primary-foreground">
+
+                {/* Valor Total Imóveis */}
+                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                        <CircleDollarSign className="h-4 w-4 text-primary-foreground/70" />
+                        <CircleDollarSign className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
                         <div className="text-2xl font-bold" title={formatFullNumber(Number(valorTotalImoveis))}>
                             {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
                         </div>
-                        <div className="absolute bottom-2 right-4 text-xs text-primary-foreground/80">
+                        <div className="absolute bottom-2 right-4 text-xs">
                             Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
                         </div>
                     </CardContent>
