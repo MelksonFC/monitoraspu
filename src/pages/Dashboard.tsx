@@ -128,16 +128,16 @@ export default function ShadcnDashboard() {
             await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, { themepreference: newThemeName });
         } catch (error) {
             console.error("Falha ao salvar preferência de tema:", error);
-            // Opcional: Reverter para o tema anterior se a chamada falhar
         }
     };
 
     useEffect(() => {
         if (!usuario?.id) {
-            setLoading(false); // Para de carregar se não houver usuário
+            setLoading(false);
             return;
         }
         const fetchData = async () => {
+            setLoading(true);
             try {
                 const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes, themeRes] = await Promise.all([
                     axios.get(`${API_URL}/api/imoveis?situacao=true`),
@@ -148,13 +148,12 @@ export default function ShadcnDashboard() {
                     axios.get(`${API_URL}/api/userpreferences/${usuario.id}`),
                 ]);
 
-                // Aplica o tema buscado do banco de dados
                 if (themeRes.data && themeRes.data.themepreference) {
                     const savedTheme = themeRes.data.themepreference;
                     setCurrentTheme(savedTheme);
                     applyTheme(savedTheme);
                 } else {
-                    applyTheme(currentTheme); // Aplica o tema padrão se não houver salvo
+                    applyTheme(currentTheme);
                 }
                 
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
@@ -185,7 +184,7 @@ export default function ShadcnDashboard() {
         fetchData();
     }, [usuario?.id]);
 
-    // --- PROCESSAMENTO E CONFIGURAÇÃO DE DADOS ---
+    // --- PROCESSAMENTO E CONFIGURAÇÃO DE DADOS (CÓDIGO EXISTENTE) ---
     const municipioMap = new Map(municipios.map((m: any) => [m.idmunicipio, m.nome]));
     const regimeMap = new Map(regimes.map((r: any) => [r.id, r.descricao || r.nome]));
     const totalRipImoveis = new Set(imoveis.map((i: Imovel) => i.ripimovel).filter(Boolean)).size;
@@ -233,7 +232,6 @@ export default function ShadcnDashboard() {
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
     const totalDestinados = imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
     
-    // --- AGRUPAMENTO POR MÊS PARA O GRÁFICO DE ÁREA ---
     const monthlyTimelineData = React.useMemo(() => {
         return groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange);
     }, [avaliacoes, fiscalizacoes, timeRange]);
@@ -279,13 +277,11 @@ export default function ShadcnDashboard() {
         nuncaFiscalizado: { label: "Nunca Fiscalizado", color: "hsl(var(--muted))" },
     };
 
-    // ---- DRILL DOWN: Lista de imóveis por status ----
     function getImoveisPorStatus(status: string): Imovel[] {
         const hoje = new Date();
         const prazoVencido = new Date(); prazoVencido.setFullYear(hoje.getFullYear() - 2);
         const prazoAVencer = new Date(); prazoAVencer.setFullYear(hoje.getFullYear() - 2); prazoAVencer.setMonth(hoje.getMonth() + 6);
 
-        // Mapa: idimovel => data da última fiscalização
         const ultimasFiscalizacoes = new Map<number, string>();
         for (const fisc of fiscalizacoes) {
             if (fisc.idimovel) {
@@ -308,7 +304,6 @@ export default function ShadcnDashboard() {
         });
     }
 
-    // ---- DRILL DOWN: Lista de imóveis por município ----
     function getImoveisPorMunicipio(municipioNome: string): Imovel[] {
         return imoveis.filter(imovel => {
             const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
@@ -316,7 +311,6 @@ export default function ShadcnDashboard() {
         });
     }
 
-    // ---- DRILL DOWN: Lista de imóveis por regime ----
     function getImoveisPorRegime(regimeNome: string): Imovel[] {
         return imoveis.filter(imovel => {
             const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
@@ -325,31 +319,30 @@ export default function ShadcnDashboard() {
     }
 
     function formatPieCenterText(text: string, maxLength: number = 16): string[] {
-    // Se o texto for curto, retorna como está
-    if (text.length <= maxLength) return [text];
-    // Tenta dividir por espaço para melhor quebra
-    const words = text.split(' ');
-    let line1 = "";
-    let line2 = "";
-    for (const word of words) {
-        if ((line1 + ' ' + word).length <= maxLength) {
-        line1 += (line1 ? ' ' : '') + word;
-        } else {
-        line2 += (line2 ? ' ' : '') + word;
+        if (text.length <= maxLength) return [text];
+        const words = text.split(' ');
+        let line1 = "";
+        let line2 = "";
+        for (const word of words) {
+            if ((line1 + ' ' + word).length <= maxLength) {
+                line1 += (line1 ? ' ' : '') + word;
+            } else {
+                line2 += (line2 ? ' ' : '') + word;
+            }
         }
-    }
-    // Se a segunda linha ainda ficou muito longa, faz uma abreviação simples
-    if (line2.length > maxLength) {
-        line2 = line2.slice(0, maxLength - 1) + '…';
-    }
-    return [line1, line2];
+        if (line2.length > maxLength) {
+            line2 = line2.slice(0, maxLength - 1) + '…';
+        }
+        return [line1, line2];
     }
 
     if (loading) return <div className="flex items-center justify-center h-screen"><p>Carregando dados...</p></div>;
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
+    if (!usuario) return <div className="flex items-center justify-center h-screen"><p>Por favor, faça login para acessar o dashboard.</p></div>;
 
     return (
-        <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
+        <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative">
+            {/* --- AJUSTE [1]: Adicionado 'relative' ao <main> --- */}
             {/* Menu de Personalização de Tema */}
             <div className="absolute top-4 right-4 z-50">
                 <button
@@ -360,7 +353,7 @@ export default function ShadcnDashboard() {
                     <Settings className="h-6 w-6" />
                 </button>
                 {isThemeMenuOpen && (
-                    <div className="absolute top-12 right-0 w-64 rounded-lg bg-card shadow-lg border p-4">
+                    <div className="absolute top-14 right-0 w-64 rounded-lg bg-card shadow-lg border p-4">
                         <div className="flex items-center gap-2 mb-4">
                             <Palette className="h-5 w-5" />
                             <h3 className="font-semibold">Escolha um Tema</h3>
@@ -382,68 +375,64 @@ export default function ShadcnDashboard() {
                     </div>
                 )}
             </div>
-            {/* Linha de KPIs principais */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle><Library className="h-4 w-4 text-white/80" /></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div></CardContent>
+
+            {/* --- AJUSTE [2]: Cards de KPI agora usam variáveis de tema --- */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-12">
+                <Card className="bg-card text-card-foreground">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle>
+                        <Library className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-primary">{totalRipImoveis.toLocaleString('pt-BR')}</div>
+                    </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">RIP Utilização</CardTitle><ClipboardList className="h-4 w-4 text-white/80" /></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div></CardContent>
+                <Card className="bg-card text-card-foreground">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">RIP Utilização</CardTitle>
+                        <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-primary">{totalRipUtilizacao.toLocaleString('pt-BR')}</div>
+                    </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                <Card className="bg-card text-card-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                        <LandPlot className="h-4 w-4 text-white/80" />
+                        <LandPlot className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold"
-                            title={formatFullNumber(Number(totalAreaTerreno))}
-                        >
-                            {formatCompactNumber(Number(totalAreaTerreno), { style: 'currency' })} 
-                            <span className="text-xs opacity-80">
-                                {formattedAreaTerreno.unit}
-                            </span>
+                        <div className="text-2xl font-bold text-primary" title={formatFullNumber(Number(totalAreaTerreno))}>
+                            {formattedAreaTerreno.value}
+                            <span className="text-xs text-muted-foreground ml-1">{formattedAreaTerreno.unit}</span>
                         </div>
-                        {/* Rodapé flutuante da informação extra */}
-                        <div
-                            className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
-                            
-                        >
+                        <div className="absolute bottom-2 right-4 text-xs text-muted-foreground px-2 py-0.5 rounded">
                             Sem edificação: {totalSemEdificacao}
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                <Card className="bg-card text-card-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                        <Building2 className="h-4 w-4 text-white/80" /></CardHeader>
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold"
-                            title={formatFullNumber(Number(totalAreaConstruida))}
-                        >
-                            {formatCompactNumber(Number(totalAreaConstruida), { style: 'currency' })}
-                            <span className="text-xs opacity-80">
-                                {formattedAreaConstruida.unit}
-                            </span>
+                        <div className="text-2xl font-bold text-primary" title={formatFullNumber(Number(totalAreaConstruida))}>
+                            {formattedAreaConstruida.value}
+                            <span className="text-xs text-muted-foreground ml-1">{formattedAreaConstruida.unit}</span>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
+                <Card className="bg-card text-card-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                        <CircleDollarSign className="h-4 w-4 text-white/80" />
+                        <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold"
-                            title={formatFullNumber(Number(valorTotalImoveis))}
-                        >
-                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}</div>
-                        <div
-                            className="absolute bottom-2 right-4 text-xs px-2 py-0.5 rounded text-white/80"
-                            
-                        >
+                        <div className="text-2xl font-bold text-primary" title={formatFullNumber(Number(valorTotalImoveis))}>
+                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
+                        </div>
+                        <div className="absolute bottom-2 right-4 text-xs text-muted-foreground px-2 py-0.5 rounded">
                             Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
                         </div>
                     </CardContent>
@@ -458,28 +447,18 @@ export default function ShadcnDashboard() {
                         <ChartContainer 
                             config={chartConfigMunicipio} 
                             className="w-full" 
-                            style={{
-                            maxHeight: "460px",
-                            overflowY: "auto",
-                            }}
+                            style={{ maxHeight: "460px", overflowY: "auto" }}
                         >
-                            <BarChart accessibilityLayer
-                                data={dataMunicipio}
-                                layout="vertical"
-                                margin={{ left: 1, right: 0.5 }}
-                                height={Math.max(260, dataMunicipio.length * 45)}
-                            >
+                            <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}>
                                 <CartesianGrid horizontal={false} />
                                 <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
                                 <XAxis dataKey="value" type="number" hide />
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} />
-                                <Bar dataKey="value"
-                                    fill="var(--color-value)"
-                                    radius={4}
+                                <Bar dataKey="value" fill="var(--color-value)" radius={4}
                                     onClick={(_data, index) => {
-                                    const municipio = dataMunicipio[index].name;
-                                    setSelectedMunicipio(municipio);
-                                    setDrillImoveis(getImoveisPorMunicipio(municipio));
+                                        const municipio = dataMunicipio[index].name;
+                                        setSelectedMunicipio(municipio);
+                                        setDrillImoveis(getImoveisPorMunicipio(municipio));
                                     }}
                                 >
                                     <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
@@ -516,7 +495,6 @@ export default function ShadcnDashboard() {
                                     activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (<g><Sector {...props} outerRadius={outerRadius + 10} /><Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
                                     <RechartsLabel
                                     content={({ viewBox }) => {
-                                        // Type guard para garantir que cx/cy existem
                                         if (!viewBox || typeof (viewBox as any).cx !== "number" || typeof (viewBox as any).cy !== "number") return null;
                                         const cx = (viewBox as any).cx;
                                         const cy = (viewBox as any).cy;
@@ -528,13 +506,7 @@ export default function ShadcnDashboard() {
                                         <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
                                             <tspan x={cx} y={cy - 12} className="fill-foreground text-3xl font-bold">{percentage.toFixed(1)}%</tspan>
                                             {lines.map((line, idx) => (
-                                            <tspan
-                                                key={idx}
-                                                x={cx}
-                                                y={cy + idx * 18 + 10}
-                                                className="fill-muted-foreground"
-                                                fontSize={12}
-                                            >
+                                            <tspan key={idx} x={cx} y={cy + idx * 18 + 10} className="fill-muted-foreground" fontSize={12}>
                                                 {line}
                                             </tspan>
                                             ))}
