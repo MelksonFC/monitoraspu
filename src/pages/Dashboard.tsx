@@ -17,9 +17,9 @@ const API_URL = import.meta.env.VITE_API_URL;
 const formatCompactNumber = (num: number, options: { style?: 'currency', currency?: string } = {}) => {
     if (isNaN(num)) return '0';
     const prefix = options.style === 'currency' ? 'R$ ' : '';
-    if (num >= 1e9) return `${prefix}${(num / 1e9).toFixed(2)} Bi`;
-    if (num >= 1e6) return `${prefix}${(num / 1e6).toFixed(2)} Mi`;
-    if (num >= 1e3) return `${prefix}${(num / 1e3).toFixed(1)} mil`;
+    if (num >= 1e9) return `${prefix}${(num / 1e9).toFixed(2).replace('.', ',')} Bi`;
+    if (num >= 1e6) return `${prefix}${(num / 1e6).toFixed(2).replace('.', ',')} Mi`;
+    if (num >= 1e3) return `${prefix}${(num / 1e3).toFixed(1).replace('.', ',')} mil`;
     return `${prefix}${num.toLocaleString('pt-BR')}`;
 };
 
@@ -311,7 +311,7 @@ export default function ShadcnDashboard() {
                         <LandPlot className="h-4 w-4 text-white/80" />
                     </CardHeader>
                     <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold">{formattedAreaTerreno.value} 
+                        <div className="text-2xl font-bold">{formatCompactNumber(Number(totalAreaTerreno), { style: 'currency' })} 
                             <span className="text-xs opacity-80">
                                 {formattedAreaTerreno.unit}
                             </span>
@@ -326,8 +326,16 @@ export default function ShadcnDashboard() {
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2"><CardTitle className="text-sm font-medium">Área Construída</CardTitle><Building2 className="h-4 w-4 text-white/80" /></CardHeader>
-                    <CardContent><div className="text-2xl font-bold">{formattedAreaConstruida.value} <span className="text-xs opacity-80">{formattedAreaConstruida.unit}</span></div></CardContent>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
+                        <Building2 className="h-4 w-4 text-white/80" /></CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{formatCompactNumber(Number(totalAreaConstruida), { style: 'currency' })}
+                            <span className="text-xs opacity-80">
+                                {formattedAreaConstruida.unit}
+                            </span>
+                        </div>
+                    </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-[hsl(var(--blue-primary))] to-[hsl(var(--blue-light))] text-primary-foreground">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
