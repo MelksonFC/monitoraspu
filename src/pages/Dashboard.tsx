@@ -362,17 +362,13 @@ export default function ShadcnDashboard() {
                 <Button
                     variant="outline"
                     size="icon"
-                    onClick={openThemeMenu}
+                    onClick={isThemeMenuOpen ? () => setIsThemeMenuOpen(false) : openThemeMenu}
                     aria-label="Personalizar Tema"
                 >
                     <Settings className="h-5 w-5" />
                 </Button>
                 {isThemeMenuOpen && (
-                    <div 
-                        className="absolute top-14 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95"
-                        // Adiciona um listener para fechar o menu se clicar fora
-                        onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setIsThemeMenuOpen(false); }}
-                    >
+                    <div className="absolute top-14 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95">
                         <div className="flex items-center gap-3 mb-4">
                             <Palette className="h-5 w-5 text-muted-foreground" />
                             <h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3>
