@@ -34,7 +34,7 @@ const App: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <AuthProvider>
-        <BrowserRouter basename="/monitoraspu">
+        <BrowserRouter basename="/">
         <ToastContainer
           position="top-right"
           autoClose={5000}
