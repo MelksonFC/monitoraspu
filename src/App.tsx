@@ -18,6 +18,7 @@ import './styles/globals.css';
 import "./styles/themes.css";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AtivarConta from "./pages/AtivarConta"; 
+import { LayoutProvider } from "./LayoutContext";
 
 
 // MUDANÇA: Importando a nova página de edição de imóvel
@@ -35,6 +36,7 @@ const App: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <AuthProvider>
+        <LayoutProvider>
         <BrowserRouter basename="/">
         <ToastContainer
           position="top-right"
@@ -113,6 +115,7 @@ const App: React.FC = () => {
           />
         </Routes>
         </BrowserRouter>
+        </LayoutProvider>
       </AuthProvider>
     </LocalizationProvider>
   );

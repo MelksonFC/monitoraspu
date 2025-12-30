@@ -171,9 +171,13 @@
   --chart-mono-19: 45 100% 97%; --chart-mono-20: 47 100% 98%;
 }
 
+
 /* ======================================== */
+/*               TEMAS ESCUROS              */
+/* ======================================== */
+
+
 /*           TEMA VULCÃO ATIVO              */
-/* ======================================== */
 [data-theme="theme-volcano"] {
   /* Cores de Interface: Rocha e Magma */
   --background: 15 15% 5%;          /* Preto vulcânico profundo */
@@ -235,11 +239,6 @@
   --chart-mono-19: 15 5% 8%;     /* 19 */
   --chart-mono-20: 0 0% 5%;      /* 20. Obsidiana (Frio) */
 }
-
-
-/* ======================================== */
-/*               TEMAS ESCUROS              */
-/* ======================================== */
 
 /* --- TEMA DARK florestal (Referência Imagem 8) --- */
 [data-theme="theme-dark-forest"] {

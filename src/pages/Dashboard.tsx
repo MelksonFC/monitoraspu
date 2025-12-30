@@ -3,12 +3,13 @@ import axios from 'axios';
 import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, Sector, XAxis, YAxis, LabelList, Label as RechartsLabel, Cell } from 'recharts';
 import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '../types';
-import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette } from 'lucide-react';
+import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette, Maximize, Minimize } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../AuthContext";
+import { useLayout } from "../LayoutContext"; 
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -16,7 +17,7 @@ const themes = [
     { name: "theme-blue", label: "Azul (Padrão)", color: "#007bff", isDark: false },
     { name: "theme-green", label: "Verde Clássico", color: "#28a745", isDark: false },
     { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14", isDark: false },
-    { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946", isDark: false },
+    { name: "theme-volcano", label: "Vulcão Ativo (Escuro)", color: "#E63946", isDark: true },
     { name: "theme-dark-forest", label: "Dark Forest (Escuro)", color: "#3A8E5A", isDark: true },
     { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40", isDark: true },
 ];
@@ -152,6 +153,7 @@ export default function ShadcnDashboard() {
     const [selectedTheme, setSelectedTheme] = useState("theme-blue");
     const [chartColorScheme, setChartColorScheme] = useState<'monochromatic' | 'multicolor'>('monochromatic');
     const [selectedChartColorScheme, setSelectedChartColorScheme] = useState(chartColorScheme);
+    const { isPresentationMode, togglePresentationMode } = useLayout();
 
     const openThemeMenu = () => { setSelectedTheme(currentTheme); setSelectedChartColorScheme(chartColorScheme); setIsThemeMenuOpen(true); };
     const handleThemeSelectionChange = (newThemeName: string) => setSelectedTheme(newThemeName);
@@ -432,11 +434,18 @@ export default function ShadcnDashboard() {
     return (
         <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative">
             {/* --- MENU DE PERSONALIZAÇÃO DE TEMA (ATUALIZADO) --- */}
-            <div className="absolute top-4 right-4 z-50">
-                <Button variant="outline" size="icon" onClick={isThemeMenuOpen ? () => setIsThemeMenuOpen(false) : openThemeMenu} aria-label="Personalizar Tema">
-                    <Settings className="h-5 w-5" />
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+                {/* Botão para o Modo Apresentação */}
+                <Button variant="outline" size="icon" onClick={togglePresentationMode} aria-label="Modo Apresentação">
+                    {isPresentationMode ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
                 </Button>
-                {isThemeMenuOpen && (
+
+                {/* Menu de Configurações de Tema */}
+                <div className="relative">
+                    <Button variant="outline" size="icon" onClick={isThemeMenuOpen ? () => setIsThemeMenuOpen(false) : openThemeMenu} aria-label="Personalizar Tema">
+                        <Settings className="h-5 w-5" />
+                    </Button>
+                    {isThemeMenuOpen && (
                     <div className="absolute top-14 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95">
                         <div className="flex items-center gap-3 mb-4"><Palette className="h-5 w-5 text-muted-foreground" /><h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3></div>
                         <div className="space-y-4">
@@ -482,6 +491,7 @@ export default function ShadcnDashboard() {
                         </div>
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Linha de KPIs principais */}
