@@ -707,25 +707,25 @@ export default function ShadcnDashboard() {
                                         { value: chartConfigStatusFiscalizacao.nuncaFiscalizado.label, type: "square", color: chartConfigStatusFiscalizacao.nuncaFiscalizado.color },
                                     ]}
                                     />
-                                    <Bar dataKey="emDia" stackId="a" radius={[4, 0, 0, 4]}
+                                    <Bar dataKey="emDia" stackId="a" fill="var(--color-emDia)" radius={[4, 0, 0, 4]}
                                       onClick={() => {
                                         setSelectedStatus("emDia");
                                         setDrillImoveis(getImoveisPorStatus("emDia"));
                                       }}
                                     />
-                                    <Bar dataKey="aVencer" stackId="a" 
+                                    <Bar dataKey="aVencer" stackId="a" fill="var(--color-aVencer)"
                                       onClick={() => {
                                         setSelectedStatus("aVencer");
                                         setDrillImoveis(getImoveisPorStatus("aVencer"));
                                       }}
                                     />
-                                    <Bar dataKey="vencido" stackId="a"
+                                    <Bar dataKey="vencido" stackId="a" fill="var(--color-vencido)"
                                       onClick={() => {
                                         setSelectedStatus("vencido");
                                         setDrillImoveis(getImoveisPorStatus("vencido"));
                                       }}
                                     />
-                                    <Bar dataKey="nuncaFiscalizado" stackId="a" radius={[0, 4, 4, 0]}
+                                    <Bar dataKey="nuncaFiscalizado" stackId="a" fill="var(--color-nuncaFiscalizado)" radius={[0, 4, 4, 0]}
                                       onClick={() => {
                                         setSelectedStatus("nuncaFiscalizado");
                                         setDrillImoveis(getImoveisPorStatus("nuncaFiscalizado"));
