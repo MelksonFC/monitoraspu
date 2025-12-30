@@ -36,7 +36,7 @@ const generateChartConfig = (
         const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         config[key] = {
             label: item.name,
-            color: `hsl(var(${prefix}${(index % 5) + 1}))`, // Usamos 5 cores por paleta
+            color: `hsl(var(${prefix}${(index % 20) + 1}))`, // Usamos 20 cores por paleta
         };
     });
     return config;
