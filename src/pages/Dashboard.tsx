@@ -267,7 +267,21 @@ export default function ShadcnDashboard() {
     }, [imoveis, municipioMap]);
     
     const chartConfigMunicipio = React.useMemo(() => {
-        return generateChartConfig(dataMunicipio, chartColorScheme);
+        // 1. Cria a configuração base para o tooltip
+        const tooltipConfig: ChartConfig = {
+            value: {
+                label: "Nº de Imóveis",
+            },
+        };
+
+        // 2. Gera as cores dinâmicas para cada barra
+        const barColorConfig = generateChartConfig(dataMunicipio, chartColorScheme);
+
+        // 3. Combina os dois objetos: o tooltip funcionará e cada barra terá sua cor
+        return {
+            ...tooltipConfig,
+            ...barColorConfig,
+        };
     }, [dataMunicipio, chartColorScheme]);
 
 
@@ -475,10 +489,11 @@ export default function ShadcnDashboard() {
                             <Bar dataKey="value" radius={4} onClick={(_data, index) => { const municipio = dataMunicipio[index].name; 
                                 setSelectedMunicipio(municipio); 
                                 setDrillImoveis(getImoveisPorMunicipio(municipio)); }}>
-                                {dataMunicipio.map((entry) => {
-                                    const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                                    return <Cell key={`cell-${key}`} fill={chartConfigMunicipio[key]?.color} />;
-                                })}
+                                    {dataMunicipio.map((entry) => {
+                                        const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                        const config = chartConfigMunicipio[key];
+                                        return <Cell key={`cell-${key}`} fill={config?.color || `hsl(var(--chart-color-1))`} />;
+                                    })} 
                                 <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
                                 <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} />
                             </Bar>
