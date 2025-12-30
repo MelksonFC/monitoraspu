@@ -388,14 +388,12 @@ export default function ShadcnDashboard() {
                         <div className="flex items-center gap-3 mb-4"><Palette className="h-5 w-5 text-muted-foreground" /><h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3></div>
                         <div className="space-y-4">
                             <div>
-                                <label className="text-sm font-medium text-muted-foreground">Tema</label>
+                                <label className="text-sm font-medium text-muted-foreground">Tema Visual</label>
                                 <Select value={selectedTheme} onValueChange={handleThemeSelectionChange}>
                                     <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
                                     <SelectContent>{themes.map((theme) => (<SelectItem key={theme.name} value={theme.name}><div className="flex items-center gap-2"><span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.color }} />{theme.label}</div></SelectItem>))}</SelectContent>
                                 </Select>
                             </div>
-                            <Button onClick={handleApplyTheme} disabled={selectedTheme === currentTheme} className="w-full">Aplicar</Button>
-                            
                             {/* [NOVO] Seletor de Esquema de Cores do Gráfico */}
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Cores dos Gráficos</label>
