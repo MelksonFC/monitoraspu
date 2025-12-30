@@ -3,6 +3,7 @@ import axios from 'axios';
 import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, Sector, XAxis, YAxis, LabelList, Label as RechartsLabel, Cell } from 'recharts';
 import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '../types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette, Maximize, Minimize } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
@@ -432,6 +433,7 @@ export default function ShadcnDashboard() {
     const formattedAreaConstruida = formatArea(totalAreaConstruida);
 
     return (
+        <TooltipProvider delayDuration={100}>
         <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative">
             {/* --- MENU DE PERSONALIZAÇÃO DE TEMA (ATUALIZADO) --- */}
             <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
@@ -526,60 +528,82 @@ export default function ShadcnDashboard() {
                 </Card>
 
                 {/* Área Terreno */}
-                <Card 
-                    className="shadow-md" 
-                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                        <LandPlot className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
-                    </CardHeader>
-                    <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaTerreno))}>
-                            {formatCompactNumber(Number(totalAreaTerreno))} 
-                            <span className="text-xs opacity-80 ml-1">{formattedAreaTerreno.unit}</span>
-                        </div>
-                        <div className="absolute bottom-2 right-4 text-xs opacity-90">
-                            Sem edificação: {totalSemEdificacao}
-                        </div>
-                    </CardContent>
-                </Card>
+                    <Card 
+                        className="shadow-md" 
+                        style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
+                            <LandPlot className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                        </CardHeader>
+                        <CardContent className="relative pb-6">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    {/* O `div` com o número compacto agora é o gatilho do tooltip */}
+                                    <div className="text-2xl font-bold cursor-help">
+                                        {formatCompactNumber(Number(totalAreaTerreno))} 
+                                        <span className="text-xs opacity-80 ml-1">{formattedAreaTerreno.unit}</span>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Valor exato: {formatFullNumber(Number(totalAreaTerreno))} {formattedAreaTerreno.unit}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <div className="absolute bottom-2 right-4 text-xs opacity-90">
+                                Sem edificação: {totalSemEdificacao}
+                            </div>
+                        </CardContent>
+                    </Card>
 
                 {/* Área Construída */}
-                <Card 
-                    className="shadow-md" 
-                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                        <Building2 className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaConstruida))}>
-                            {formatCompactNumber(Number(totalAreaConstruida))}
-                            <span className="text-xs opacity-80 ml-1">{formattedAreaConstruida.unit}</span>
-                        </div>
-                    </CardContent>
-                </Card>
+                    <Card 
+                        className="shadow-md" 
+                        style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
+                            <Building2 className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                        </CardHeader>
+                        <CardContent>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="text-2xl font-bold cursor-help">
+                                        {formatCompactNumber(Number(totalAreaConstruida))}
+                                        <span className="text-xs opacity-80 ml-1">{formattedAreaConstruida.unit}</span>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Valor exato: {formatFullNumber(Number(totalAreaConstruida))} {formattedAreaConstruida.unit}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </CardContent>
+                    </Card>
 
                 {/* Valor Total Imóveis */}
-                <Card 
-                    className="shadow-md" 
-                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                >
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                        <CircleDollarSign className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
-                    </CardHeader>
-                    <CardContent className="relative pb-6">
-                        <div className="text-2xl font-bold" title={formatFullNumber(Number(valorTotalImoveis))}>
-                            {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
-                        </div>
-                        <div className="absolute bottom-2 right-4 text-xs opacity-90">
-                            Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
-                        </div>
-                    </CardContent>
-                </Card>
+                    <Card 
+                        className="shadow-md" 
+                        style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                    >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
+                            <CircleDollarSign className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                        </CardHeader>
+                        <CardContent className="relative pb-6">
+                           <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="text-2xl font-bold cursor-help">
+                                        {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                     <p>Valor exato: {formatFullNumber(Number(valorTotalImoveis))}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <div className="absolute bottom-2 right-4 text-xs opacity-90">
+                                Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
+                            </div>
+                        </CardContent>
+                    </Card>
             </div>
 
             {/* Linha de Gráficos Principais */}
@@ -802,5 +826,6 @@ export default function ShadcnDashboard() {
                 </div>
             </div>
         </main>
+        </TooltipProvider>
     );
 }
