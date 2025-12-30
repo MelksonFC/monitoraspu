@@ -8,28 +8,71 @@
 /*            TEMA AZUL (PADRÃO)            */
 /* ======================================== */
 [data-theme="theme-blue"] {
+  /* Ajuste do Card: Fundo levemente azulado para harmonia */
   --background: 222 47% 97%;
   --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card: 222 47% 98%;          /* Branco com um toque de azul */
+  --card-foreground: 222 60% 5%; /* Azul quase preto para contraste */
+  
   --primary: 217 91% 60%;
   --primary-foreground: 210 40% 98%;
 
-  /* Opção "Colorido": Paleta vibrante e profissional */
-  --chart-color-1: 217 91% 60%; /* Azul Principal */
-  --chart-color-2: 173 58% 50%; /* Verde-água */
-  --chart-color-3: 35 93% 57%;  /* Laranja */
-  --chart-color-4: 340 82% 61%; /* Rosa */
-  --chart-color-5: 262 74% 66%; /* Roxo */
-  --chart-color-6: 195 90% 45%; /* Ciano */
+  /* -----------------------------------------------------------
+     GRUPO 1: MONOCROMÁTICO (20 Cores)
+     Lógica: Mantemos o Hue (217-220) e variamos Sat/Lum.
+     Ideal para gráficos de barras de uma única categoria ou Heatmaps.
+     ----------------------------------------------------------- */
+  --chart-mono-1: 222 84% 10%;
+  --chart-mono-2: 222 84% 15%;
+  --chart-mono-3: 222 84% 20%;
+  --chart-mono-4: 219 92% 25%;
+  --chart-mono-5: 219 90% 30%;
+  --chart-mono-6: 217 85% 35%;
+  --chart-mono-7: 217 80% 40%;
+  --chart-mono-8: 217 75% 45%;
+  --chart-mono-9: 217 70% 50%;
+  --chart-mono-10: 217 65% 55%;
+  --chart-mono-11: 215 60% 60%;
+  --chart-mono-12: 215 55% 65%;
+  --chart-mono-13: 212 50% 70%;
+  --chart-mono-14: 212 45% 75%;
+  --chart-mono-15: 210 50% 80%;
+  --chart-mono-16: 210 60% 85%;
+  --chart-mono-17: 210 70% 90%;
+  --chart-mono-18: 205 80% 92%;
+  --chart-mono-19: 200 90% 95%;
+  --chart-mono-20: 195 100% 97%;
+
+  /* -----------------------------------------------------------
+     GRUPO 2: HARMONIA E COMPLEMENTARES (20 Cores)
+     Lógica: Cores Análogas (Azul/Ciano/Roxo) + Complementares (Laranja/Ouro).
+     Ideal para distinguir categorias diferentes num mesmo gráfico.
+     ----------------------------------------------------------- */
+  /* Tons de Azul/Ciano (Análogas Frias) */
+  --chart-harm-1: 217 91% 60%;  /* Azul Base */
+  --chart-harm-2: 195 90% 45%;  /* Ciano */
+  --chart-harm-3: 173 58% 50%;  /* Verde-água */
+  --chart-harm-4: 262 74% 66%;  /* Roxo */
+  --chart-harm-5: 280 65% 55%;  /* Violeta */
   
-  /* Opção "Monocromático": Paleta de tons de azul (Referência Imagem 1) */
-  --chart-mono-1: 218 84% 14%;  /* #021024 */
-  --chart-mono-2: 219 92% 19%;  /* #052659 */
-  --chart-mono-3: 209 43% 52%;  /* #5483B3 */
-  --chart-mono-4: 208 49% 64%;  /* #7DA0CA */
-  --chart-mono-5: 200 100% 88%; /* #C1E8FF */
-  --chart-mono-6: 212 65% 35%;  /* Azul Médio (para preencher) */
+  /* Tons Complementares (Opostos/Quentes para Contraste) */
+  --chart-harm-6: 35 93% 57%;   /* Laranja */
+  --chart-harm-7: 20 85% 55%;   /* Coral/Laranja Profundo */
+  --chart-harm-8: 45 95% 50%;   /* Amarelo Ouro */
+  --chart-harm-9: 10 80% 60%;   /* Terracota */
+  --chart-harm-10: 340 82% 61%; /* Rosa/Magenta */
+
+  /* Tons Pastéis/Variantes para completar 20 */
+  --chart-harm-11: 210 80% 40%; /* Azul Escuro */
+  --chart-harm-12: 185 70% 40%; /* Teal */
+  --chart-harm-13: 150 60% 45%; /* Verde Esmeralda */
+  --chart-harm-14: 320 70% 50%; /* Ameixa */
+  --chart-harm-15: 25 90% 65%;  /* Pêssego */
+  --chart-harm-16: 200 80% 75%; /* Sky Blue */
+  --chart-harm-17: 160 50% 75%; /* Menta */
+  --chart-harm-18: 50 80% 70%;  /* Creme/Amarelo */
+  --chart-harm-19: 280 40% 80%; /* Lavanda */
+  --chart-harm-20: 10 70% 80%;  /* Rosa Pastel */
 }
 
 /* ======================================== */
