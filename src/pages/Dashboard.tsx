@@ -27,16 +27,29 @@ const applyTheme = (themeName: string) => {
 
 const generateChartConfig = (
     data: { name: string }[],
-    scheme: 'monochromatic' | 'multicolor'
+    scheme: 'multicolor' | 'monochromatic'
 ): ChartConfig => {
     const config: ChartConfig = {};
     const prefix = scheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
 
+    // Ordem de alto contraste para a paleta monocromática (do mais escuro ao mais claro, pulando)
+    const monoIndexMap = [1, 3, 5, 2, 4]; 
+
     data.forEach((item, index) => {
         const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        let colorIndex: number;
+
+        if (scheme === 'monochromatic') {
+            // Usa o mapa de alto contraste para escolher a cor
+            colorIndex = monoIndexMap[index % monoIndexMap.length];
+        } else {
+            // Usa a ordem sequencial normal para o modo colorido
+            colorIndex = (index % 5) + 1;
+        }
+
         config[key] = {
             label: item.name,
-            color: `hsl(var(${prefix}${(index % 20) + 1}))`, // Usamos 20 cores por paleta
+            color: `hsl(var(${prefix}${colorIndex}))`,
         };
     });
     return config;
@@ -313,7 +326,7 @@ export default function ShadcnDashboard() {
             },
             fiscalizacoes: { 
                 label: "Fiscalizações", 
-                color: `hsl(var(${prefix}2))` // Pega a segunda cor da paleta
+                color: `hsl(var(${prefix}10))` // Pega a segunda cor da paleta
             },
         };
     }, [chartColorScheme]);
