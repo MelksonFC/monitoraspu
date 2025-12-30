@@ -1,18 +1,16 @@
 const express = require("express");
 const sequelize = require("../models/sequelize.js");
-const db = require('../models/index.js'); // Carrega os modelos do banco
+const db = require('../models/index.js');
 const { UserPreference } = db;
 
 const router = express.Router();
 
-// Define o tema padrão (caso nenhum tema esteja salvo)
-const defaultTheme = {
-  userid: null,
-  themepreference: "blue-theme",
-  chartcolorscheme: "monochromatic",
+const defaultPreferences = {
+  themepreference: "theme-blue",
+  chartcolorscheme: "multicolor",
 };
 
-// GET /api/userpreferences/:userid
+// GET (sem alterações)
 router.get("/:userid", async (req, res) => {
   const { userid } = req.params;
   try {
@@ -20,46 +18,53 @@ router.get("/:userid", async (req, res) => {
     if (config) {
       res.json(config);
     } else {
-      // Retorna a configuração padrão se não encontrar nenhuma salva
-      res.json({ ...defaultTheme, userid: Number(userid) });
+      res.json({ ...defaultPreferences, userid: Number(userid) });
     }
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar preferências de tema.", details: error.message });
+    res.status(500).json({ error: "Erro ao buscar preferências do usuário.", details: error.message });
   }
 });
 
-// PUT /api/userpreferences/:userid
+// --- [ROTA PUT CORRIGIDA E SIMPLIFICADA] ---
 router.put("/:userid", async (req, res) => {
   const { userid } = req.params;
   const { themepreference, chartcolorscheme } = req.body;
 
-  const updateData = {};
-  if (themepreference) updateData.themepreference = themepreference;
-  if (chartcolorscheme) updateData.chartcolorscheme = chartcolorscheme;
-  updateData.updatedat = new Date();
-
-  if (Object.keys(updateData).length <= 1) {
+  // Verifica se pelo menos uma preferência foi enviada
+  if (!themepreference && !chartcolorscheme) {
     return res.status(400).json({ error: "Nenhuma preferência para atualizar foi fornecida." });
   }
 
   const t = await sequelize.transaction();
   try {
-    const [config, created] = await UserPreference.findOrCreate({
+    // Tenta encontrar uma preferência existente
+    let userPreference = await UserPreference.findOne({
       where: { userid },
-      defaults: {
-        themepreference: themepreference || defaultPreferences.themepreference,
-        chartcolorscheme: chartcolorscheme || defaultPreferences.chartcolorscheme,
-        updatedat: new Date()
-      },
       transaction: t,
     });
 
-    if (!created) {
-      await config.update(updateData, { transaction: t });
+    // Se não encontrar, cria um novo registro
+    if (!userPreference) {
+      userPreference = await UserPreference.create({
+        userid,
+        themepreference: themepreference || defaultPreferences.themepreference,
+        chartcolorscheme: chartcolorscheme || defaultPreferences.chartcolorscheme,
+        updatedat: new Date(),
+      }, { transaction: t });
+    } else {
+      // Se encontrar, atualiza apenas os campos que foram fornecidos
+      if (themepreference) {
+        userPreference.themepreference = themepreference;
+      }
+      if (chartcolorscheme) {
+        userPreference.chartcolorscheme = chartcolorscheme;
+      }
+      userPreference.updatedat = new Date();
+      await userPreference.save({ transaction: t });
     }
 
     await t.commit();
-    res.json(config);
+    res.status(200).json(userPreference); // Retorna 200 OK com os dados atualizados
   } catch (error) {
     await t.rollback();
     res.status(500).json({ error: "Erro ao salvar preferências do usuário.", details: error.message });
