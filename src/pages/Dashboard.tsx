@@ -33,7 +33,7 @@ const generateChartConfig = (
     const prefix = scheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
 
     // Ordem de alto contraste para a paleta monocromática (do mais escuro ao mais claro, pulando)
-    const monoIndexMap = [1, 3, 5, 2, 4]; 
+    const monoIndexMap = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; 
 
     data.forEach((item, index) => {
         const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -44,7 +44,7 @@ const generateChartConfig = (
             colorIndex = monoIndexMap[index % monoIndexMap.length];
         } else {
             // Usa a ordem sequencial normal para o modo colorido
-            colorIndex = (index % 5) + 1;
+            colorIndex = (index % 20) + 1;
         }
 
         config[key] = {
@@ -541,12 +541,44 @@ export default function ShadcnDashboard() {
                 </Card>
                 
                 <Card className="md:col-span-3 flex flex-col">
-                    <CardHeader className="flex-row items-start space-y-0 pb-0"><div className="grid gap-1"><CardTitle>Distribuição por Regime</CardTitle><CardDescription>Percentual de imóveis por regime</CardDescription></div><Select value={activeRegime} onValueChange={setActiveRegime}><SelectTrigger className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" aria-label="Selecione o Regime"><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent align="end" className="rounded-xl">{regimeNames.map((key) => { const configKey = key.replace(/\s+/g, '-').toLowerCase(); const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime]; if (!config) return null; return (<SelectItem key={key} value={key} className="rounded-lg [&_span]:flex"><div className="flex items-center gap-2 text-xs"><span className="flex h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: config.color }} />{config?.label}</div></SelectItem>)})}</SelectContent></Select></CardHeader>
+                    <CardHeader className="flex-row items-start space-y-0 pb-0">
+                        <div className="grid gap-1">
+                            <CardTitle>Distribuição por Regime</CardTitle>
+                            <CardDescription>Percentual de imóveis por regime</CardDescription>
+                        </div>
+                        <Select value={activeRegime} onValueChange={setActiveRegime}>
+                            <SelectTrigger className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" aria-label="Selecione o Regime">
+                                <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent align="end" className="rounded-xl">
+                                {/* Mapeamos diretamente o `dataRegime` para garantir que todos os itens apareçam */}
+                                {dataRegime.map((item) => {
+                                    const configKey = item.name.replace(/\s+/g, '-').toLowerCase();
+                                    const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime];
+                                    
+                                    // Se por algum motivo a config não existir, ainda renderizamos com um fallback
+                                    const label = config?.label || item.name;
+                                    const color = config?.color || 'hsl(var(--muted))';
+
+                                    return (
+                                        <SelectItem key={item.name} value={item.name} className="rounded-lg [&_span]:flex">
+                                            <div className="flex items-center gap-2 text-xs">
+                                                <span className="flex h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: color }} />
+                                                {label}
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
+                            </SelectContent>
+                        </Select>
+                    </CardHeader>
                     <CardContent className="flex flex-1 justify-center pb-0">
                         <ChartContainer config={chartConfigRegime} className="mx-auto aspect-square w-full max-w-[300px] min-h-24">
                             <PieChart>
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                <Pie data={dataRegime} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} activeIndex={activeIndexRegime} activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (<g><Sector {...props} outerRadius={outerRadius + 10} /><Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
+                                <Pie data={dataRegime} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} activeIndex={activeIndexRegime} activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => 
+                                    (<g><Sector {...props} outerRadius={outerRadius + 10} />
+                                    <Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
                                     {dataRegime.map((entry) => {
                                         const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
                                         return <Cell key={`cell-${key}`} fill={chartConfigRegime[key]?.color} />;
