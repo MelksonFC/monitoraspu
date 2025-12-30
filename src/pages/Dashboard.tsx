@@ -310,7 +310,6 @@ export default function ShadcnDashboard() {
     const chartConfigRegime = generateChartConfig(dataRegime, chartColorScheme);
     const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0); // Linha restaurada
     const activeIndexRegime = React.useMemo(() => dataRegime.findIndex((item) => item.name === activeRegime), [activeRegime, dataRegime]);
-    const regimeNames = React.useMemo(() => dataRegime.map((item) => item.name), [dataRegime]);
     const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
     const totalVago = dataRegime.find(r => r.name === 'Vago para Uso')?.value || 0;
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
