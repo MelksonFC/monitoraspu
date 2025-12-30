@@ -49,30 +49,30 @@
      Ideal para distinguir categorias diferentes num mesmo gráfico.
      ----------------------------------------------------------- */
   /* Tons de Azul/Ciano (Análogas Frias) */
-  --chart-harm-1: 217 91% 60%;  /* Azul Base */
-  --chart-harm-2: 195 90% 45%;  /* Ciano */
-  --chart-harm-3: 173 58% 50%;  /* Verde-água */
-  --chart-harm-4: 262 74% 66%;  /* Roxo */
-  --chart-harm-5: 280 65% 55%;  /* Violeta */
+  --chart-color-1: 217 91% 60%;  /* Azul Base */
+  --chart-color-2: 195 90% 45%;  /* Ciano */
+  --chart-color-3: 173 58% 50%;  /* Verde-água */
+  --chart-color-4: 262 74% 66%;  /* Roxo */
+  --chart-color-5: 280 65% 55%;  /* Violeta */
   
   /* Tons Complementares (Opostos/Quentes para Contraste) */
-  --chart-harm-6: 35 93% 57%;   /* Laranja */
-  --chart-harm-7: 20 85% 55%;   /* Coral/Laranja Profundo */
-  --chart-harm-8: 45 95% 50%;   /* Amarelo Ouro */
-  --chart-harm-9: 10 80% 60%;   /* Terracota */
-  --chart-harm-10: 340 82% 61%; /* Rosa/Magenta */
+  --chart-color-6: 35 93% 57%;   /* Laranja */
+  --chart-color-7: 20 85% 55%;   /* Coral/Laranja Profundo */
+  --chart-color-8: 45 95% 50%;   /* Amarelo Ouro */
+  --chart-color-9: 10 80% 60%;   /* Terracota */
+  --chart-color-10: 340 82% 61%; /* Rosa/Magenta */
 
   /* Tons Pastéis/Variantes para completar 20 */
-  --chart-harm-11: 210 80% 40%; /* Azul Escuro */
-  --chart-harm-12: 185 70% 40%; /* Teal */
-  --chart-harm-13: 150 60% 45%; /* Verde Esmeralda */
-  --chart-harm-14: 320 70% 50%; /* Ameixa */
-  --chart-harm-15: 25 90% 65%;  /* Pêssego */
-  --chart-harm-16: 200 80% 75%; /* Sky Blue */
-  --chart-harm-17: 160 50% 75%; /* Menta */
-  --chart-harm-18: 50 80% 70%;  /* Creme/Amarelo */
-  --chart-harm-19: 280 40% 80%; /* Lavanda */
-  --chart-harm-20: 10 70% 80%;  /* Rosa Pastel */
+  --chart-color-11: 210 80% 40%; /* Azul Escuro */
+  --chart-color-12: 185 70% 40%; /* Teal */
+  --chart-color-13: 150 60% 45%; /* Verde Esmeralda */
+  --chart-color-14: 320 70% 50%; /* Ameixa */
+  --chart-color-15: 25 90% 65%;  /* Pêssego */
+  --chart-color-16: 200 80% 75%; /* Sky Blue */
+  --chart-color-17: 160 50% 75%; /* Menta */
+  --chart-color-18: 50 80% 70%;  /* Creme/Amarelo */
+  --chart-color-19: 280 40% 80%; /* Lavanda */
+  --chart-color-20: 10 70% 80%;  /* Rosa Pastel */
 }
 
 /* ======================================== */
