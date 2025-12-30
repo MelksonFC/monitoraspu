@@ -16,10 +16,8 @@ const themes = [
     { name: "theme-blue", label: "Padrão (Azul)", color: "#007bff" },
     { name: "theme-green", label: "Verde Clássico", color: "#28a745" },
     { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14" },
-    { name: "theme-forest", label: "Floresta Tropical", color: "#3A8E5A" },
     { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946" },
-    { name: "theme-ocean", label: "Oceano (Escuro)", color: "#007BFF" },
-    { name: "theme-neon", label: "Neon (Escuro)", color: "#F94144" },
+    { name: "theme-forest", label: "Dark Mountain (Escuro)", color: "#3A8E5A" },
     { name: "theme-dark", label: "Academia (Escuro)", color: "#343a40" },
 ];
 
@@ -268,7 +266,15 @@ export default function ShadcnDashboard() {
         return Object.entries(imoveisPorMunicipio).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
     }, [imoveis, municipioMap]);
     
-    const chartConfigMunicipio: ChartConfig = { value: { label: "Nº de Imóveis", color: "hsl(var(--chart-1))" } };
+    const chartConfigMunicipio = React.useMemo((): ChartConfig => {
+        const prefix = chartColorScheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
+        return {
+            value: {
+                label: "Nº de Imóveis",
+                color: `hsl(var(${prefix}1))`, // Sempre usa a primeira cor da paleta selecionada
+            },
+        };
+    }, [chartColorScheme]);
 
     const dataRegime = React.useMemo(() => {
         const imoveisPorRegime = imoveis.reduce<Record<string, number>>((acc, imovel) => {
