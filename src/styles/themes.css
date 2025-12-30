@@ -1,14 +1,23 @@
 /* 
   As cores são definidas no formato HSL (Hue, Saturation, Lightness) sem o "hsl()".
-  Isso permite que o Tailwind/Shadcn as utilize diretamente.
+  Isso é o padrão do Shadcn/UI e permite que o Tailwind as utilize.
   Ex: color: hsl(var(--primary));
 */
 
+/* --- TEMAS CLAROS --- */
+
 /* Tema Azul (Padrão) */
 [data-theme="theme-blue"] {
-  --primary: 217 91% 60%;
-  --card: 0 0% 100%;
   --background: 222 47% 97%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 222 47% 84%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
   --chart-1: 217 91% 60%; /* Azul Forte */
   --chart-2: 173 58% 50%; /* Verde-água */
   --chart-3: 45 93% 57%;  /* Amarelo */
@@ -19,9 +28,16 @@
 
 /* Tema Verde Clássico */
 [data-theme="theme-green"] {
-  --primary: 145 63% 42%;
-  --card: 0 0% 100%;
   --background: 145 25% 97%;
+  --foreground: 145 63% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 145 63% 12%;
+  --primary: 145 63% 42%;
+  --primary-foreground: 145 60% 98%;
+  --secondary: 145 30% 90%;
+  --secondary-foreground: 145 63% 12%;
+  --muted: 145 30% 96%;
+  --muted-foreground: 145 20% 46%;
   --chart-1: 145 63% 42%; /* Verde Principal */
   --chart-2: 198 53% 54%; /* Azul Céu */
   --chart-3: 45 86% 61%;  /* Amarelo Ouro */
@@ -30,82 +46,105 @@
   --chart-6: 170 45% 55%; /* Menta */
 }
 
-/* Tema Laranja Vibrante */
-[data-theme="theme-orange"] {
-  --primary: 28 98% 53%;
-  --card: 0 0% 100%;
-  --background: 28 40% 97%;
-  --chart-1: 28 98% 53%;  /* Laranja Principal */
-  --chart-2: 199 89% 48%; /* Ciano */
-  --chart-3: 350 89% 60%; /* Rosa Forte */
-  --chart-4: 151 44% 48%; /* Verde-mar */
-  --chart-5: 54 90% 50%;  /* Amarelo-limão */
-  --chart-6: 220 80% 65%; /* Azul-claro */
-}
-
-/* --- TEMAS ESCUROS --- */
-
-/* Tema Escuro Padrão */
-[data-theme="theme-dark"] {
-  --primary: 210 40% 98%;
-  --card: 222 47% 11%;
-  --background: 222 47% 8%;
-  --chart-1: 210 40% 98%; /* Branco */
-  --chart-2: 160 60% 85%; /* Menta Claro */
-  --chart-3: 40 80% 85%;  /* Amarelo Claro */
-  --chart-4: 0 70% 85%;   /* Rosa Claro */
-  --chart-5: 260 70% 85%; /* Lavanda */
-  --chart-6: 200 80% 85%; /* Azul Gelo */
-}
-
-/* Tema Floresta Tropical */
+/* [CORRIGIDO] Tema Floresta Tropical (Versão Clara) */
 [data-theme="theme-forest"] {
-  --primary: 147 48% 39%;
-  --card: 140 5% 15%;
-  --background: 140 5% 10%;
+  --background: 147 25% 97%;
+  --foreground: 147 48% 19%;
+  --card: 0 0% 100%;
+  --card-foreground: 147 48% 19%;
+  --primary: 147 48% 39%; /* #3A8E5A */
+  --primary-foreground: 147 40% 98%;
+  --secondary: 147 20% 90%;
+  --secondary-foreground: 147 48% 19%;
+  --muted: 147 20% 96%;
+  --muted-foreground: 147 15% 46%;
   --chart-1: 147 48% 39%; /* Verde Musgo */
   --chart-2: 43 100% 67%; /* Amarelo Queimado */
   --chart-3: 191 80% 40%; /* Azul-água */
   --chart-4: 2 64% 60%;   /* Vermelho-coral */
   --chart-5: 27 82% 60%;  /* Laranja Terra */
-  --chart-6: 140 30% 80%; /* Verde Pálido (para contraste) */
+  --chart-6: 80 40% 50%;  /* Verde Oliva */
 }
 
-/* Tema Oceano Profundo */
+/* [CORRIGIDO] Tema Oceano Profundo (Versão Clara) */
 [data-theme="theme-ocean"] {
-  --primary: 217 100% 50%;
-  --card: 215 35% 15%;
-  --background: 215 35% 10%;
+  --background: 215 40% 97%;
+  --foreground: 215 35% 25%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 35% 25%;
+  --primary: 217 100% 50%; /* #007BFF */
+  --primary-foreground: 215 20% 98%;
+  --secondary: 215 30% 90%;
+  --secondary-foreground: 215 35% 25%;
+  --muted: 215 30% 96%;
+  --muted-foreground: 215 15% 46%;
   --chart-1: 217 100% 50%; /* Azul Brilhante */
   --chart-2: 177 56% 58%; /* Turquesa */
   --chart-3: 51 100% 50%; /* Dourado */
-  --chart-4: 0 0% 94%;     /* Branco (alto contraste) */
-  --chart-5: 320 80% 70%; /* Rosa Néon */
-  --chart-6: 205 90% 75%; /* Azul Gelo */
+  --chart-4: 340 90% 60%; /* Magenta */
+  --chart-5: 205 90% 75%; /* Azul Gelo */
+  --chart-6: 250 80% 65%; /* Roxo Claro */
 }
 
-/* Tema Vulcão Ativo */
+/* [CORRIGIDO] Tema Vulcão Ativo (Versão Clara) */
 [data-theme="theme-volcano"] {
-  --primary: 356 79% 56%;
-  --card: 220 9% 25%;
-  --background: 220 10% 12%;
+  --background: 25 50% 97%;
+  --foreground: 15 80% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 15 80% 15%;
+  --primary: 356 79% 56%; /* #E63946 */
+  --primary-foreground: 356 70% 98%;
+  --secondary: 20 40% 90%;
+  --secondary-foreground: 15 80% 15%;
+  --muted: 20 40% 96%;
+  --muted-foreground: 20 10% 46%;
   --chart-1: 356 79% 56%; /* Vermelho Vivo */
   --chart-2: 33 89% 63%;  /* Laranja Areia */
   --chart-3: 45 80% 63%;  /* Amarelo Mostarda */
   --chart-4: 172 61% 39%; /* Verde-azulado */
-  --chart-5: 20 5% 70%;   /* Cinza Claro */
-  --chart-6: 350 90% 80%; /* Rosa Claro */
+  --chart-5: 220 70% 60%; /* Azul Royal */
+  --chart-6: 300 50% 55%; /* Roxo */
 }
 
-/* Tema Energia Neon */
+/* [CORRIGIDO] Tema Energia Neon (Versão Clara) - Contraste ajustado */
 [data-theme="theme-neon"] {
-  --primary: 359 93% 62%;
-  --card: 255 10% 8%;
-  --background: 255 10% 4%;
+  --background: 0 0% 98%;
+  --foreground: 255 10% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 255 10% 10%;
+  --primary: 359 83% 52%; /* Cor primária ajustada para melhor leitura */
+  --primary-foreground: 359 80% 98%;
+  --secondary: 300 20% 90%;
+  --secondary-foreground: 255 10% 10%;
+  --muted: 300 20% 96%;
+  --muted-foreground: 300 5% 46%;
   --chart-1: 359 93% 62%; /* Magenta */
   --chart-2: 32 94% 53%;  /* Laranja Neon */
   --chart-3: 84 44% 58%;  /* Verde Limão */
   --chart-4: 179 73% 46%; /* Ciano */
   --chart-5: 260 100% 70%;/* Roxo Elétrico */
   --chart-6: 60 100% 50%; /* Amarelo Puro */
+}
+
+
+/* --- TEMA ESCURO --- */
+
+/* Tema Escuro Padrão */
+[data-theme="theme-dark"] {
+  --background: 222 47% 8%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 11%;
+  --card-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 217 32% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --chart-1: 210 40% 98%; /* Branco */
+  --chart-2: 160 60% 85%; /* Menta Claro */
+  --chart-3: 40 80% 85%;  /* Amarelo Claro */
+  --chart-4: 0 70% 85%;   /* Rosa Claro */
+  --chart-5: 260 70% 85%; /* Lavanda */
+  --chart-6: 200 80% 85%; /* Azul Gelo */
 }
