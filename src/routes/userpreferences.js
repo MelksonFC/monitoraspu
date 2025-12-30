@@ -9,6 +9,7 @@ const router = express.Router();
 const defaultTheme = {
   userid: null,
   themepreference: "blue-theme",
+  chartcolorscheme: "monochromatic",
 };
 
 // GET /api/userpreferences/:userid
@@ -30,26 +31,38 @@ router.get("/:userid", async (req, res) => {
 // PUT /api/userpreferences/:userid
 router.put("/:userid", async (req, res) => {
   const { userid } = req.params;
-  const { themepreference } = req.body;
+  const { themepreference, chartcolorscheme } = req.body;
+
+  const updateData = {};
+  if (themepreference) updateData.themepreference = themepreference;
+  if (chartcolorscheme) updateData.chartcolorscheme = chartcolorscheme;
+  updateData.updatedat = new Date();
+
+  if (Object.keys(updateData).length <= 1) {
+    return res.status(400).json({ error: "Nenhuma preferência para atualizar foi fornecida." });
+  }
 
   const t = await sequelize.transaction();
   try {
-    // Upsert: atualiza se existe, senão cria
     const [config, created] = await UserPreference.findOrCreate({
       where: { userid },
-      defaults: { themepreference, updatedat: new Date() },
+      defaults: {
+        themepreference: themepreference || defaultPreferences.themepreference,
+        chartcolorscheme: chartcolorscheme || defaultPreferences.chartcolorscheme,
+        updatedat: new Date()
+      },
       transaction: t,
     });
 
     if (!created) {
-      await config.update({ themepreference, updatedat: new Date() }, { transaction: t });
+      await config.update(updateData, { transaction: t });
     }
 
     await t.commit();
     res.json(config);
   } catch (error) {
     await t.rollback();
-    res.status(500).json({ error: "Erro ao salvar preferências de tema.", details: error.message });
+    res.status(500).json({ error: "Erro ao salvar preferências do usuário.", details: error.message });
   }
 });
 

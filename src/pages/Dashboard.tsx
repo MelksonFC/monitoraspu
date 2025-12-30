@@ -4,7 +4,7 @@ import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, S
 import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '../types';
 import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,50 @@ const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
 };
 
-const generateChartConfig = (data: { name: string }[]): ChartConfig => {
+// --- [NOVO] Lógica para gerar cores tonais ---
+const getTonalPalette = (): string[] => {
+    // Acessa a variável CSS que contém o valor HSL da cor primária do gráfico
+    const primaryChartColorHSL = getComputedStyle(document.documentElement).getPropertyValue('--chart-1').trim();
+    
+    // Se não conseguir pegar a cor, retorna um fallback
+    if (!primaryChartColorHSL) return Array(6).fill('hsl(210, 90%, 50%)');
+
+    const [h, s, l] = primaryChartColorHSL.split(' ').map(parseFloat);
+    const palette: string[] = [];
+    
+    // Gera 6 cores variando a saturação e a luminosidade
+    for (let i = 0; i < 6; i++) {
+        const newSaturation = Math.max(20, s - i * 10);
+        const newLightness = Math.min(90, l + i * 5);
+        palette.push(`hsl(${h}, ${newSaturation}%, ${newLightness}%)`);
+    }
+    return palette;
+};
+
+const generateChartConfig = (data: { name: string }[], scheme: 'multicolor' | 'monochromatic' | 'tonal'): ChartConfig => {
     const config: ChartConfig = {};
+    const tonalPalette = scheme === 'tonal' ? getTonalPalette() : [];
+
     data.forEach((item, index) => {
         const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        let color = '';
+
+        switch (scheme) {
+            case 'monochromatic':
+                color = `hsl(var(--chart-1))`;
+                break;
+            case 'tonal':
+                color = tonalPalette[index % tonalPalette.length];
+                break;
+            case 'multicolor':
+            default:
+                color = `hsl(var(--chart-${(index % 6) + 1}))`;
+                break;
+        }
+
         config[key] = {
             label: item.name,
-            color: `hsl(var(--chart-${(index % 6) + 1}))`,
+            color: color,
         };
     });
     return config;
@@ -103,20 +140,46 @@ export default function ShadcnDashboard() {
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const [currentTheme, setCurrentTheme] = useState("theme-blue");
     const [selectedTheme, setSelectedTheme] = useState("theme-blue");
+    const [chartColorScheme, setChartColorScheme] = useState<'multicolor' | 'monochromatic' | 'tonal'>('multicolor');
+    const [selectedChartColorScheme, setSelectedChartColorScheme] = useState(chartColorScheme);
 
-    const openThemeMenu = () => { setSelectedTheme(currentTheme); setIsThemeMenuOpen(true); };
+    const openThemeMenu = () => { setSelectedTheme(currentTheme); setSelectedChartColorScheme(chartColorScheme); setIsThemeMenuOpen(true); };
     const handleThemeSelectionChange = (newThemeName: string) => setSelectedTheme(newThemeName);
     const handleApplyTheme = async () => {
-        if (!usuario?.id || selectedTheme === currentTheme) return;
-        applyTheme(selectedTheme);
-        setCurrentTheme(selectedTheme);
+        if (!usuario?.id) return;
+        
+        const isThemeChanged = selectedTheme !== currentTheme;
+        const isSchemeChanged = selectedChartColorScheme !== chartColorScheme;
+
+        if (!isThemeChanged && !isSchemeChanged) {
+            setIsThemeMenuOpen(false);
+            return;
+        }
+        
+        // Atualiza a UI imediatamente
+        if (isThemeChanged) {
+            applyTheme(selectedTheme);
+            setCurrentTheme(selectedTheme);
+        }
+        if(isSchemeChanged) {
+            setChartColorScheme(selectedChartColorScheme);
+        }
+
         setIsThemeMenuOpen(false);
+
         try {
-            await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, { themepreference: selectedTheme });
+            // Envia apenas o que mudou para a API
+            const payload: { themepreference?: string, chartcolorscheme?: string } = {};
+            if (isThemeChanged) payload.themepreference = selectedTheme;
+            if (isSchemeChanged) payload.chartcolorscheme = selectedChartColorScheme;
+
+            await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, payload);
         } catch (err) {
-            console.error("Falha ao salvar preferência de tema:", err);
+            console.error("Falha ao salvar preferências:", err);
+            // Reverte em caso de erro
             applyTheme(currentTheme);
             setCurrentTheme(currentTheme);
+            setChartColorScheme(chartColorScheme);
         }
     };
 
@@ -135,9 +198,14 @@ export default function ShadcnDashboard() {
                 ]);
 
                 const savedTheme = themeRes.data?.themepreference || "theme-blue";
+                const savedScheme = themeRes.data?.chartcolorscheme || "multicolor";
+
                 setCurrentTheme(savedTheme);
                 setSelectedTheme(savedTheme);
                 applyTheme(savedTheme);
+
+                setChartColorScheme(savedScheme);
+                setSelectedChartColorScheme(savedScheme);
 
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
                 setImoveis(imoveisData);
@@ -243,7 +311,7 @@ export default function ShadcnDashboard() {
         return Object.entries(imoveisPorRegime).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
     }, [imoveis, regimeMap]);
 
-    const chartConfigRegime = generateChartConfig(dataRegime);
+    const chartConfigRegime = generateChartConfig(dataRegime, chartColorScheme);
     const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0); // Linha restaurada
     const activeIndexRegime = React.useMemo(() => dataRegime.findIndex((item) => item.name === activeRegime), [activeRegime, dataRegime]);
     const regimeNames = React.useMemo(() => dataRegime.map((item) => item.name), [dataRegime]);
@@ -327,6 +395,29 @@ export default function ShadcnDashboard() {
                                 </Select>
                             </div>
                             <Button onClick={handleApplyTheme} disabled={selectedTheme === currentTheme} className="w-full">Aplicar</Button>
+                            
+                            {/* [NOVO] Seletor de Esquema de Cores do Gráfico */}
+                            <div>
+                                <label className="text-sm font-medium text-muted-foreground">Cores dos Gráficos</label>
+                                <Select value={selectedChartColorScheme} onValueChange={(value) => setSelectedChartColorScheme(value as any)}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="multicolor">Colorido</SelectItem>
+                                        <SelectItem value="monochromatic">Monocromático</SelectItem>
+                                        <SelectItem value="tonal">Tons do Tema</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <CardFooter className="p-0 pt-4">
+                                <Button
+                                    onClick={handleApplyTheme}
+                                    disabled={selectedTheme === currentTheme && selectedChartColorScheme === chartColorScheme}
+                                    className="w-full"
+                                >
+                                    Aplicar
+                                </Button>
+                            </CardFooter>
                         </div>
                     </div>
                 )}
