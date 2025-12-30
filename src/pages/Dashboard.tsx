@@ -266,15 +266,10 @@ export default function ShadcnDashboard() {
         return Object.entries(imoveisPorMunicipio).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
     }, [imoveis, municipioMap]);
     
-    const chartConfigMunicipio = React.useMemo((): ChartConfig => {
-        const prefix = chartColorScheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
-        return {
-            value: {
-                label: "Nº de Imóveis",
-                color: `hsl(var(${prefix}1))`, // Sempre usa a primeira cor da paleta selecionada
-            },
-        };
-    }, [chartColorScheme]);
+    const chartConfigMunicipio = React.useMemo(() => {
+        return generateChartConfig(dataMunicipio, chartColorScheme);
+    }, [dataMunicipio, chartColorScheme]);
+
 
     const dataRegime = React.useMemo(() => {
         const imoveisPorRegime = imoveis.reduce<Record<string, number>>((acc, imovel) => {
@@ -470,7 +465,26 @@ export default function ShadcnDashboard() {
             <div className="grid gap-1 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
                     <CardHeader><CardTitle>Imóveis por Município</CardTitle></CardHeader>
-                    <CardContent><ChartContainer config={chartConfigMunicipio} className="w-full" style={{ maxHeight: "460px", overflowY: "auto" }}><BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}><CartesianGrid horizontal={false} /><YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide /><XAxis dataKey="value" type="number" hide /><ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} /><Bar dataKey="value" fill="var(--color-value)" radius={4} onClick={(_data, index) => { const municipio = dataMunicipio[index].name; setSelectedMunicipio(municipio); setDrillImoveis(getImoveisPorMunicipio(municipio)); }}><LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} /><LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} /></Bar></BarChart></ChartContainer></CardContent>
+                    <CardContent>
+                        <ChartContainer config={chartConfigMunicipio} className="w-full" style={{ maxHeight: "460px", overflowY: "auto" }}>
+                        <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}>
+                            <CartesianGrid horizontal={false} />
+                            <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
+                            <XAxis dataKey="value" type="number" hide />
+                            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} />
+                            <Bar dataKey="value" radius={4} onClick={(_data, index) => { const municipio = dataMunicipio[index].name; 
+                                setSelectedMunicipio(municipio); 
+                                setDrillImoveis(getImoveisPorMunicipio(municipio)); }}>
+                                {dataMunicipio.map((entry) => {
+                                    const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                    return <Cell key={`cell-${key}`} fill={chartConfigMunicipio[key]?.color} />;
+                                })}
+                                <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
+                                <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} />
+                            </Bar>
+                        </BarChart>
+                        </ChartContainer>
+                    </CardContent>
                 </Card>
                 
                 <Card className="md:col-span-3 flex flex-col">
