@@ -375,7 +375,7 @@ export default function ShadcnDashboard() {
             },
             aVencer: {
                 label: "A Vencer",
-                color: `hsl(var(${prefix}2))` // Segunda cor da paleta
+                color: `hsl(var(${prefix}10))` // decima cor da paleta
             },
             // Itens Estáticos: usam cores globais definidas no CSS
             vencido: {
@@ -707,29 +707,17 @@ export default function ShadcnDashboard() {
                                         { value: chartConfigStatusFiscalizacao.nuncaFiscalizado.label, type: "square", color: chartConfigStatusFiscalizacao.nuncaFiscalizado.color },
                                     ]}
                                     />
-                                    <Bar dataKey="emDia" stackId="a" fill="var(--color-emDia)" radius={[4, 0, 0, 4]}
-                                      onClick={() => {
-                                        setSelectedStatus("emDia");
-                                        setDrillImoveis(getImoveisPorStatus("emDia"));
-                                      }}
+                                    <Bar dataKey="emDia" stackId="a" fill={chartConfigStatusFiscalizacao.emDia.color} radius={[4, 0, 0, 4]}
+                                    onClick={() => { setSelectedStatus("emDia"); setDrillImoveis(getImoveisPorStatus("emDia")); }}
                                     />
-                                    <Bar dataKey="aVencer" stackId="a" fill="var(--color-aVencer)"
-                                      onClick={() => {
-                                        setSelectedStatus("aVencer");
-                                        setDrillImoveis(getImoveisPorStatus("aVencer"));
-                                      }}
+                                    <Bar dataKey="aVencer" stackId="a" fill={chartConfigStatusFiscalizacao.aVencer.color}
+                                        onClick={() => { setSelectedStatus("aVencer"); setDrillImoveis(getImoveisPorStatus("aVencer")); }}
                                     />
-                                    <Bar dataKey="vencido" stackId="a" fill="var(--color-vencido)"
-                                      onClick={() => {
-                                        setSelectedStatus("vencido");
-                                        setDrillImoveis(getImoveisPorStatus("vencido"));
-                                      }}
+                                    <Bar dataKey="vencido" stackId="a" fill={chartConfigStatusFiscalizacao.vencido.color}
+                                        onClick={() => { setSelectedStatus("vencido"); setDrillImoveis(getImoveisPorStatus("vencido")); }}
                                     />
-                                    <Bar dataKey="nuncaFiscalizado" stackId="a" fill="var(--color-nuncaFiscalizado)" radius={[0, 4, 4, 0]}
-                                      onClick={() => {
-                                        setSelectedStatus("nuncaFiscalizado");
-                                        setDrillImoveis(getImoveisPorStatus("nuncaFiscalizado"));
-                                      }}
+                                    <Bar dataKey="nuncaFiscalizado" stackId="a" fill={chartConfigStatusFiscalizacao.nuncaFiscalizado.color} radius={[0, 4, 4, 0]}
+                                        onClick={() => { setSelectedStatus("nuncaFiscalizado"); setDrillImoveis(getImoveisPorStatus("nuncaFiscalizado")); }}
                                     />
                                 </BarChart>
                             </ChartContainer>
