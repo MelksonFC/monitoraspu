@@ -7,7 +7,7 @@ const router = express.Router();
 
 const defaultPreferences = {
   themepreference: "theme-blue",
-  chartcolorscheme: "multicolor",
+  chartcolorscheme: "monochromatic",
 };
 
 // GET (sem alterações)
@@ -29,6 +29,11 @@ router.get("/:userid", async (req, res) => {
 router.put("/:userid", async (req, res) => {
   const { userid } = req.params;
   const { themepreference, chartcolorscheme } = req.body;
+
+  const validSchemes = ['monochromatic','multicolor'];
+  if (chartcolorscheme && !validSchemes.includes(chartcolorscheme)) {
+    return res.status(400).json({ error: "Esquema de cores inválido." });
+  }
 
   // Verifica se pelo menos uma preferência foi enviada
   if (!themepreference && !chartcolorscheme) {

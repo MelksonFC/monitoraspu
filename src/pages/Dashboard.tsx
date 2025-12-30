@@ -16,61 +16,29 @@ const themes = [
     { name: "theme-blue", label: "Padrão (Azul)", color: "#007bff" },
     { name: "theme-green", label: "Verde Clássico", color: "#28a745" },
     { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14" },
-    { name: "theme-dark", label: "Escuro", color: "#343a40" },
     { name: "theme-forest", label: "Floresta Tropical", color: "#3A8E5A" },
-    { name: "theme-ocean", label: "Oceano Profundo", color: "#007BFF" },
     { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946" },
-    { name: "theme-neon", label: "Energia Neon", color: "#F94144" },
+    { name: "theme-ocean", label: "Oceano (Escuro)", color: "#007BFF" },
+    { name: "theme-neon", label: "Neon (Escuro)", color: "#F94144" },
+    { name: "theme-dark", label: "Academia (Escuro)", color: "#343a40" },
 ];
 
 const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
 };
 
-// --- [NOVO] Lógica para gerar cores tonais ---
-const getTonalPalette = (): string[] => {
-    // Acessa a variável CSS que contém o valor HSL da cor primária do gráfico
-    const primaryChartColorHSL = getComputedStyle(document.documentElement).getPropertyValue('--chart-1').trim();
-    
-    // Se não conseguir pegar a cor, retorna um fallback
-    if (!primaryChartColorHSL) return Array(6).fill('hsl(210, 90%, 50%)');
-
-    const [h, s, l] = primaryChartColorHSL.split(' ').map(parseFloat);
-    const palette: string[] = [];
-    
-    // Gera 6 cores variando a saturação e a luminosidade
-    for (let i = 0; i < 6; i++) {
-        const newSaturation = Math.max(20, s - i * 10);
-        const newLightness = Math.min(90, l + i * 5);
-        palette.push(`hsl(${h}, ${newSaturation}%, ${newLightness}%)`);
-    }
-    return palette;
-};
-
-const generateChartConfig = (data: { name: string }[], scheme: 'multicolor' | 'monochromatic' | 'tonal'): ChartConfig => {
+const generateChartConfig = (
+    data: { name: string }[],
+    scheme: 'monochromatic' | 'multicolor'
+): ChartConfig => {
     const config: ChartConfig = {};
-    const tonalPalette = scheme === 'tonal' ? getTonalPalette() : [];
+    const prefix = scheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
 
     data.forEach((item, index) => {
         const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        let color = '';
-
-        switch (scheme) {
-            case 'monochromatic':
-                color = `hsl(var(--chart-1))`;
-                break;
-            case 'tonal':
-                color = tonalPalette[index % tonalPalette.length];
-                break;
-            case 'multicolor':
-            default:
-                color = `hsl(var(--chart-${(index % 6) + 1}))`;
-                break;
-        }
-
         config[key] = {
             label: item.name,
-            color: color,
+            color: `hsl(var(${prefix}${(index % 5) + 1}))`, // Usamos 5 cores por paleta
         };
     });
     return config;
@@ -140,7 +108,7 @@ export default function ShadcnDashboard() {
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const [currentTheme, setCurrentTheme] = useState("theme-blue");
     const [selectedTheme, setSelectedTheme] = useState("theme-blue");
-    const [chartColorScheme, setChartColorScheme] = useState<'multicolor' | 'monochromatic' | 'tonal'>('multicolor');
+    const [chartColorScheme, setChartColorScheme] = useState<'monochromatic' | 'multicolor'>('monochromatic');
     const [selectedChartColorScheme, setSelectedChartColorScheme] = useState(chartColorScheme);
 
     const openThemeMenu = () => { setSelectedTheme(currentTheme); setSelectedChartColorScheme(chartColorScheme); setIsThemeMenuOpen(true); };
@@ -198,7 +166,7 @@ export default function ShadcnDashboard() {
                 ]);
 
                 const savedTheme = themeRes.data?.themepreference || "theme-blue";
-                const savedScheme = themeRes.data?.chartcolorscheme || "multicolor";
+                const savedScheme = themeRes.data?.chartcolorscheme || "monochromatic";
 
                 setCurrentTheme(savedTheme);
                 setSelectedTheme(savedTheme);
@@ -402,7 +370,6 @@ export default function ShadcnDashboard() {
                                     <SelectContent>
                                         <SelectItem value="multicolor">Colorido</SelectItem>
                                         <SelectItem value="monochromatic">Monocromático</SelectItem>
-                                        <SelectItem value="tonal">Tons do Tema</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

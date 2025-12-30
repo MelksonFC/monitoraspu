@@ -1,12 +1,12 @@
 /* 
-  As cores são definidas no formato HSL (Hue, Saturation, Lightness) sem o "hsl()".
-  Isso é o padrão do Shadcn/UI e permite que o Tailwind as utilize.
-  Ex: color: hsl(var(--primary));
+  Este arquivo define todas as paletas de cores para os temas do dashboard.
+  --chart-color-*: Usado quando o usuário seleciona "Colorido".
+  --chart-mono-*: Usado quando o usuário seleciona "Monocromático".
 */
 
-/* --- TEMAS CLAROS --- */
-
-/* Tema Azul (Padrão) */
+/* ======================================== */
+/*            TEMA AZUL (PADRÃO)            */
+/* ======================================== */
 [data-theme="theme-blue"] {
   --background: 222 47% 97%;
   --foreground: 222 47% 11%;
@@ -14,19 +14,27 @@
   --card-foreground: 222 47% 11%;
   --primary: 217 91% 60%;
   --primary-foreground: 210 40% 98%;
-  --secondary: 222 47% 84%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --chart-1: 217 91% 60%; /* Azul Forte */
-  --chart-2: 173 58% 50%; /* Verde-água */
-  --chart-3: 45 93% 57%;  /* Amarelo */
-  --chart-4: 340 82% 61%; /* Rosa */
-  --chart-5: 262 74% 66%; /* Roxo */
-  --chart-6: 25 84% 60%;  /* Laranja */
+
+  /* Opção "Colorido": Paleta vibrante e profissional */
+  --chart-color-1: 217 91% 60%; /* Azul Principal */
+  --chart-color-2: 173 58% 50%; /* Verde-água */
+  --chart-color-3: 35 93% 57%;  /* Laranja */
+  --chart-color-4: 340 82% 61%; /* Rosa */
+  --chart-color-5: 262 74% 66%; /* Roxo */
+  --chart-color-6: 195 90% 45%; /* Ciano */
+  
+  /* Opção "Monocromático": Paleta de tons de azul (Referência Imagem 1) */
+  --chart-mono-1: 218 84% 14%;  /* #021024 */
+  --chart-mono-2: 219 92% 19%;  /* #052659 */
+  --chart-mono-3: 209 43% 52%;  /* #5483B3 */
+  --chart-mono-4: 208 49% 64%;  /* #7DA0CA */
+  --chart-mono-5: 200 100% 88%; /* #C1E8FF */
+  --chart-mono-6: 212 65% 35%;  /* Azul Médio (para preencher) */
 }
 
-/* Tema Verde Clássico */
+/* ======================================== */
+/*           TEMA VERDE CLÁSSICO            */
+/* ======================================== */
 [data-theme="theme-green"] {
   --background: 145 25% 97%;
   --foreground: 145 63% 12%;
@@ -34,117 +42,133 @@
   --card-foreground: 145 63% 12%;
   --primary: 145 63% 42%;
   --primary-foreground: 145 60% 98%;
-  --secondary: 145 30% 90%;
-  --secondary-foreground: 145 63% 12%;
-  --muted: 145 30% 96%;
-  --muted-foreground: 145 20% 46%;
-  --chart-1: 145 63% 42%; /* Verde Principal */
-  --chart-2: 198 53% 54%; /* Azul Céu */
-  --chart-3: 45 86% 61%;  /* Amarelo Ouro */
-  --chart-4: 24 92% 64%;  /* Laranja Claro */
-  --chart-5: 15 74% 62%;  /* Salmão */
-  --chart-6: 170 45% 55%; /* Menta */
+
+  /* Opção "Colorido": Paleta natural e terrosa (Referência Imagem 7) */
+  --chart-color-1: 52 54% 20%;  /* Café Noir: #4C3D19 */
+  --chart-color-2: 95 31% 20%;  /* Kombu Green: #354024 */
+  --chart-color-3: 68 18% 55%;  /* Moss Green: #889063 */
+  --chart-color-4: 37 38% 70%;  /* Tan: #CFBB99 */
+  --chart-color-5: 43 38% 88%;  /* Bone: #E5D7C4 */
+  --chart-color-6: 145 63% 42%; /* Verde do Tema (para preencher) */
+
+  /* Opção "Monocromático": Paleta de tons de verde (Referência Imagem 2) */
+  --chart-mono-1: 168 50% 11%; /* #0F2A1D */
+  --chart-mono-2: 114 24% 27%; /* #375534 */
+  --chart-mono-3: 130 15% 49%; /* #6B9071 */
+  --chart-mono-4: 125 15% 68%; /* #AEC3B0 */
+  --chart-mono-5: 75 42% 90%;  /* #E3EED4 */
+  --chart-mono-6: 100 20% 35%; /* Verde Musgo Escuro (para preencher) */
 }
 
-/* [CORRIGIDO] Tema Floresta Tropical (Versão Clara) */
-[data-theme="theme-forest"] {
-  --background: 147 25% 97%;
-  --foreground: 147 48% 19%;
+/* ======================================== */
+/*           TEMA LARANJA VIBRANTE          */
+/* ======================================== */
+[data-theme="theme-orange"] {
+  --background: 28 40% 97%;
+  --foreground: 28 98% 23%;
   --card: 0 0% 100%;
-  --card-foreground: 147 48% 19%;
-  --primary: 147 48% 39%; /* #3A8E5A */
-  --primary-foreground: 147 40% 98%;
-  --secondary: 147 20% 90%;
-  --secondary-foreground: 147 48% 19%;
-  --muted: 147 20% 96%;
-  --muted-foreground: 147 15% 46%;
-  --chart-1: 147 48% 39%; /* Verde Musgo */
-  --chart-2: 43 100% 67%; /* Amarelo Queimado */
-  --chart-3: 191 80% 40%; /* Azul-água */
-  --chart-4: 2 64% 60%;   /* Vermelho-coral */
-  --chart-5: 27 82% 60%;  /* Laranja Terra */
-  --chart-6: 80 40% 50%;  /* Verde Oliva */
+  --card-foreground: 28 98% 23%;
+  --primary: 28 98% 53%;
+  --primary-foreground: 28 80% 98%;
+
+  /* Opção "Colorido": Paleta "Powerful" (Referência Imagem 6) */
+  --chart-color-1: 46 100% 51%; /* #FFCA03 */
+  --chart-color-2: 30 90% 50%;  /* #F3950D */
+  --chart-color-3: 2 71% 50%;   /* #D91E18 */
+  --chart-color-4: 224 76% 23%; /* #0F2C67 */
+  --chart-color-5: 15 85% 55%;  /* Laranja Secundário */
+  --chart-color-6: 50 95% 60%;  /* Amarelo Secundário */
+  
+  /* Opção "Monocromático": Paleta de tons de laranja (Referência Imagem 3) */
+  --chart-mono-1: 26 100% 30%; /* #9b3c00 */
+  --chart-mono-2: 24 81% 38%;  /* #b6520f */
+  --chart-mono-3: 23 79% 47%;  /* #d2691e */
+  --chart-mono-4: 29 82% 62%;  /* #ea9247 */
+  --chart-mono-5: 33 100% 71%; /* #ffbb6e */
+  --chart-mono-6: 25 90% 55%;  /* Laranja Médio (para preencher) */
 }
 
-/* [CORRIGIDO] Tema Oceano Profundo (Versão Clara) */
-[data-theme="theme-ocean"] {
-  --background: 215 40% 97%;
-  --foreground: 215 35% 25%;
-  --card: 0 0% 100%;
-  --card-foreground: 215 35% 25%;
-  --primary: 217 100% 50%; /* #007BFF */
-  --primary-foreground: 215 20% 98%;
-  --secondary: 215 30% 90%;
-  --secondary-foreground: 215 35% 25%;
-  --muted: 215 30% 96%;
-  --muted-foreground: 215 15% 46%;
-  --chart-1: 217 100% 50%; /* Azul Brilhante */
-  --chart-2: 177 56% 58%; /* Turquesa */
-  --chart-3: 51 100% 50%; /* Dourado */
-  --chart-4: 340 90% 60%; /* Magenta */
-  --chart-5: 205 90% 75%; /* Azul Gelo */
-  --chart-6: 250 80% 65%; /* Roxo Claro */
-}
-
-/* [CORRIGIDO] Tema Vulcão Ativo (Versão Clara) */
+/* ======================================== */
+/*           TEMA VULCÃO ATIVO              */
+/* ======================================== */
 [data-theme="theme-volcano"] {
   --background: 25 50% 97%;
   --foreground: 15 80% 15%;
   --card: 0 0% 100%;
   --card-foreground: 15 80% 15%;
-  --primary: 356 79% 56%; /* #E63946 */
+  --primary: 356 79% 56%;
   --primary-foreground: 356 70% 98%;
-  --secondary: 20 40% 90%;
-  --secondary-foreground: 15 80% 15%;
-  --muted: 20 40% 96%;
-  --muted-foreground: 20 10% 46%;
-  --chart-1: 356 79% 56%; /* Vermelho Vivo */
-  --chart-2: 33 89% 63%;  /* Laranja Areia */
-  --chart-3: 45 80% 63%;  /* Amarelo Mostarda */
-  --chart-4: 172 61% 39%; /* Verde-azulado */
-  --chart-5: 220 70% 60%; /* Azul Royal */
-  --chart-6: 300 50% 55%; /* Roxo */
-}
 
-/* [CORRIGIDO] Tema Energia Neon (Versão Clara) - Contraste ajustado */
-[data-theme="theme-neon"] {
-  --background: 0 0% 98%;
-  --foreground: 255 10% 10%;
-  --card: 0 0% 100%;
-  --card-foreground: 255 10% 10%;
-  --primary: 359 83% 52%; /* Cor primária ajustada para melhor leitura */
-  --primary-foreground: 359 80% 98%;
-  --secondary: 300 20% 90%;
-  --secondary-foreground: 255 10% 10%;
-  --muted: 300 20% 96%;
-  --muted-foreground: 300 5% 46%;
-  --chart-1: 359 93% 62%; /* Magenta */
-  --chart-2: 32 94% 53%;  /* Laranja Neon */
-  --chart-3: 84 44% 58%;  /* Verde Limão */
-  --chart-4: 179 73% 46%; /* Ciano */
-  --chart-5: 260 100% 70%;/* Roxo Elétrico */
-  --chart-6: 60 100% 50%; /* Amarelo Puro */
+  /* Opção "Colorido": Paleta quente e contrastante */
+  --chart-color-1: 356 79% 56%; /* Vermelho Principal */
+  --chart-color-2: 33 89% 63%;  /* Laranja Areia */
+  --chart-color-3: 45 80% 63%;  /* Amarelo Mostarda */
+  --chart-color-4: 220 70% 60%; /* Azul Royal */
+  --chart-color-5: 172 61% 39%; /* Verde-azulado */
+  --chart-color-6: 300 50% 55%; /* Roxo */
+  
+  /* Opção "Monocromático": Paleta de tons de vermelho/rosa (Referência Imagem 4) */
+  --chart-mono-1: 339 100% 19%; /* #610027 */
+  --chart-mono-2: 339 53% 37%;  /* #912B48 */
+  --chart-mono-3: 339 37% 52%;  /* #B45A69 */
+  --chart-mono-4: 339 88% 90%;  /* #FCD0D9 */
+  --chart-mono-5: 345 60% 45%;  /* Vermelho Vinho (para preencher) */
+  --chart-mono-6: 342 50% 60%;  /* Rosa Queimado (para preencher) */
 }
 
 
-/* --- TEMA ESCURO --- */
+/* ======================================== */
+/*               TEMAS ESCUROS              */
+/* ======================================== */
 
-/* Tema Escuro Padrão */
-[data-theme="theme-dark"] {
-  --background: 222 47% 8%;
-  --foreground: 210 40% 98%;
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 217 32% 17%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --chart-1: 210 40% 98%; /* Branco */
-  --chart-2: 160 60% 85%; /* Menta Claro */
-  --chart-3: 40 80% 85%;  /* Amarelo Claro */
-  --chart-4: 0 70% 85%;   /* Rosa Claro */
-  --chart-5: 260 70% 85%; /* Lavanda */
-  --chart-6: 200 80% 85%; /* Azul Gelo */
+/* --- TEMA DARK MOUNTAIN (Referência Imagem 8) --- */
+[data-theme="theme-forest"] { /* Reatribuído ao 'Floresta' */
+  --background: 224 81% 5%; /* Fundo bem escuro */
+  --foreground: 225 30% 85%;
+  --card: 224 34% 10%;
+  --card-foreground: 225 30% 85%;
+  --primary: 225 25% 60%;
+  --primary-foreground: 224 81% 5%;
+
+  /* Opção "Colorido": Paleta inspirada na montanha */
+  --chart-color-1: 275 20% 71%; /* #b5a1c6 (lavanda pálido) */
+  --chart-color-2: 223 15% 45%; /* #67798c (azul acinzentado) */
+  --chart-color-3: 229 25% 28%; /* #373e57 (azul profundo) */
+  --chart-color-4: 168 50% 11%; /* Verde escuro para contraste */
+  --chart-color-5: 223 83% 5%;  /* #011218 (quase preto) */
+  --chart-color-6: 43 100% 67%; /* Amarelo para destaque */
+
+  /* Opção "Monocromático": Variações da paleta da montanha */
+  --chart-mono-1: 275 20% 71%; /* #b5a1c6 */
+  --chart-mono-2: 223 15% 45%; /* #67798c */
+  --chart-mono-3: 229 25% 28%; /* #373e57 */
+  --chart-mono-4: 215 31% 15%; /* #1e2332 */
+  --chart-mono-5: 214 94% 5%;  /* #011218 */
+  --chart-mono-6: 226 20% 55%; /* Azul médio (para preencher) */
+}
+
+/* --- TEMA DARK ACADEMIA (Referência Imagem 9) --- */
+[data-theme="theme-dark"] { /* Reatribuído ao 'Escuro' */
+  --background: 0 0% 4%;
+  --foreground: 210 10% 80%;
+  --card: 0 0% 8%;
+  --card-foreground: 210 10% 80%;
+  --primary: 210 15% 90%;
+  --primary-foreground: 0 0% 4%;
+
+  /* Opção "Colorido": Paleta sutil e elegante */
+  --chart-color-1: 37 38% 70%;  /* Tan (#CFBB99) */
+  --chart-color-2: 52 54% 20%;  /* Café Noir (#4C3D19) */
+  --chart-color-3: 210 10% 60%; /* Cinza azulado */
+  --chart-color-4: 30 20% 75%;  /* Bege */
+  --chart-color-5: 0 0% 90%;    /* Quase branco */
+  --chart-color-6: 160 30% 40%; /* Verde escuro e pálido */
+
+  /* Opção "Monocromático": Paleta de cinzas (Referência Imagem 9) */
+  --chart-mono-1: 210 5% 58%;  /* #5f6668 */
+  --chart-mono-2: 210 5% 35%;  /* #3a3d3d */
+  --chart-mono-3: 210 6% 15%;  /* #252828 */
+  --chart-mono-4: 180 5% 10%;  /* #171919 */
+  --chart-mono-5: 180 4% 6%;   /* #0d0e0e */
+  --chart-mono-6: 210 5% 25%;  /* Cinza médio (para preencher) */
 }

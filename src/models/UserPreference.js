@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       chartcolorscheme: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        defaultValue: "monochromatic", // 'multicolor', 'monochromatic', 'tonal'
+        defaultValue: "monochromatic", // 'multicolor', 'monochromatic'
       },
       updatedat: {
         type: DataTypes.DATE,
