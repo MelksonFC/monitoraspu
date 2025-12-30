@@ -25,6 +25,11 @@ const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
 };
 
+// Centraliza a lógica de criação de chaves para evitar inconsistências.
+const toConfigKey = (name: string): string => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+};
+
 const generateChartConfig = (
     data: { name: string }[],
     scheme: 'multicolor' | 'monochromatic'
@@ -33,10 +38,10 @@ const generateChartConfig = (
     const prefix = scheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
 
     // Ordem de alto contraste para a paleta monocromática (do mais escuro ao mais claro, pulando)
-    const monoIndexMap = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; 
+    const monoIndexMap = [1, 2, 3, 4, 5, 6,  7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]; 
 
     data.forEach((item, index) => {
-        const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const key = toConfigKey(item.name);
         let colorIndex: number;
 
         if (scheme === 'monochromatic') {
@@ -359,12 +364,30 @@ export default function ShadcnDashboard() {
         return [{ name: "Status", ...statusCounts }];
     }, [imoveis, fiscalizacoes]);
 
-    const chartConfigStatusFiscalizacao: ChartConfig = {
-        emDia: { label: "Em Dia", color: "hsl(var(--blue-light))" },
-        aVencer: { label: "A Vencer", color: "hsl(var(--accent-orange))" },
-        vencido: { label: "Vencido", color: "hsl(0 100% 65.4%)" },
-        nuncaFiscalizado: { label: "Nunca Fiscalizado", color: "hsl(var(--muted))" },
-    };
+    const chartConfigStatusFiscalizacao = React.useMemo((): ChartConfig => {
+        const prefix = chartColorScheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
+        
+        return {
+            // Itens Dinâmicos: usam a paleta do tema
+            emDia: {
+                label: "Em Dia",
+                color: `hsl(var(${prefix}1))` // Primeira cor da paleta
+            },
+            aVencer: {
+                label: "A Vencer",
+                color: `hsl(var(${prefix}2))` // Segunda cor da paleta
+            },
+            // Itens Estáticos: usam cores globais definidas no CSS
+            vencido: {
+                label: "Vencido",
+                color: `hsl(var(--color-status-vencido))`
+            },
+            nuncaFiscalizado: {
+                label: "Nunca Fiscalizado",
+                color: `hsl(var(--color-status-nunca))`
+            },
+        };
+    }, [chartColorScheme]);
 
     if (loading) return <div className="flex items-center justify-center h-screen"><p>Carregando dados...</p></div>;
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
@@ -527,7 +550,7 @@ export default function ShadcnDashboard() {
                                 setSelectedMunicipio(municipio); 
                                 setDrillImoveis(getImoveisPorMunicipio(municipio)); }}>
                                     {dataMunicipio.map((entry) => {
-                                        const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                        const key = toConfigKey(entry.name);
                                         const config = chartConfigMunicipio[key];
                                         return <Cell key={`cell-${key}`} fill={config?.color || `hsl(var(--chart-color-1))`} />;
                                     })} 
@@ -552,7 +575,7 @@ export default function ShadcnDashboard() {
                             <SelectContent align="end" className="rounded-xl">
                                 {/* Mapeamos diretamente o `dataRegime` para garantir que todos os itens apareçam */}
                                 {dataRegime.map((item) => {
-                                    const configKey = item.name.replace(/\s+/g, '-').toLowerCase();
+                                    const configKey = toConfigKey(item.name);
                                     const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime];
                                     
                                     // Se por algum motivo a config não existir, ainda renderizamos com um fallback
@@ -579,7 +602,7 @@ export default function ShadcnDashboard() {
                                     (<g><Sector {...props} outerRadius={outerRadius + 10} />
                                     <Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
                                     {dataRegime.map((entry) => {
-                                        const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                        const key = toConfigKey(entry.name);
                                         return <Cell key={`cell-${key}`} fill={chartConfigRegime[key]?.color} />;
                                     })}
                                     <RechartsLabel

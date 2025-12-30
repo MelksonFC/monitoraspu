@@ -4,6 +4,25 @@
   --chart-mono-*: Usado quando o usuário seleciona "Monocromático".
 */
 
+:root {
+  /* Cor universal para o status "Vencido". Sempre vermelha. */
+  --color-status-vencido: hsl(0, 90%, 55%);
+}
+
+/* Cor para "Nunca Fiscalizado" em TEMAS CLAROS */
+[data-theme="theme-blue"],
+[data-theme="theme-green"],
+[data-theme="theme-orange"],
+[data-theme="theme-volcano"] {
+  --color-status-nunca: hsl(220, 10%, 55%); /* Um cinza médio/azulado */
+}
+
+/* Cor para "Nunca Fiscalizado" em TEMAS ESCUROS */
+[data-theme="theme-forest"],
+[data-theme="theme-dark"] {
+  --color-status-nunca: hsl(220, 10%, 70%); /* Um cinza mais claro para contraste */
+}
+
 /* ======================================== */
 /*            TEMA AZUL (PADRÃO)            */
 /* ======================================== */
