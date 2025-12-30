@@ -13,16 +13,42 @@ import { useAuth } from "../AuthContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const themes = [
-    { name: "theme-blue", label: "Azul (Padrão)", color: "#007bff" },
-    { name: "theme-green", label: "Verde Clássico", color: "#28a745" },
-    { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14" },
-    { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946" },
-    { name: "theme-dark-forest", label: "Dark Forest (Escuro)", color: "#3A8E5A" },
-    { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40" },
+    { name: "theme-blue", label: "Azul (Padrão)", color: "#007bff", isDark: false },
+    { name: "theme-green", label: "Verde Clássico", color: "#28a745", isDark: false },
+    { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14", isDark: false },
+    { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946", isDark: false },
+    { name: "theme-dark-forest", label: "Dark Forest (Escuro)", color: "#3A8E5A", isDark: true },
+    { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40", isDark: true },
 ];
+
 
 const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
+};
+
+const ThemePaletteSwatch = ({ theme }: { theme: typeof themes[0] }) => {
+    // Define qual paleta usar com base na propriedade `isDark`
+    const palettePrefix = theme.isDark ? '--chart-color-' : '--chart-mono-';
+    
+    // Cria um array para gerar as 5 cores com o intervalo de 3
+    const colorIndices = Array.from({ length: 5 }, (_, i) => 1 + (i * 3)); // Gera [1, 4, 7, 10, 13]
+
+    return (
+        <div className="flex h-4 w-full overflow-hidden rounded-full">
+            {colorIndices.map(index => (
+                <div
+                    key={`${theme.name}-${index}`}
+                    className="flex-1"
+                    // Aplica a cor dinamicamente, "enganando" o CSS para usar a paleta correta
+                    // antes mesmo de o tema ser totalmente aplicado no DOM.
+                    style={{ 
+                        backgroundColor: `hsl(var(${palettePrefix}${index}, var(--primary)))` 
+                    }}
+                    data-theme={theme.name} // Garante que as variáveis CSS do tema certo sejam usadas
+                />
+            ))}
+        </div>
+    );
 };
 
 // Centraliza a lógica de criação de chaves para evitar inconsistências.
@@ -418,7 +444,18 @@ export default function ShadcnDashboard() {
                                 <label className="text-sm font-medium text-muted-foreground">Tema Visual</label>
                                 <Select value={selectedTheme} onValueChange={handleThemeSelectionChange}>
                                     <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
-                                    <SelectContent>{themes.map((theme) => (<SelectItem key={theme.name} value={theme.name}><div className="flex items-center gap-2"><span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.color }} />{theme.label}</div></SelectItem>))}</SelectContent>
+                                    <SelectContent>
+                                        {themes.map((theme) => (
+                                            <SelectItem key={theme.name} value={theme.name}>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10"> {/* Container para a paleta */}
+                                                        <ThemePaletteSwatch theme={theme} />
+                                                    </div>
+                                                    {theme.label}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
                                 </Select>
                             </div>
                             {/* [NOVO] Seletor de Esquema de Cores do Gráfico */}
