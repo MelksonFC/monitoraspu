@@ -6,21 +6,7 @@
 
 :root {
   /* Cor universal para o status "Vencido". Sempre vermelha. */
-  --color-status-vencido: hsl(0, 90%, 55%);
-}
-
-/* Cor para "Nunca Fiscalizado" em TEMAS CLAROS */
-[data-theme="theme-blue"],
-[data-theme="theme-green"],
-[data-theme="theme-orange"],
-[data-theme="theme-volcano"] {
-  --color-status-nunca: hsl(220, 10%, 55%); /* Um cinza médio/azulado */
-}
-
-/* Cor para "Nunca Fiscalizado" em TEMAS ESCUROS */
-[data-theme="theme-forest"],
-[data-theme="theme-dark"] {
-  --color-status-nunca: hsl(220, 10%, 70%); /* Um cinza mais claro para contraste */
+  --color-status-vencido: 0, 90%, 55%;
 }
 
 /* ======================================== */
@@ -40,6 +26,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(217, 91%, 55%), hsl(220, 80%, 70%));
   --card-gradient-foreground: hsl(210, 40%, 98%); /* Branco */
+  --color-status-nunca: 220, 10%, 55%; 
 
   /* -----------------------------------------------------------
      GRUPO 1: MONOCROMÁTICO (20 Cores)
@@ -114,6 +101,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(145, 63%, 42%), hsl(150, 50%, 60%));
   --card-gradient-foreground: hsl(145, 60%, 98%); /* Branco */
+  --color-status-nunca: 220, 10%, 55%; 
 
 /* Colorido: Paleta Natural e Terrosa Expandida */
   --chart-color-1: 52 54% 20%;  --chart-color-2: 95 31% 20%;
@@ -156,6 +144,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(28, 98%, 53%), hsl(45, 100%, 51%));
   --card-gradient-foreground: hsl(28, 98%, 10%); /* Quase Preto para legibilidade */
+  --color-status-nunca:220, 10%, 55%; 
 
   /* Colorido: Paleta Powerful Expandida */
   --chart-color-1: 46 100% 51%;  --chart-color-2: 30 90% 50%;
@@ -197,6 +186,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(223, 15%, 45%), hsl(229, 25%, 28%));
   --card-gradient-foreground: hsl(225, 30%, 90%); /* Branco pálido */
+  --color-status-nunca:220, 10%, 55%; 
 
   /* Colorido: Quente e Contrastante */
   --chart-color-1: 356 79% 56%;  --chart-color-2: 33 89% 63%;
@@ -241,6 +231,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(168, 45%, 25%), hsl(175, 50%, 8%));
   --card-gradient-foreground: hsl(168, 20% 95%); /* Branco pálido */
+  --color-status-nunca: 220, 10%, 70%;
 
   /* Opção "Colorido": Inspirado na paleta superior da imagem (1 a 20) */
   --chart-color-1: 184 75% 15%;    /* #083D45 (Teal Profundo) */
@@ -273,7 +264,7 @@
 }
 
 /* --- TEMA DARK MOUNTAIN (Referência Imagem 9) --- */
-[data-theme="theme-darkmountain"] { /* Reatribuído ao 'Escuro' */
+[data-theme="theme-dark-mountain"] { /* Reatribuído ao 'Escuro' */
  --background: 226 34% 4%;        /* Azul noite profundo */
   --foreground: 226 20% 90%;
   --card: 226 34% 7%;              /* Azul montanha escuro */
@@ -290,6 +281,7 @@
   );
   
   --card-gradient-foreground: hsl(226, 20%, 98%);
+  --color-status-nunca: 220, 10%, 70%;
 
   /* Opção "Colorido": Cores da montanha e do céu (1 a 20) */
   --chart-color-1: 226 25% 28%;    /* #373E57 (Azul Montanha) */
