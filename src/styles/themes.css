@@ -175,42 +175,65 @@
 /*           TEMA VULCÃO ATIVO              */
 /* ======================================== */
 [data-theme="theme-volcano"] {
-  --background: 25 50% 97%;
-  --foreground: 15 80% 15%;
-  --card: 15 50% 98%;
-  --card-foreground: 15 80% 15%;
-  --primary: 356 79% 56%;
-  --primary-foreground: 356 70% 98%;
-  --border: 15 30% 90%;
-  --ring: 356 79% 56%;
+  /* Cores de Interface: Rocha e Magma */
+  --background: 15 15% 5%;          /* Preto vulcânico profundo */
+  --foreground: 20 40% 98%;          /* Branco levemente quente (cinza claro) */
+  --card: 15 12% 8%;                 /* Cinza basalto */
+  --card-foreground: 20 40% 98%;
+  --primary: 25 100% 50%;            /* Laranja magma intenso */
+  --primary-foreground: 0 0% 100%;
+  --border: 15 10% 20%;              /* Borda de pedra escura */
+  --ring: 15 100% 60%;               /* Brilho incandescente */
 
-  --card-gradient: linear-gradient(to bottom right, hsl(223, 15%, 45%), hsl(229, 25%, 28%));
-  --card-gradient-foreground: hsl(225, 30%, 90%); /* Branco pálido */
-  --color-status-nunca:220, 10%, 55%; 
+  --card-gradient: linear-gradient(135deg, hsl(15, 15%, 10%), hsl(0, 40%, 15%));
+  --card-gradient-foreground: hsl(30, 100%, 70%);
+  --color-status-nunca: 0 0% 30%;    /* Cinza de cinzas paradas */
 
-  /* Colorido: Quente e Contrastante */
-  --chart-color-1: 356 79% 56%;  --chart-color-2: 33 89% 63%;
-  --chart-color-3: 45 80% 63%;   --chart-color-4: 220 70% 60%;
-  --chart-color-5: 172 61% 39%;  --chart-color-6: 300 50% 55%;
-  --chart-color-7: 10 90% 45%;   --chart-color-8: 260 70% 40%;
-  --chart-color-9: 190 80% 40%;  --chart-color-10: 140 60% 45%;
-  --chart-color-11: 340 80% 50%; --chart-color-12: 25 100% 50%;
-  --chart-color-13: 210 80% 30%; --chart-color-14: 280 40% 70%;
-  --chart-color-15: 50 100% 75%; --chart-color-16: 356 60% 80%;
-  --chart-color-17: 20 80% 85%;  --chart-color-18: 180 40% 85%;
-  --chart-color-19: 230 40% 90%; --chart-color-20: 15 100% 95%;
+  /* COLORIDO: Gradiente de Incandescência e Elementos Químicos (Enxofre, Obsidiana) */
+  /* Sequência: Amarelo Sol -> Laranja Queimado -> Vermelho Sangue -> Roxo Obsidiana -> Cinzas */
+  --chart-color-1: 45 100% 58%;   /* Amarelo Brilhante (Pico de calor) */
+  --chart-color-2: 35 100% 52%;   /* Laranja Vivo */
+  --chart-color-3: 25 100% 50%;   /* Laranja Vulcânico */
+  --chart-color-4: 15 100% 45%;   /* Laranja-avermelhado */
+  --chart-color-5: 5 90% 45%;     /* Vermelho Magma */
+  --chart-color-6: 0 85% 35%;     /* Vermelho Escuro */
+  --chart-color-7: 350 70% 25%;   /* Vinho Profundo */
+  --chart-color-8: 340 60% 18%;   /* Rocha em Fusão */
+  --chart-color-9: 48 95% 45%;    /* Amarelo Enxofre */
+  --chart-color-10: 200 10% 40%;  /* Cinza Fumaça */
+  --chart-color-11: 30 90% 60%;   /* Laranja Neon */
+  --chart-color-12: 10 100% 65%;  /* Coral Quente */
+  --chart-color-13: 280 20% 30%;  /* Obsidiana Roxa */
+  --chart-color-14: 210 15% 20%;  /* Azul Cinzento (Frio) */
+  --chart-color-15: 45 80% 80%;   /* Amarelo Pálido (Cinza quente) */
+  --chart-color-16: 15 50% 50%;   /* Terracota */
+  --chart-color-17: 0 0% 15%;     /* Basalto Negro */
+  --chart-color-18: 25 30% 30%;   /* Rocha Marrom */
+  --chart-color-19: 50 100% 70%;  /* Brilho de Superfície */
+  --chart-color-20: 10 80% 85%;   /* Rosado de Calor */
 
-  /* Monocromático: Tons de Vermelho/Vinho */
-  --chart-mono-1: 339 100% 12%; --chart-mono-2: 339 100% 19%;
-  --chart-mono-3: 339 80% 25%;  --chart-mono-4: 339 70% 32%;
-  --chart-mono-5: 339 60% 40%;  --chart-mono-6: 339 53% 47%;
-  --chart-mono-7: 339 45% 54%;  --chart-mono-8: 339 40% 60%;
-  --chart-mono-9: 339 50% 68%;  --chart-mono-10: 339 60% 75%;
-  --chart-mono-11: 345 70% 80%; --chart-mono-12: 345 75% 84%;
-  --chart-mono-13: 350 80% 88%; --chart-mono-14: 350 85% 91%;
-  --chart-mono-15: 356 90% 93%; --chart-mono-16: 0 100% 95%;
-  --chart-mono-17: 5 100% 96%;   --chart-mono-18: 10 100% 97%;
-  --chart-mono-19: 15 100% 98%;  --chart-mono-20: 20 100% 99%;
+  /* MONOCROMÁTICO: Escala Térmica (Do Amarelo Incandescente ao Preto Resfriado) */
+  /* Seguindo a lógica da imagem: o ponto mais quente é quase branco/amarelo */
+  --chart-mono-1: 50 100% 70%;   /* 1. Amarelo Alvo (Mais quente) */
+  --chart-mono-2: 45 100% 60%;   /* 2 */
+  --chart-mono-3: 40 100% 55%;   /* 3 */
+  --chart-mono-4: 35 100% 52%;   /* 4 */
+  --chart-mono-5: 30 100% 50%;   /* 5. Laranja Puro */
+  --chart-mono-6: 25 100% 48%;   /* 6 */
+  --chart-mono-7: 20 100% 45%;   /* 7 */
+  --chart-mono-8: 15 100% 42%;   /* 8. Vermelho Alaranjado */
+  --chart-mono-9: 10 90% 40%;    /* 9 */
+  --chart-mono-10: 5 85% 35%;    /* 10. Vermelho Fogo */
+  --chart-mono-11: 0 80% 30%;    /* 11 */
+  --chart-mono-12: 0 75% 25%;    /* 12. Vermelho Sangue */
+  --chart-mono-13: 355 70% 20%;  /* 13 */
+  --chart-mono-14: 350 65% 15%;  /* 14. Vinho */
+  --chart-mono-15: 345 60% 12%;  /* 15. Quase Preto */
+  --chart-mono-16: 15 20% 15%;   /* 16. Cinza Basalto Escuro */
+  --chart-mono-17: 15 15% 12%;   /* 17 */
+  --chart-mono-18: 15 10% 10%;   /* 18. Cinza de Resfriamento */
+  --chart-mono-19: 15 5% 8%;     /* 19 */
+  --chart-mono-20: 0 0% 5%;      /* 20. Obsidiana (Frio) */
 }
 
 
