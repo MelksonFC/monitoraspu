@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, Sector, XAxis, YAxis, LabelList, Label as RechartsLabel } from 'recharts';
+import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, Sector, XAxis, YAxis, LabelList, Label as RechartsLabel, Cell } from 'recharts';
 import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '../types';
-
-// ÍCONES para os cards de KPI
 import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette } from 'lucide-react';
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,7 +12,6 @@ import { useAuth } from "../AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// --- TEMAS DISPONÍVEIS ---
 const themes = [
     { name: "theme-blue", label: "Padrão (Azul)", color: "#007bff" },
     { name: "theme-green", label: "Verde Clássico", color: "#28a745" },
@@ -27,30 +23,23 @@ const themes = [
     { name: "theme-neon", label: "Energia Neon", color: "#F94144" },
 ];
 
-// --- FUNÇÕES UTILITÁRIAS ---
-// Função para aplicar o tema ao elemento raiz do documento
 const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
 };
 
-// --- Função para gerar configuração de gráfico dinâmica ---
 const generateChartConfig = (data: { name: string }[]): ChartConfig => {
     const config: ChartConfig = {};
     data.forEach((item, index) => {
-        // Gera uma chave amigável para CSS (ex: 'vago-para-uso')
         const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         config[key] = {
             label: item.name,
-            // Usa a paleta de cores do tema de forma cíclica
             color: `hsl(var(--chart-${(index % 6) + 1}))`,
         };
     });
     return config;
 };
 
-const formatFullNumber = (num: number): string => {
-    return num.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
-};
+const formatFullNumber = (num: number): string => num.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 
 const formatCompactNumber = (num: number, options: { style?: 'currency', currency?: string } = {}) => {
     if (isNaN(num)) return '0';
@@ -67,52 +56,36 @@ const formatArea = (areaInM2: number) => {
     return { value: areaInM2.toLocaleString('pt-BR'), unit: 'm²' };
 };
 
-// Função para calcular intervalo de datas a partir do filtro
 function getDateRangeFromTimeRange(range: string) {
     const now = new Date();
     let start = new Date(now);
     if (range.endsWith("m")) {
-        const months = parseInt(range.replace("m", ""), 10);
-        start.setMonth(now.getMonth() - months);
+        start.setMonth(now.getMonth() - parseInt(range.replace("m", ""), 10));
     } else if (range.endsWith("d")) {
-        const days = parseInt(range.replace("d", ""), 10);
-        start.setDate(now.getDate() - days);
+        start.setDate(now.getDate() - parseInt(range.replace("d", ""), 10));
     }
     return { start, end: now };
 }
 
-// Função para agrupar por mês
 function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscalizacao[], timeRange: string) {
     const { start, end } = getDateRangeFromTimeRange(timeRange);
     const monthlyMap: Record<string, { avaliacoes: number, fiscalizacoes: number }> = {};
-
-    for (const item of avaliacoes) {
-        if (!item.dataavaliacao) continue;
-        const date = new Date(item.dataavaliacao);
-        if (date < start || date > end) continue;
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyMap[key]) monthlyMap[key] = { avaliacoes: 0, fiscalizacoes: 0 };
-        monthlyMap[key].avaliacoes += 1;
-    }
-    for (const item of fiscalizacoes) {
-        if (!item.datafiscalizacao) continue;
-        const date = new Date(item.datafiscalizacao);
-        if (date < start || date > end) continue;
-        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        if (!monthlyMap[key]) monthlyMap[key] = { avaliacoes: 0, fiscalizacoes: 0 };
-        monthlyMap[key].fiscalizacoes += 1;
-    }
-    return Object.entries(monthlyMap)
-        .map(([key, values]) => ({
-            month: key,
-            ...values
-        }))
-        .sort((a, b) => new Date(a.month + '-01').getTime() - new Date(b.month + '-01').getTime());
+    const processItems = (items: any[], type: 'avaliacoes' | 'fiscalizacoes', dateField: string) => {
+        for (const item of items) {
+            if (!item[dateField]) continue;
+            const date = new Date(item[dateField]);
+            if (date < start || date > end) continue;
+            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            if (!monthlyMap[key]) monthlyMap[key] = { avaliacoes: 0, fiscalizacoes: 0 };
+            monthlyMap[key][type] += 1;
+        }
+    };
+    processItems(avaliacoes, 'avaliacoes', 'dataavaliacao');
+    processItems(fiscalizacoes, 'fiscalizacoes', 'datafiscalizacao');
+    return Object.entries(monthlyMap).map(([key, values]) => ({ month: key, ...values })).sort((a, b) => new Date(a.month + '-01').getTime() - new Date(b.month + '-01').getTime());
 }
 
-// --- DASHBOARD ---
 export default function ShadcnDashboard() {
-    // Hooks de Estado
     const { usuario } = useAuth();
     const [imoveis, setImoveis] = useState<Imovel[]>([]);
     const [municipios, setMunicipios] = useState<any[]>([]);
@@ -123,52 +96,32 @@ export default function ShadcnDashboard() {
     const [error, setError] = useState<string | null>(null);
     const [activeRegime, setActiveRegime] = useState<string>("");
     const [timeRange, setTimeRange] = useState("24m");
-
-    // Drill Down
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [drillImoveis, setDrillImoveis] = useState<Imovel[]>([]);
     const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
     const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
-
-    // Estados para o menu de temas
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-    const [currentTheme, setCurrentTheme] = useState("theme-blue"); // Tema ativo na UI
-    const [selectedTheme, setSelectedTheme] = useState("theme-blue"); // Tema selecionado no dropdown
+    const [currentTheme, setCurrentTheme] = useState("theme-blue");
+    const [selectedTheme, setSelectedTheme] = useState("theme-blue");
 
-    // Abre o menu e sincroniza a seleção
-    const openThemeMenu = () => {
-        setSelectedTheme(currentTheme); // Garante que o dropdown mostre o tema ativo
-        setIsThemeMenuOpen(true);
-    };
-
-    // Apenas atualiza o valor do dropdown
-    const handleThemeSelectionChange = (newThemeName: string) => {
-        setSelectedTheme(newThemeName);
-    };
-
-    // Aplica o tema selecionado
+    const openThemeMenu = () => { setSelectedTheme(currentTheme); setIsThemeMenuOpen(true); };
+    const handleThemeSelectionChange = (newThemeName: string) => setSelectedTheme(newThemeName);
     const handleApplyTheme = async () => {
         if (!usuario?.id || selectedTheme === currentTheme) return;
-
         applyTheme(selectedTheme);
         setCurrentTheme(selectedTheme);
-        setIsThemeMenuOpen(false); // Fecha o menu ao aplicar
-
+        setIsThemeMenuOpen(false);
         try {
             await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, { themepreference: selectedTheme });
-        } catch (error) {
-            console.error("Falha ao salvar preferência de tema:", error);
-            // Opcional: Reverter para o tema anterior em caso de erro
+        } catch (err) {
+            console.error("Falha ao salvar preferência de tema:", err);
             applyTheme(currentTheme);
             setCurrentTheme(currentTheme);
         }
     };
 
     useEffect(() => {
-        if (!usuario?.id) {
-            setLoading(false);
-            return;
-        }
+        if (!usuario?.id) { setLoading(false); return; }
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -185,27 +138,26 @@ export default function ShadcnDashboard() {
                 setCurrentTheme(savedTheme);
                 setSelectedTheme(savedTheme);
                 applyTheme(savedTheme);
-                
+
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
-                const regimesData = Array.isArray(regimesRes.data) ? regimesRes.data : [];
                 setImoveis(imoveisData);
                 setMunicipios(Array.isArray(municipiosRes.data) ? municipiosRes.data : []);
-                setRegimes(regimesData);
+                setRegimes(Array.isArray(regimesRes.data) ? regimesRes.data : []);
                 setFiscalizacoes(Array.isArray(fiscalizacoesRes.data) ? fiscalizacoesRes.data : []);
                 setAcaliacoes(Array.isArray(avaliacoesRes.data) ? avaliacoesRes.data : []);
-                
-                if (regimesData.length > 0 && imoveisData.length > 0) {
-                     const regimeMap = new Map(regimesData.map((r: any) => [r.id, r.descricao || r.nome]));
-                     const imoveisPorRegime = imoveisData.reduce<Record<string, number>>((acc, imovel) => {
-                        const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
+
+                if (imoveisData.length > 0) {
+                    const regimeMap = new Map((regimesRes.data as any[]).map(r => [r.id, r.descricao || r.nome]));
+                    const imoveisPorRegime = imoveisData.reduce<Record<string, number>>((acc, imovel) => {
+                        const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || 'Não especificado') : 'Não especificado';
                         acc[nomeRegime] = (acc[nomeRegime] || 0) + 1;
                         return acc;
                     }, {});
                     const sortedRegimes = Object.entries(imoveisPorRegime).sort((a, b) => b[1] - a[1]);
                     if (sortedRegimes.length > 0) setActiveRegime(sortedRegimes[0][0]);
                 }
-            } catch (e: unknown) {
-                setError(e instanceof Error ? `Falha ao buscar dados: ${e.message}` : "Falha ao buscar dados para o dashboard. Erro desconhecido.");
+            } catch (e) {
+                setError(e instanceof Error ? `Falha ao buscar dados: ${e.message}` : "Erro desconhecido.");
                 console.error(e);
             } finally {
                 setLoading(false);
@@ -214,55 +166,94 @@ export default function ShadcnDashboard() {
         fetchData();
     }, [usuario?.id]);
 
-    // --- PROCESSAMENTO E CONFIGURAÇÃO DE DADOS (CÓDIGO EXISTENTE) ---
     const municipioMap = new Map(municipios.map((m: any) => [m.idmunicipio, m.nome]));
     const regimeMap = new Map(regimes.map((r: any) => [r.id, r.descricao || r.nome]));
-    const totalRipImoveis = new Set(imoveis.map((i: Imovel) => i.ripimovel).filter(Boolean)).size;
-    const totalRipUtilizacao = new Set(imoveis.map((i: Imovel) => i.riputilizacao).filter(Boolean)).size;
-    const totalAreaTerreno = imoveis.reduce((sum: number, i: Imovel) => sum + (parseFloat(i.areaterreno as any) || 0), 0);
-    const totalAreaConstruida = imoveis.reduce((sum: number, i: Imovel) => sum + (parseFloat(i.areaconstruida as any) || 0), 0);
-    const valorTotalImoveis = imoveis.reduce((sum: number, i: Imovel) => sum + (parseFloat(i.valorimovel as any) || 0), 0);
-    const formattedAreaConstruida = formatArea(totalAreaConstruida);
-    const formattedAreaTerreno = formatArea(totalAreaTerreno);
-    const totalSemEdificacao = imoveis.filter(i => !i.areaconstruida || Number(i.areaconstruida) === 0).length;
-    const mediaValorImoveis = imoveis.length > 0 ? (valorTotalImoveis / imoveis.length) : 0;
 
-    const imoveisPorMunicipio = imoveis.reduce<Record<string, number>>((acc, imovel: Imovel) => {
-        const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
-        acc[nomeMunicipio] = (acc[nomeMunicipio] || 0) + 1;
-        return acc;
-    }, {});
-    const dataMunicipio = Object.entries(imoveisPorMunicipio).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value);
+    // [INÍCIO DAS FUNÇÕES RESTAURADAS]
+    function getImoveisPorStatus(status: string): Imovel[] {
+        const hoje = new Date();
+        const prazoVencido = new Date(); prazoVencido.setFullYear(hoje.getFullYear() - 2);
+        const prazoAVencer = new Date(); prazoAVencer.setFullYear(hoje.getFullYear() - 2); prazoAVencer.setMonth(hoje.getMonth() + 6);
+        const ultimasFiscalizacoes = new Map<number, string>();
+        for (const fisc of fiscalizacoes) {
+            if (fisc.idimovel) {
+                const dataAtual = ultimasFiscalizacoes.get(fisc.idimovel);
+                if (!dataAtual || new Date(fisc.datafiscalizacao) > new Date(dataAtual)) ultimasFiscalizacoes.set(fisc.idimovel, fisc.datafiscalizacao);
+            }
+        }
+        return imoveis.filter(imovel => {
+            const ultimaFiscalizacao = imovel.idimovel ? ultimasFiscalizacoes.get(imovel.idimovel) : undefined;
+            if (status === "nuncaFiscalizado") return !ultimaFiscalizacao;
+            if (!ultimaFiscalizacao) return false;
+            const dataFiscalizacao = new Date(ultimaFiscalizacao);
+            if (status === "vencido") return dataFiscalizacao < prazoVencido;
+            if (status === "aVencer") return dataFiscalizacao < prazoAVencer && dataFiscalizacao >= prazoVencido;
+            if (status === "emDia") return dataFiscalizacao >= prazoAVencer;
+            return false;
+        });
+    }
+
+    function getImoveisPorMunicipio(municipioNome: string): Imovel[] {
+        return imoveis.filter(imovel => {
+            const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
+            return nomeMunicipio === municipioNome;
+        });
+    }
+
+    function getImoveisPorRegime(regimeNome: string): Imovel[] {
+        return imoveis.filter(imovel => {
+            const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
+            return nomeRegime === regimeNome;
+        });
+    }
+
+    function formatPieCenterText(text: string, maxLength: number = 16): string[] {
+        if (text.length <= maxLength) return [text];
+        const words = text.split(' ');
+        let line1 = "", line2 = "";
+        for (const word of words) {
+            if ((line1 + ' ' + word).trim().length <= maxLength) {
+                line1 += (line1 ? ' ' : '') + word;
+            } else {
+                line2 += (line2 ? ' ' : '') + word;
+            }
+        }
+        if (line2.length > maxLength) line2 = line2.slice(0, maxLength - 1) + '…';
+        return [line1, line2];
+    }
+    // [FIM DAS FUNÇÕES RESTAURADAS]
+
+    const dataMunicipio = React.useMemo(() => {
+        const imoveisPorMunicipio = imoveis.reduce<Record<string, number>>((acc, imovel) => {
+            const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
+            acc[nomeMunicipio] = (acc[nomeMunicipio] || 0) + 1;
+            return acc;
+        }, {});
+        return Object.entries(imoveisPorMunicipio).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    }, [imoveis, municipioMap]);
     
-    const chartConfigMunicipio: ChartConfig = {
-      value: { label: "Nº de Imóveis", color: "hsl(var(--chart-1))" },
-      ...generateChartConfig(dataMunicipio)
-    };
+    const chartConfigMunicipio: ChartConfig = { value: { label: "Nº de Imóveis", color: "hsl(var(--chart-1))" } };
 
-    const imoveisPorRegime = imoveis.reduce<Record<string, number>>((acc, imovel: Imovel) => {
-        const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
-        acc[nomeRegime] = (acc[nomeRegime] || 0) + 1;
-        return acc;
-    }, {});
+    const dataRegime = React.useMemo(() => {
+        const imoveisPorRegime = imoveis.reduce<Record<string, number>>((acc, imovel) => {
+            const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
+            acc[nomeRegime] = (acc[nomeRegime] || 0) + 1;
+            return acc;
+        }, {});
+        return Object.entries(imoveisPorRegime).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    }, [imoveis, regimeMap]);
 
-    const dataRegime = Object.entries(imoveisPorRegime).map(([name, value]) => ({ name, value, fill: `var(--color-${name.replace(/\s+/g, '-').toLowerCase()})` })).sort((a,b) => b.value - a.value);
-    const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0);
-    const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
-    
     const chartConfigRegime = generateChartConfig(dataRegime);
-
+    const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0); // Linha restaurada
     const activeIndexRegime = React.useMemo(() => dataRegime.findIndex((item) => item.name === activeRegime), [activeRegime, dataRegime]);
     const regimeNames = React.useMemo(() => dataRegime.map((item) => item.name), [dataRegime]);
-
+    const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
     const totalVago = dataRegime.find(r => r.name === 'Vago para Uso')?.value || 0;
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
     const totalDestinados = imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
     
-    const monthlyTimelineData = React.useMemo(() => {
-        return groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange);
-    }, [avaliacoes, fiscalizacoes, timeRange]);
-
-     const chartConfigTimeline: ChartConfig = {
+    const monthlyTimelineData = React.useMemo(() => groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange), [avaliacoes, fiscalizacoes, timeRange]);
+    const chartConfigTimeline: ChartConfig = {
       avaliacoes: { label: "Avaliações", color: "hsl(var(--chart-1))" },
       fiscalizacoes: { label: "Fiscalizações", color: "hsl(var(--chart-2))" },
     };
@@ -303,113 +294,39 @@ export default function ShadcnDashboard() {
         nuncaFiscalizado: { label: "Nunca Fiscalizado", color: "hsl(var(--muted))" },
     };
 
-    function getImoveisPorStatus(status: string): Imovel[] {
-        const hoje = new Date();
-        const prazoVencido = new Date(); prazoVencido.setFullYear(hoje.getFullYear() - 2);
-        const prazoAVencer = new Date(); prazoAVencer.setFullYear(hoje.getFullYear() - 2); prazoAVencer.setMonth(hoje.getMonth() + 6);
-
-        const ultimasFiscalizacoes = new Map<number, string>();
-        for (const fisc of fiscalizacoes) {
-            if (fisc.idimovel) {
-                const dataAtual = ultimasFiscalizacoes.get(fisc.idimovel);
-                if (!dataAtual || new Date(fisc.datafiscalizacao) > new Date(dataAtual)) ultimasFiscalizacoes.set(fisc.idimovel, fisc.datafiscalizacao);
-            }
-        }
-
-        return imoveis.filter(imovel => {
-            const ultimaFiscalizacao = imovel.idimovel ? ultimasFiscalizacoes.get(imovel.idimovel) : undefined;
-            if (status === "nuncaFiscalizado") {
-                return !ultimaFiscalizacao;
-            }
-            if (!ultimaFiscalizacao) return false;
-            const dataFiscalizacao = new Date(ultimaFiscalizacao);
-            if (status === "vencido") return dataFiscalizacao < prazoVencido;
-            if (status === "aVencer") return dataFiscalizacao < prazoAVencer && dataFiscalizacao >= prazoVencido;
-            if (status === "emDia") return dataFiscalizacao >= prazoAVencer;
-            return false;
-        });
-    }
-
-    function getImoveisPorMunicipio(municipioNome: string): Imovel[] {
-        return imoveis.filter(imovel => {
-            const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
-            return nomeMunicipio === municipioNome;
-        });
-    }
-
-    function getImoveisPorRegime(regimeNome: string): Imovel[] {
-        return imoveis.filter(imovel => {
-            const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
-            return nomeRegime === regimeNome;
-        });
-    }
-
-    function formatPieCenterText(text: string, maxLength: number = 16): string[] {
-        if (text.length <= maxLength) return [text];
-        const words = text.split(' ');
-        let line1 = "";
-        let line2 = "";
-        for (const word of words) {
-            if ((line1 + ' ' + word).length <= maxLength) {
-                line1 += (line1 ? ' ' : '') + word;
-            } else {
-                line2 += (line2 ? ' ' : '') + word;
-            }
-        }
-        if (line2.length > maxLength) {
-            line2 = line2.slice(0, maxLength - 1) + '…';
-        }
-        return [line1, line2];
-    }
-
     if (loading) return <div className="flex items-center justify-center h-screen"><p>Carregando dados...</p></div>;
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
     if (!usuario) return <div className="flex items-center justify-center h-screen"><p>Por favor, faça login para acessar o dashboard.</p></div>;
+
+    const totalRipImoveis = new Set(imoveis.map(i => i.ripimovel).filter(Boolean)).size;
+    const totalRipUtilizacao = new Set(imoveis.map(i => i.riputilizacao).filter(Boolean)).size;
+    const totalAreaTerreno = imoveis.reduce((s, i) => s + Number(i.areaterreno || 0), 0);
+    const totalAreaConstruida = imoveis.reduce((s, i) => s + Number(i.areaconstruida || 0), 0);
+    const valorTotalImoveis = imoveis.reduce((s, i) => s + Number(i.valorimovel || 0), 0);
+    const totalSemEdificacao = imoveis.filter(i => !i.areaconstruida || Number(i.areaconstruida) === 0).length;
+    const mediaValorImoveis = imoveis.length > 0 ? (valorTotalImoveis / imoveis.length) : 0;
+    const formattedAreaTerreno = formatArea(totalAreaTerreno);
+    const formattedAreaConstruida = formatArea(totalAreaConstruida);
 
     return (
         <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative">
             {/* --- MENU DE PERSONALIZAÇÃO DE TEMA (ATUALIZADO) --- */}
             <div className="absolute top-4 right-4 z-50">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={isThemeMenuOpen ? () => setIsThemeMenuOpen(false) : openThemeMenu}
-                    aria-label="Personalizar Tema"
-                >
+                <Button variant="outline" size="icon" onClick={isThemeMenuOpen ? () => setIsThemeMenuOpen(false) : openThemeMenu} aria-label="Personalizar Tema">
                     <Settings className="h-5 w-5" />
                 </Button>
                 {isThemeMenuOpen && (
                     <div className="absolute top-14 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Palette className="h-5 w-5 text-muted-foreground" />
-                            <h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3>
-                        </div>
+                        <div className="flex items-center gap-3 mb-4"><Palette className="h-5 w-5 text-muted-foreground" /><h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3></div>
                         <div className="space-y-4">
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Tema</label>
                                 <Select value={selectedTheme} onValueChange={handleThemeSelectionChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Selecione um tema" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {themes.map((theme) => (
-                                            <SelectItem key={theme.name} value={theme.name}>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.color }} />
-                                                    {theme.label}
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
+                                    <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
+                                    <SelectContent>{themes.map((theme) => (<SelectItem key={theme.name} value={theme.name}><div className="flex items-center gap-2"><span className="h-4 w-4 rounded-full" style={{ backgroundColor: theme.color }} />{theme.label}</div></SelectItem>))}</SelectContent>
                                 </Select>
                             </div>
-                            <Button
-                                onClick={handleApplyTheme}
-                                disabled={selectedTheme === currentTheme}
-                                className="w-full"
-                            >
-                                Aplicar
-                            </Button>
+                            <Button onClick={handleApplyTheme} disabled={selectedTheme === currentTheme} className="w-full">Aplicar</Button>
                         </div>
                     </div>
                 )}
@@ -491,107 +408,43 @@ export default function ShadcnDashboard() {
             <div className="grid gap-1 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
                     <CardHeader><CardTitle>Imóveis por Município</CardTitle></CardHeader>
-                    <CardContent>
-                        <ChartContainer 
-                            config={chartConfigMunicipio} 
-                            className="w-full" 
-                            style={{ maxHeight: "460px", overflowY: "auto" }}
-                        >
-                            <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}>
-                                <CartesianGrid horizontal={false} />
-                                <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
-                                <XAxis dataKey="value" type="number" hide />
-                                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} />
-                                <Bar dataKey="value" fill="var(--color-value)" radius={4}
-                                    onClick={(_data, index) => {
-                                        const municipio = dataMunicipio[index].name;
-                                        setSelectedMunicipio(municipio);
-                                        setDrillImoveis(getImoveisPorMunicipio(municipio));
-                                    }}
-                                >
-                                    <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
-                                    <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} />
-                                </Bar>
-                            </BarChart>
-                        </ChartContainer>
-                    </CardContent>
+                    <CardContent><ChartContainer config={chartConfigMunicipio} className="w-full" style={{ maxHeight: "460px", overflowY: "auto" }}><BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}><CartesianGrid horizontal={false} /><YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide /><XAxis dataKey="value" type="number" hide /><ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} /><Bar dataKey="value" fill="var(--color-value)" radius={4} onClick={(_data, index) => { const municipio = dataMunicipio[index].name; setSelectedMunicipio(municipio); setDrillImoveis(getImoveisPorMunicipio(municipio)); }}><LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} /><LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} /></Bar></BarChart></ChartContainer></CardContent>
                 </Card>
                 
                 <Card className="md:col-span-3 flex flex-col">
-                    <CardHeader className="flex-row items-start space-y-0 pb-0">
-                        <div className="grid gap-1">
-                            <CardTitle>Distribuição por Regime</CardTitle>
-                            <CardDescription>Percentual de imóveis por regime</CardDescription>
-                        </div>
-                        <Select value={activeRegime} onValueChange={setActiveRegime}>
-                            <SelectTrigger className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" aria-label="Selecione o Regime"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                            <SelectContent align="end" className="rounded-xl">
-                                {regimeNames.map((key) => {
-                                    const configKey = key.replace(/\s+/g, '-').toLowerCase();
-                                    const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime];
-                                    if (!config) return null;
-                                    return (<SelectItem key={key} value={key} className="rounded-lg [&_span]:flex"><div className="flex items-center gap-2 text-xs"><span className="flex h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: config.color }} />{config?.label}</div></SelectItem>)
-                                })}
-                            </SelectContent>
-                        </Select>
-                    </CardHeader>
+                    <CardHeader className="flex-row items-start space-y-0 pb-0"><div className="grid gap-1"><CardTitle>Distribuição por Regime</CardTitle><CardDescription>Percentual de imóveis por regime</CardDescription></div><Select value={activeRegime} onValueChange={setActiveRegime}><SelectTrigger className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" aria-label="Selecione o Regime"><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent align="end" className="rounded-xl">{regimeNames.map((key) => { const configKey = key.replace(/\s+/g, '-').toLowerCase(); const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime]; if (!config) return null; return (<SelectItem key={key} value={key} className="rounded-lg [&_span]:flex"><div className="flex items-center gap-2 text-xs"><span className="flex h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: config.color }} />{config?.label}</div></SelectItem>)})}</SelectContent></Select></CardHeader>
                     <CardContent className="flex flex-1 justify-center pb-0">
                         <ChartContainer config={chartConfigRegime} className="mx-auto aspect-square w-full max-w-[300px] min-h-24">
                             <PieChart>
                                 <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                <Pie data={dataRegime} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} activeIndex={activeIndexRegime}
-                                    activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (<g><Sector {...props} outerRadius={outerRadius + 10} /><Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
+                                <Pie data={dataRegime} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5} activeIndex={activeIndexRegime} activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (<g><Sector {...props} outerRadius={outerRadius + 10} /><Sector {...props} outerRadius={outerRadius + 25} innerRadius={outerRadius + 12} /></g>)}>
+                                    {dataRegime.map((entry) => {
+                                        const key = entry.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                                        return <Cell key={`cell-${key}`} fill={chartConfigRegime[key]?.color} />;
+                                    })}
                                     <RechartsLabel
-                                    content={({ viewBox }) => {
-                                        if (!viewBox || typeof (viewBox as any).cx !== "number" || typeof (viewBox as any).cy !== "number") return null;
-                                        const cx = (viewBox as any).cx;
-                                        const cy = (viewBox as any).cy;
-                                        const activeData = dataRegime[activeIndexRegime];
-                                        const percentage = totalImoveisRegime > 0 && activeData ? (activeData.value / totalImoveisRegime) * 100 : 0;
-                                        const lines = formatPieCenterText(activeRegime, 16);
-
-                                        return (
-                                        <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
-                                            <tspan x={cx} y={cy - 12} className="fill-foreground text-3xl font-bold">{percentage.toFixed(1)}%</tspan>
-                                            {lines.map((line, idx) => (
-                                            <tspan key={idx} x={cx} y={cy + idx * 18 + 10} className="fill-muted-foreground" fontSize={12}>
-                                                {line}
-                                            </tspan>
-                                            ))}
-                                        </text>
-                                        );
-                                    }}
+                                        content={({ viewBox }) => {
+                                            if (!viewBox || typeof (viewBox as any).cx !== "number") return null;
+                                            const { cx, cy } = viewBox as any;
+                                            const activeData = dataRegime[activeIndexRegime];
+                                            const percentage = totalImoveisRegime > 0 && activeData ? (activeData.value / totalImoveisRegime) * 100 : 0;
+                                            const lines = formatPieCenterText(activeRegime, 16);
+                                            return (
+                                                <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                                                    <tspan x={cx} y={cy - 12} className="fill-foreground text-3xl font-bold">{percentage.toFixed(1)}%</tspan>
+                                                    {lines.map((line, idx) => (<tspan key={idx} x={cx} y={cy + idx * 18 + 10} className="fill-muted-foreground" fontSize={12}>{line}</tspan>))}
+                                                </text>
+                                            );
+                                        }}
                                     />
                                 </Pie>
                             </PieChart>
                         </ChartContainer>
                     </CardContent>
                     <div className="grid grid-cols-3 md:gap-8 md:p-8">
-                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
-                          setSelectedRegimeCard('Vago para Uso');
-                          setDrillImoveis(getImoveisPorRegime('Vago para Uso'));
-                        }}>
-                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Vago para Uso</CardTitle></CardHeader>
-                            <CardContent><p className="text-2xl font-bold">{totalVago}</p></CardContent>
-                        </Card>
-                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
-                          setSelectedRegimeCard('Em Regularização');
-                          setDrillImoveis(getImoveisPorRegime('Em Regularização'));
-                        }}>
-                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Em Regularização</CardTitle></CardHeader>
-                            <CardContent><p className="text-2xl font-bold">{totalEmRegularizacao}</p></CardContent>
-                        </Card>
-                        <Card className="bg-gradient-to-br from-[hsl(var(--gray-dark))] to-[hsl(var(--gray-light))] text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => {
-                        setSelectedRegimeCard('Destinados');
-                        setDrillImoveis(imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)));
-                        }}>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium">Destinados</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-2xl font-bold">{totalDestinados}</p>
-                            </CardContent>
-                        </Card>
+                        <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Vago para Uso'); setDrillImoveis(getImoveisPorRegime('Vago para Uso')); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Vago para Uso</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalVago}</p></CardContent></Card>
+                        <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Em Regularização'); setDrillImoveis(getImoveisPorRegime('Em Regularização')); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Em Regularização</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalEmRegularizacao}</p></CardContent></Card>
+                        <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Destinados'); setDrillImoveis(imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao))); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Destinados</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalDestinados}</p></CardContent></Card>
                     </div>
                 </Card>
             </div>
