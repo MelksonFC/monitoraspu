@@ -13,9 +13,14 @@
   --foreground: 222 47% 11%;
   --card: 222 47% 98%;          /* Branco com um toque de azul */
   --card-foreground: 222 60% 5%; /* Azul quase preto para contraste */
+  --border: 217 30% 90%;
+  --ring: 217 91% 60%;
   
   --primary: 217 91% 60%;
   --primary-foreground: 210 40% 98%;
+
+  --card-gradient: linear-gradient(to bottom right, hsl(217, 91%, 55%), hsl(220, 80%, 70%));
+  --card-gradient-foreground: hsl(210, 40%, 98%); /* Branco */
 
   /* -----------------------------------------------------------
      GRUPO 1: MONOCROMÁTICO (20 Cores)
@@ -81,26 +86,39 @@
 [data-theme="theme-green"] {
   --background: 145 25% 97%;
   --foreground: 145 63% 12%;
-  --card: 0 0% 100%;
+  --card: 145 25% 98%;
   --card-foreground: 145 63% 12%;
   --primary: 145 63% 42%;
   --primary-foreground: 145 60% 98%;
+  --border: 145 20% 90%;
+  --ring: 145 63% 42%;
 
-  /* Opção "Colorido": Paleta natural e terrosa (Referência Imagem 7) */
-  --chart-color-1: 52 54% 20%;  /* Café Noir: #4C3D19 */
-  --chart-color-2: 95 31% 20%;  /* Kombu Green: #354024 */
-  --chart-color-3: 68 18% 55%;  /* Moss Green: #889063 */
-  --chart-color-4: 37 38% 70%;  /* Tan: #CFBB99 */
-  --chart-color-5: 43 38% 88%;  /* Bone: #E5D7C4 */
-  --chart-color-6: 145 63% 42%; /* Verde do Tema (para preencher) */
+  --card-gradient: linear-gradient(to bottom right, hsl(145, 63%, 42%), hsl(150, 50%, 60%));
+  --card-gradient-foreground: hsl(145, 60%, 98%); /* Branco */
 
-  /* Opção "Monocromático": Paleta de tons de verde (Referência Imagem 2) */
-  --chart-mono-1: 168 50% 11%; /* #0F2A1D */
-  --chart-mono-2: 114 24% 27%; /* #375534 */
-  --chart-mono-3: 130 15% 49%; /* #6B9071 */
-  --chart-mono-4: 125 15% 68%; /* #AEC3B0 */
-  --chart-mono-5: 75 42% 90%;  /* #E3EED4 */
-  --chart-mono-6: 100 20% 35%; /* Verde Musgo Escuro (para preencher) */
+/* Colorido: Paleta Natural e Terrosa Expandida */
+  --chart-color-1: 52 54% 20%;  --chart-color-2: 95 31% 20%;
+  --chart-color-3: 68 18% 55%;  --chart-color-4: 37 38% 70%;
+  --chart-color-5: 43 38% 88%;  --chart-color-6: 145 63% 42%;
+  --chart-color-7: 160 50% 30%; --chart-color-8: 30 40% 45%;
+  --chart-color-9: 200 40% 50%; --chart-color-10: 20 50% 60%;
+  --chart-color-11: 80 30% 35%; --chart-color-12: 120 40% 40%;
+  --chart-color-13: 40 60% 50%; --chart-color-14: 15 40% 70%;
+  --chart-color-15: 180 30% 65%; --chart-color-16: 60 40% 80%;
+  --chart-color-17: 140 30% 85%; --chart-color-18: 100 20% 90%;
+  --chart-color-19: 210 30% 80%; --chart-color-20: 340 30% 85%;
+
+  /* Monocromático: Tons de Verde */
+  --chart-mono-1: 168 50% 11%; --chart-mono-2: 168 50% 16%;
+  --chart-mono-3: 145 45% 22%; --chart-mono-4: 145 40% 28%;
+  --chart-mono-5: 130 35% 35%; --chart-mono-6: 130 30% 42%;
+  --chart-mono-7: 130 25% 48%; --chart-mono-8: 125 20% 54%;
+  --chart-mono-9: 125 18% 60%; --chart-mono-10: 125 15% 66%;
+  --chart-mono-11: 125 20% 72%; --chart-mono-12: 120 25% 76%;
+  --chart-mono-13: 115 30% 80%; --chart-mono-14: 110 35% 84%;
+  --chart-mono-15: 100 40% 88%; --chart-mono-16: 90 40% 90%;
+  --chart-mono-17: 85 45% 92%;  --chart-mono-18: 80 45% 94%;
+  --chart-mono-19: 75 48% 96%;  --chart-mono-20: 75 50% 98%;
 }
 
 /* ======================================== */
@@ -109,26 +127,40 @@
 [data-theme="theme-orange"] {
   --background: 28 40% 97%;
   --foreground: 28 98% 23%;
-  --card: 0 0% 100%;
+  --card: 28 40% 98%; /* Sutilmente alaranjado */
   --card-foreground: 28 98% 23%;
   --primary: 28 98% 53%;
   --primary-foreground: 28 80% 98%;
-
-  /* Opção "Colorido": Paleta "Powerful" (Referência Imagem 6) */
-  --chart-color-1: 46 100% 51%; /* #FFCA03 */
-  --chart-color-2: 30 90% 50%;  /* #F3950D */
-  --chart-color-3: 2 71% 50%;   /* #D91E18 */
-  --chart-color-4: 224 76% 23%; /* #0F2C67 */
-  --chart-color-5: 15 85% 55%;  /* Laranja Secundário */
-  --chart-color-6: 50 95% 60%;  /* Amarelo Secundário */
+  --border: 28 50% 90%;
+  --ring: 28 98% 53%;
   
-  /* Opção "Monocromático": Paleta de tons de laranja (Referência Imagem 3) */
-  --chart-mono-1: 26 100% 30%; /* #9b3c00 */
-  --chart-mono-2: 24 81% 38%;  /* #b6520f */
-  --chart-mono-3: 23 79% 47%;  /* #d2691e */
-  --chart-mono-4: 29 82% 62%;  /* #ea9247 */
-  --chart-mono-5: 33 100% 71%; /* #ffbb6e */
-  --chart-mono-6: 25 90% 55%;  /* Laranja Médio (para preencher) */
+
+  --card-gradient: linear-gradient(to bottom right, hsl(28, 98%, 53%), hsl(45, 100%, 51%));
+  --card-gradient-foreground: hsl(28, 98%, 10%); /* Quase Preto para legibilidade */
+
+  /* Colorido: Paleta Powerful Expandida */
+  --chart-color-1: 46 100% 51%;  --chart-color-2: 30 90% 50%;
+  --chart-color-3: 2 71% 50%;    --chart-color-4: 224 76% 23%;
+  --chart-color-5: 15 85% 55%;   --chart-color-6: 50 95% 60%;
+  --chart-color-7: 200 80% 45%;  --chart-color-8: 260 60% 55%;
+  --chart-color-9: 330 80% 60%;  --chart-color-10: 160 70% 40%;
+  --chart-color-11: 10 100% 30%; --chart-color-12: 40 100% 40%;
+  --chart-color-13: 220 60% 60%; --chart-color-14: 180 60% 50%;
+  --chart-color-15: 350 70% 70%; --chart-color-16: 60 80% 75%;
+  --chart-color-17: 20 90% 80%;  --chart-color-18: 280 50% 85%;
+  --chart-color-19: 190 60% 85%; --chart-color-20: 45 100% 90%;
+
+  /* Monocromático: Tons de Laranja */
+  --chart-mono-1: 26 100% 15%;  --chart-mono-2: 26 100% 22%;
+  --chart-mono-3: 26 100% 30%;  --chart-mono-4: 25 90% 35%;
+  --chart-mono-5: 25 85% 42%;   --chart-mono-6: 24 81% 48%;
+  --chart-mono-7: 24 80% 54%;   --chart-mono-8: 23 79% 60%;
+  --chart-mono-9: 25 80% 65%;   --chart-mono-10: 27 82% 70%;
+  --chart-mono-11: 29 85% 75%;  --chart-mono-12: 31 90% 80%;
+  --chart-mono-13: 33 95% 84%;  --chart-mono-14: 35 100% 88%;
+  --chart-mono-15: 37 100% 91%; --chart-mono-16: 39 100% 93%;
+  --chart-mono-17: 41 100% 95%; --chart-mono-18: 43 100% 96%;
+  --chart-mono-19: 45 100% 97%; --chart-mono-20: 47 100% 98%;
 }
 
 /* ======================================== */
@@ -137,26 +169,39 @@
 [data-theme="theme-volcano"] {
   --background: 25 50% 97%;
   --foreground: 15 80% 15%;
-  --card: 0 0% 100%;
+  --card: 15 50% 98%;
   --card-foreground: 15 80% 15%;
   --primary: 356 79% 56%;
   --primary-foreground: 356 70% 98%;
+  --border: 15 30% 90%;
+  --ring: 356 79% 56%;
 
-  /* Opção "Colorido": Paleta quente e contrastante */
-  --chart-color-1: 356 79% 56%; /* Vermelho Principal */
-  --chart-color-2: 33 89% 63%;  /* Laranja Areia */
-  --chart-color-3: 45 80% 63%;  /* Amarelo Mostarda */
-  --chart-color-4: 220 70% 60%; /* Azul Royal */
-  --chart-color-5: 172 61% 39%; /* Verde-azulado */
-  --chart-color-6: 300 50% 55%; /* Roxo */
-  
-  /* Opção "Monocromático": Paleta de tons de vermelho/rosa (Referência Imagem 4) */
-  --chart-mono-1: 339 100% 19%; /* #610027 */
-  --chart-mono-2: 339 53% 37%;  /* #912B48 */
-  --chart-mono-3: 339 37% 52%;  /* #B45A69 */
-  --chart-mono-4: 339 88% 90%;  /* #FCD0D9 */
-  --chart-mono-5: 345 60% 45%;  /* Vermelho Vinho (para preencher) */
-  --chart-mono-6: 342 50% 60%;  /* Rosa Queimado (para preencher) */
+  --card-gradient: linear-gradient(to bottom right, hsl(223, 15%, 45%), hsl(229, 25%, 28%));
+  --card-gradient-foreground: hsl(225, 30%, 90%); /* Branco pálido */
+
+  /* Colorido: Quente e Contrastante */
+  --chart-color-1: 356 79% 56%;  --chart-color-2: 33 89% 63%;
+  --chart-color-3: 45 80% 63%;   --chart-color-4: 220 70% 60%;
+  --chart-color-5: 172 61% 39%;  --chart-color-6: 300 50% 55%;
+  --chart-color-7: 10 90% 45%;   --chart-color-8: 260 70% 40%;
+  --chart-color-9: 190 80% 40%;  --chart-color-10: 140 60% 45%;
+  --chart-color-11: 340 80% 50%; --chart-color-12: 25 100% 50%;
+  --chart-color-13: 210 80% 30%; --chart-color-14: 280 40% 70%;
+  --chart-color-15: 50 100% 75%; --chart-color-16: 356 60% 80%;
+  --chart-color-17: 20 80% 85%;  --chart-color-18: 180 40% 85%;
+  --chart-color-19: 230 40% 90%; --chart-color-20: 15 100% 95%;
+
+  /* Monocromático: Tons de Vermelho/Vinho */
+  --chart-mono-1: 339 100% 12%; --chart-mono-2: 339 100% 19%;
+  --chart-mono-3: 339 80% 25%;  --chart-mono-4: 339 70% 32%;
+  --chart-mono-5: 339 60% 40%;  --chart-mono-6: 339 53% 47%;
+  --chart-mono-7: 339 45% 54%;  --chart-mono-8: 339 40% 60%;
+  --chart-mono-9: 339 50% 68%;  --chart-mono-10: 339 60% 75%;
+  --chart-mono-11: 345 70% 80%; --chart-mono-12: 345 75% 84%;
+  --chart-mono-13: 350 80% 88%; --chart-mono-14: 350 85% 91%;
+  --chart-mono-15: 356 90% 93%; --chart-mono-16: 0 100% 95%;
+  --chart-mono-17: 5 100% 96%;   --chart-mono-18: 10 100% 97%;
+  --chart-mono-19: 15 100% 98%;  --chart-mono-20: 20 100% 99%;
 }
 
 
@@ -164,54 +209,94 @@
 /*               TEMAS ESCUROS              */
 /* ======================================== */
 
-/* --- TEMA DARK MOUNTAIN (Referência Imagem 8) --- */
-[data-theme="theme-forest"] { /* Reatribuído ao 'Floresta' */
-  --background: 224 81% 5%; /* Fundo bem escuro */
-  --foreground: 225 30% 85%;
-  --card: 224 34% 10%;
-  --card-foreground: 225 30% 85%;
-  --primary: 225 25% 60%;
-  --primary-foreground: 224 81% 5%;
+/* --- TEMA DARK florestal (Referência Imagem 8) --- */
+[data-theme="theme-dark-forest"] { /* Reatribuído ao 'Floresta' */
+  --background: 168 50% 4%;        /* Fundo quase preto esmeralda */
+  --foreground: 168 20% 90%;
+  --card: 168 40% 6%;              /* Tom "Evergreen" escuro */
+  --card-foreground: 168 20% 95%;
+  --primary: 165 50% 35%;          /* Verde floresta médio */
+  --primary-foreground: 168 50% 5%; /* Cor escura para contraste no botão primário */
+  --border: 168 30% 15%; /* Borda sutil verde escuro */
+  --ring: 165 50% 35%;
 
-  /* Opção "Colorido": Paleta inspirada na montanha */
-  --chart-color-1: 275 20% 71%; /* #b5a1c6 (lavanda pálido) */
-  --chart-color-2: 223 15% 45%; /* #67798c (azul acinzentado) */
-  --chart-color-3: 229 25% 28%; /* #373e57 (azul profundo) */
-  --chart-color-4: 168 50% 11%; /* Verde escuro para contraste */
-  --chart-color-5: 223 83% 5%;  /* #011218 (quase preto) */
-  --chart-color-6: 43 100% 67%; /* Amarelo para destaque */
+  --card-gradient: linear-gradient(to bottom right, hsl(168, 45%, 25%), hsl(175, 50%, 8%));
+  --card-gradient-foreground: hsl(168, 20% 95%); /* Branco pálido */
 
-  /* Opção "Monocromático": Variações da paleta da montanha */
-  --chart-mono-1: 275 20% 71%; /* #b5a1c6 */
-  --chart-mono-2: 223 15% 45%; /* #67798c */
-  --chart-mono-3: 229 25% 28%; /* #373e57 */
-  --chart-mono-4: 215 31% 15%; /* #1e2332 */
-  --chart-mono-5: 214 94% 5%;  /* #011218 */
-  --chart-mono-6: 226 20% 55%; /* Azul médio (para preencher) */
+  /* Opção "Colorido": Inspirado na paleta superior da imagem (1 a 20) */
+  --chart-color-1: 184 75% 15%;    /* #083D45 (Teal Profundo) */
+  --chart-color-2: 173 70% 20%;    /* #0B504B (Verde Pinheiro) */
+  --chart-color-3: 168 45% 35%;    /* #348073 (Eucalipto) */
+  --chart-color-4: 185 45% 45%;    /* #5C9BA3 (Azul Glacial) */
+  --chart-color-5: 232 20% 55%;    /* #8287AB (Lavanda Acinzentado) */
+  --chart-color-6: 30 45% 35%;     /* #815C3E (Marrom Madeira) */
+  --chart-color-7: 35 40% 55%;     /* #B59367 (Bronze Pálido) */
+  --chart-color-8: 160 30% 25%;    /* Musgo Escuro */
+  --chart-color-9: 200 30% 40%;    /* Ardósia */
+  --chart-color-10: 15 30% 45%;    /* Argila */
+  --chart-color-11: 175 40% 25%;   --chart-color-12: 195 35% 30%;
+  --chart-color-13: 20 40% 50%;    --chart-color-14: 250 15% 60%;
+  --chart-color-15: 180 20% 50%;   --chart-color-16: 45 30% 65%;
+  --chart-color-17: 170 30% 70%;   --chart-color-18: 220 20% 75%;
+  --chart-color-19: 10 20% 80%;    --chart-color-20: 165 40% 85%;
+
+  /* Opção "Monocromático": Degradê do "Deep Forest" ao "Mint Mist" */
+  --chart-mono-1: 168 50% 5%;      --chart-mono-2: 168 45% 10%;
+  --chart-mono-3: 168 40% 15%;     --chart-mono-4: 168 35% 20%;
+  --chart-mono-5: 168 30% 25%;     --chart-mono-6: 168 25% 30%;
+  --chart-mono-7: 165 22% 35%;     --chart-mono-8: 165 20% 40%;
+  --chart-mono-9: 165 18% 45%;     --chart-mono-10: 165 15% 50%;
+  --chart-mono-11: 165 18% 55%;    --chart-mono-12: 165 22% 60%;
+  --chart-mono-13: 165 25% 65%;    --chart-mono-14: 160 30% 70%;
+  --chart-mono-15: 160 35% 75%;    --chart-mono-16: 160 40% 80%;
+  --chart-mono-17: 160 45% 85%;    --chart-mono-18: 160 50% 90%;
+  --chart-mono-19: 160 55% 94%;    --chart-mono-20: 160 60% 97%;
 }
 
-/* --- TEMA DARK ACADEMIA (Referência Imagem 9) --- */
-[data-theme="theme-dark"] { /* Reatribuído ao 'Escuro' */
-  --background: 0 0% 4%;
-  --foreground: 210 10% 80%;
-  --card: 0 0% 8%;
-  --card-foreground: 210 10% 80%;
-  --primary: 210 15% 90%;
-  --primary-foreground: 0 0% 4%;
+/* --- TEMA DARK MOUNTAIN (Referência Imagem 9) --- */
+[data-theme="theme-darkmountain"] { /* Reatribuído ao 'Escuro' */
+ --background: 226 34% 4%;        /* Azul noite profundo */
+  --foreground: 226 20% 90%;
+  --card: 226 34% 7%;              /* Azul montanha escuro */
+  --card-foreground: 226 20% 95%;
+  --primary: 226 25% 55%;          /* Azul névoa */
+  --primary-foreground: 226 34% 4%;
+  --border: 226 20% 15%; /* Borda sutil azul noite */
+  --ring: 226 25% 55%;
 
-  /* Opção "Colorido": Paleta sutil e elegante */
-  --chart-color-1: 37 38% 70%;  /* Tan (#CFBB99) */
-  --chart-color-2: 52 54% 20%;  /* Café Noir (#4C3D19) */
-  --chart-color-3: 210 10% 60%; /* Cinza azulado */
-  --chart-color-4: 30 20% 75%;  /* Bege */
-  --chart-color-5: 0 0% 90%;    /* Quase branco */
-  --chart-color-6: 160 30% 40%; /* Verde escuro e pálido */
+  --card-gradient: linear-gradient(
+    to bottom right, 
+    hsl(275, 20%, 45%), /* Lavanda Opaco (topo da montanha) */
+    hsl(226, 30%, 15%)  /* Azul Noite (base da montanha) */
+  );
+  
+  --card-gradient-foreground: hsl(226, 20%, 98%);
 
-  /* Opção "Monocromático": Paleta de cinzas (Referência Imagem 9) */
-  --chart-mono-1: 210 5% 58%;  /* #5f6668 */
-  --chart-mono-2: 210 5% 35%;  /* #3a3d3d */
-  --chart-mono-3: 210 6% 15%;  /* #252828 */
-  --chart-mono-4: 180 5% 10%;  /* #171919 */
-  --chart-mono-5: 180 4% 6%;   /* #0d0e0e */
-  --chart-mono-6: 210 5% 25%;  /* Cinza médio (para preencher) */
+  /* Opção "Colorido": Cores da montanha e do céu (1 a 20) */
+  --chart-color-1: 226 25% 28%;    /* #373E57 (Azul Montanha) */
+  --chart-color-2: 232 20% 45%;    /* #67798C (Névoa Azulada) */
+  --chart-color-3: 275 20% 71%;    /* #B5A1C6 (Luz das Estrelas/Lavanda) */
+  --chart-color-4: 255 15% 45%;    /* Roxo Sombrio */
+  --chart-color-5: 210 30% 40%;    /* Azul Aço */
+  --chart-color-6: 190 25% 50%;    /* Ciano Acinzentado */
+  --chart-color-7: 350 20% 45%;    /* Vinho Sutil */
+  --chart-color-8: 45 25% 55%;     /* Ouro Velho (Estrelas) */
+  --chart-color-9: 220 15% 60%;    --chart-color-10: 270 15% 60%;
+  --chart-color-11: 230 20% 35%;   --chart-color-12: 240 10% 40%;
+  --chart-color-13: 210 20% 55%;   --chart-color-14: 180 15% 45%;
+  --chart-color-15: 30 20% 50%;    --chart-color-16: 280 20% 65%;
+  --chart-color-17: 220 10% 70%;   --chart-color-18: 200 20% 75%;
+  --chart-color-19: 260 20% 80%;   --chart-color-20: 220 30% 90%;
+
+  /* Opção "Monocromático": Do Azul Abismo ao Branco Estelar */
+  --chart-mono-1: 226 40% 6%;      --chart-mono-2: 226 35% 12%;
+  --chart-mono-3: 226 30% 18%;     --chart-mono-4: 226 28% 24%;
+  --chart-mono-5: 226 25% 30%;     --chart-mono-6: 226 22% 36%;
+  --chart-mono-7: 226 20% 42%;     --chart-mono-8: 226 18% 48%;
+  --chart-mono-9: 226 18% 54%;     --chart-mono-10: 226 20% 60%;
+  --chart-mono-11: 226 22% 64%;    --chart-mono-12: 226 25% 68%;
+  --chart-mono-13: 226 28% 72%;    --chart-mono-14: 226 30% 76%;
+  --chart-mono-15: 226 35% 80%;    --chart-mono-16: 226 40% 84%;
+  --chart-mono-17: 226 45% 88%;    --chart-mono-18: 226 50% 92%;
+  --chart-mono-19: 226 60% 95%;    --chart-mono-20: 226 70% 98%;
 }

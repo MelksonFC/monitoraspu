@@ -13,12 +13,12 @@ import { useAuth } from "../AuthContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const themes = [
-    { name: "theme-blue", label: "Padrão (Azul)", color: "#007bff" },
+    { name: "theme-blue", label: "Azul (Padrão)", color: "#007bff" },
     { name: "theme-green", label: "Verde Clássico", color: "#28a745" },
     { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14" },
     { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946" },
-    { name: "theme-forest", label: "Dark Mountain (Escuro)", color: "#3A8E5A" },
-    { name: "theme-dark", label: "Academia (Escuro)", color: "#343a40" },
+    { name: "theme-dark-forest", label: "Dark Forest (Escuro)", color: "#3A8E5A" },
+    { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40" },
 ];
 
 const applyTheme = (themeName: string) => {
@@ -304,10 +304,19 @@ export default function ShadcnDashboard() {
     const totalDestinados = imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
     
     const monthlyTimelineData = React.useMemo(() => groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange), [avaliacoes, fiscalizacoes, timeRange]);
-    const chartConfigTimeline: ChartConfig = {
-      avaliacoes: { label: "Avaliações", color: "hsl(var(--chart-1))" },
-      fiscalizacoes: { label: "Fiscalizações", color: "hsl(var(--chart-2))" },
-    };
+    const chartConfigTimeline = React.useMemo((): ChartConfig => {
+        const prefix = chartColorScheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
+        return {
+            avaliacoes: { 
+                label: "Avaliações", 
+                color: `hsl(var(${prefix}1))` // Pega a primeira cor da paleta
+            },
+            fiscalizacoes: { 
+                label: "Fiscalizações", 
+                color: `hsl(var(${prefix}2))` // Pega a segunda cor da paleta
+            },
+        };
+    }, [chartColorScheme]);
 
     const dataStatusFiscalizacao = React.useMemo(() => {
         const hoje = new Date();
@@ -406,10 +415,14 @@ export default function ShadcnDashboard() {
             {/* Linha de KPIs principais */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-14">
                 {/* RIP Imóvel */}
-                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
+                <Card 
+                    className="shadow-md" 
+                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle>
-                        <Library className="h-4 w-4 text-primary" />
+                        {/* A cor do ícone agora usa a mesma cor da fonte do card */}
+                        <Library className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div>
@@ -417,10 +430,13 @@ export default function ShadcnDashboard() {
                 </Card>
 
                 {/* RIP Utilização */}
-                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
+                <Card 
+                    className="shadow-md" 
+                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">RIP Utilização</CardTitle>
-                        <ClipboardList className="h-4 w-4 text-primary" />
+                        <ClipboardList className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div>
@@ -428,27 +444,33 @@ export default function ShadcnDashboard() {
                 </Card>
 
                 {/* Área Terreno */}
-                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
+                <Card 
+                    className="shadow-md" 
+                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                        <LandPlot className="h-4 w-4 text-primary" />
+                        <LandPlot className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
                     </CardHeader>
                     <CardContent className="relative pb-6">
                         <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaTerreno))}>
                             {formatCompactNumber(Number(totalAreaTerreno))} 
                             <span className="text-xs opacity-80 ml-1">{formattedAreaTerreno.unit}</span>
                         </div>
-                        <div className="absolute bottom-2 right-4 text-xs">
+                        <div className="absolute bottom-2 right-4 text-xs opacity-90">
                             Sem edificação: {totalSemEdificacao}
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Área Construída */}
-                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
+                <Card 
+                    className="shadow-md" 
+                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                        <Building2 className="h-4 w-4 text-primary" />
+                        <Building2 className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold" title={formatFullNumber(Number(totalAreaConstruida))}>
@@ -459,16 +481,19 @@ export default function ShadcnDashboard() {
                 </Card>
 
                 {/* Valor Total Imóveis */}
-                <Card className="bg-gradient-to-r from-[hsl(var(--primary))] to-white text-card-foreground shadow-md">
+                <Card 
+                    className="shadow-md" 
+                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                        <CircleDollarSign className="h-4 w-4 text-primary" />
+                        <CircleDollarSign className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
                     </CardHeader>
                     <CardContent className="relative pb-6">
                         <div className="text-2xl font-bold" title={formatFullNumber(Number(valorTotalImoveis))}>
                             {formatCompactNumber(valorTotalImoveis, { style: 'currency' })}
                         </div>
-                        <div className="absolute bottom-2 right-4 text-xs">
+                        <div className="absolute bottom-2 right-4 text-xs opacity-90">
                             Média: {formatCompactNumber(mediaValorImoveis, { style: 'currency' })}
                         </div>
                     </CardContent>
