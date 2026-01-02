@@ -90,7 +90,7 @@ export default function PropertySidebar({ imoveis, onImovelSelect, selectedImove
                                             <Avatar variant="rounded" src={getDefaultImage(imovel)} sx={{ width: 60, height: 60, mr: 2 }}><ImageIcon /></Avatar>
                                         </ListItemAvatar>
                                         <ListItemText
-                                            primary={<Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>{imovel.nome}</Typography>}
+                                            primary={<Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{imovel.nome}</Typography>}
                                             secondary={
                                                 <Typography component="span" variant="body2" color="text.secondary">
                                                     <div>RIP Imóvel: {imovel.ripimovel || 'N/A'}</div>

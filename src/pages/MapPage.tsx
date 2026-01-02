@@ -154,7 +154,7 @@ export default function MapPage() {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
-        <Typography sx={{ ml: 2 }}>Buscando imóveis...</Typography>
+        <Typography sx={{ ml: 2, color: 'text.primary' }}>Buscando imóveis...</Typography>
       </Box>
     );
   }
