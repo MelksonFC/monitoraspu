@@ -1,46 +1,39 @@
 'use strict';
 
 const { Sequelize } = require("sequelize");
-const fs = require('fs');
-const path = require('path');
-
-// Constrói o caminho para o arquivo do certificado CA.
-// __dirname aponta para a pasta onde este arquivo (sequelize.js) está.
-const caCertPath = path.join(__dirname,'..', 'backend', 'ca.pem');
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 
-
-// Substitua os valores abaixo pelos que você encontrou no painel da Aiven.
-const sequelize = new Sequelize(
-  process.env.DB_NAME,      
-  process.env.DB_USER,      
-  process.env.DB_PASSWORD,   
-  {
-    host: process.env.DB_HOST,           
-    dialect: 'postgres',
-    port: process.env.DB_PORT,           
-    
-    // --- POOL DE CONEXÕES ---
-    pool: {
-      max: 10,                // máximo de conexões simultâneas
-      min: 2,                 // mínimo de conexões mantidas abertas
-      acquire: 30000,         // tempo máximo esperando por conexão (ms)
-      idle: 10000             // tempo antes de fechar conexão ociosa (ms)
-    },
-  
-    define: {
-      freezeTableName: true,
-      schema: 'dbo'
-    },
-    
-    // Adicionamos a configuração de SSL dentro de dialectOptions
-    dialectOptions: {
-      searchPath: 'dbo,public', 
-      ssl: {
-        ca: fs.readFileSync(caCertPath).toString()
-      }
-    }
+const sequelizeOptions = {
+  host: process.env.DB_HOST,
+  dialect: 'postgres',
+  port: process.env.DB_PORT,
+  pool: {
+    max: 10,
+    min: 2,
+    acquire: 30000,
+    idle: 10000
+  },
+  define: {
+    freezeTableName: true,
+    schema: 'dbo'
+  },
+  dialectOptions: {
+    searchPath: 'dbo,public'
   }
+};
+
+// Adiciona configuração SSL para o Sequelize apenas em ambiente de produção/nuvem
+if (process.env.NODE_ENV === 'production') {
+  sequelizeOptions.dialectOptions.ssl = {
+    rejectUnauthorized: false
+  };
+}
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  sequelizeOptions
 );
 
 module.exports = sequelize;
