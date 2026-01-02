@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
+import api from './services/api';
 
 type Theme = 'dark' | 'light';
 
@@ -18,16 +19,16 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchThemePreference = async () => {
       if (usuario?.id) {
         try {
-          // Supondo que você tenha uma função para buscar as preferências do usuário
-          // Ex: const userPreferences = await api.get(`/userpreferences/${user.id}`);
-          // setThemeState(userPreferences.uimode || 'light');
-          // Por enquanto, vamos simular
+          const { data } = await api.get(`/userpreferences/${usuario.id}`);
+          setThemeState(data.uimode || 'light');
+          localStorage.setItem('theme', data.uimode || 'light');
+        } catch (error) {
+          console.error("Falha ao buscar preferência de tema da API", error);
+          // Fallback para localStorage se a API falhar
           const storedTheme = localStorage.getItem('theme') as Theme | null;
           if (storedTheme) {
             setThemeState(storedTheme);
           }
-        } catch (error) {
-          console.error("Failed to fetch theme preference", error);
         }
       }
     };
@@ -35,15 +36,18 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     fetchThemePreference();
   }, [usuario]);
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
-    // Salvar a preferência no backend
+    localStorage.setItem('theme', newTheme); // Atualização otimista da UI
+
     if (usuario?.id) {
-      // Supondo uma função de API para atualizar
-      // api.put(`/userpreferences/${user.id}`, { uimode: newTheme });
+      try {
+        await api.put(`/userpreferences/${usuario.id}`, { uimode: newTheme });
+      } catch (error) {
+        console.error("Falha ao salvar preferência de tema na API", error);
+        // Opcional: reverter a mudança se a API falhar
+      }
     }
-    // E no localStorage para persistência na sessão
-    localStorage.setItem('theme', newTheme);
   };
 
   useEffect(() => {
