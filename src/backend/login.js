@@ -54,6 +54,7 @@ router.post("/login", async (req, res) => {
       ativo: usuario.ativo
     });
   } catch (err) {
+    console.error("Erro detalhado no login:", err); // Adicionado para depuração
     res.status(500).json({ message: "Erro ao fazer login.", error: err.message });
   }
 });
