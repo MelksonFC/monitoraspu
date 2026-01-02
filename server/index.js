@@ -30,7 +30,7 @@ const usertablesettingsRouter = require("./routes/usertablesettings.js");
 const userpreferences = require("./routes/userpreferences.js");
 const poligonosterrenoRouter = require("./routes/poligonosterreno.js");
 
-const sequelize = require('./models/sequelize.js');
+
 
 
 // ===================================================================
