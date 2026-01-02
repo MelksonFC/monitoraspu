@@ -26,6 +26,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(217, 91%, 55%), hsl(220, 80%, 70%));
   --card-gradient-foreground: hsl(210, 40%, 98%); /* Branco */
+
   --color-status-nunca: 220, 10%, 55%; 
 
   /* -----------------------------------------------------------
@@ -101,6 +102,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(145, 63%, 42%), hsl(150, 50%, 60%));
   --card-gradient-foreground: hsl(145, 60%, 98%); /* Branco */
+
   --color-status-nunca: 220, 10%, 55%; 
 
 /* Colorido: Paleta Natural e Terrosa Expandida */
@@ -144,6 +146,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(28, 98%, 53%), hsl(45, 100%, 51%));
   --card-gradient-foreground: hsl(28, 98%, 10%); /* Quase Preto para legibilidade */
+  
   --color-status-nunca:220, 10%, 55%; 
 
   /* Colorido: Paleta Powerful Expandida */
@@ -191,6 +194,7 @@
 
   --card-gradient: linear-gradient(135deg, hsl(15, 15%, 10%), hsl(0, 40%, 15%));
   --card-gradient-foreground: hsl(30, 100%, 70%);
+
   --color-status-nunca: 0 0% 30%;    /* Cinza de cinzas paradas */
 
   /* COLORIDO: Gradiente de Incandescência e Elementos Químicos (Enxofre, Obsidiana) */
@@ -253,6 +257,7 @@
 
   --card-gradient: linear-gradient(to bottom right, hsl(168, 45%, 25%), hsl(175, 50%, 8%));
   --card-gradient-foreground: hsl(168, 20%, 95%);
+
   --color-status-nunca: 220 10% 70%;
 
   /* [CORRIGIDO] Colorido: Paleta com maior contraste e sem cores de fundo */
@@ -304,6 +309,7 @@
 
   --card-gradient: linear-gradient( to bottom right, hsl(275, 20%, 45%), hsl(226, 30%, 15%) );
   --card-gradient-foreground: hsl(226, 20%, 98%);
+
   --color-status-nunca: 220 10% 70%;
 
   /* [CORRIGIDO] Colorido: Paleta com maior contraste e sem cores de fundo */

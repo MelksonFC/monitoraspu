@@ -42,14 +42,6 @@
     --input: var(--gray-medium);
     --ring: var(--blue-primary);
     --radius: 0.5rem;
-    --chart-1: var(--blue-primary);
-    --chart-2: var(--blue-light);
-    --chart-3: 200 80% 70%;
-    --chart-4: 220 80% 70%;
-    --chart-5: var(--accent-orange);
-    --color-vencido: 0 100% 50%; 
-    --color-emDia: 120 100% 40%;
-    --color-aVencer: 54 100% 47.3%; 
   }
 
   .dark {
@@ -72,9 +64,6 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 210 40% 98%;
-    --color-vencido: 0 100% 50%; 
-    --color-emDia: 120 100% 40%;
-    --color-aVencer: 54 100% 47.3%; 
   }
 }
 
@@ -84,6 +73,17 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .card-gradient {
+    background: var(--card-gradient);
+    color: var(--card-gradient-foreground);
+  }
+  .card-gradient-icon {
+    color: var(--card-gradient-foreground);
+    opacity: 0.8;
   }
 }
 

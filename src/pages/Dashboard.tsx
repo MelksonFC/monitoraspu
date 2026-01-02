@@ -499,14 +499,11 @@ export default function ShadcnDashboard() {
             {/* Linha de KPIs principais */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-14">
                 {/* RIP Imóvel */}
-                <Card 
-                    className="shadow-md" 
-                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                >
+                <Card className="shadow-md card-gradient">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">RIP Imóvel</CardTitle>
                         {/* A cor do ícone agora usa a mesma cor da fonte do card */}
-                        <Library className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                        <Library className="h-4 w-4 card-gradient-icon" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalRipImoveis.toLocaleString('pt-BR')}</div>
@@ -514,13 +511,10 @@ export default function ShadcnDashboard() {
                 </Card>
 
                 {/* RIP Utilização */}
-                <Card 
-                    className="shadow-md" 
-                    style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                >
+                <Card className="shadow-md card-gradient">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">RIP Utilização</CardTitle>
-                        <ClipboardList className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                        <ClipboardList className="h-4 w-4 card-gradient-icon" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalRipUtilizacao.toLocaleString('pt-BR')}</div>
@@ -528,13 +522,10 @@ export default function ShadcnDashboard() {
                 </Card>
 
                 {/* Área Terreno */}
-                    <Card 
-                        className="shadow-md" 
-                        style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                    >
+                    <Card className="shadow-md card-gradient">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Área Terreno</CardTitle>
-                            <LandPlot className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                            <LandPlot className="h-4 w-4 card-gradient-icon" />
                         </CardHeader>
                         <CardContent className="relative pb-6">
                             <Tooltip>
@@ -556,13 +547,10 @@ export default function ShadcnDashboard() {
                     </Card>
 
                 {/* Área Construída */}
-                    <Card 
-                        className="shadow-md" 
-                        style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                    >
+                    <Card className="shadow-md card-gradient">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Área Construída</CardTitle>
-                            <Building2 className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                            <Building2 className="h-4 w-4 card-gradient-icon" />
                         </CardHeader>
                         <CardContent>
                             <Tooltip>
@@ -580,13 +568,10 @@ export default function ShadcnDashboard() {
                     </Card>
 
                 {/* Valor Total Imóveis */}
-                    <Card 
-                        className="shadow-md" 
-                        style={{ background: 'var(--card-gradient)', color: 'var(--card-gradient-foreground)' }}
-                    >
+                    <Card className="shadow-md card-gradient">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Valor Total Imóveis</CardTitle>
-                            <CircleDollarSign className="h-4 w-4" style={{ color: 'var(--card-gradient-foreground)', opacity: 0.8 }} />
+                            <CircleDollarSign className="h-4 w-4 card-gradient-icon" />
                         </CardHeader>
                         <CardContent className="relative pb-6">
                            <Tooltip>
