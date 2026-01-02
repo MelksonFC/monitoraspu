@@ -22,8 +22,8 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import { toast } from "react-toastify";
 import { useAuth } from "../AuthContext";
 import MapaLeaflet from "./MapaLeaflet";
-import SafePdfButton from '../components/SafePdfButton';
-import { SafeNumberField } from '../components/SafeNumberField';
+import SafePdfButton from '@/components/forms/SafePdfButton';
+import { SafeNumberField } from '@/components/forms/SafeNumberField';
 import MapIcon from "@mui/icons-material/Map";
 import PoligonoTerrenoDialog from "./PoligonoTerrenoDialog";
 
@@ -33,7 +33,7 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 
-import type { Imovel, Imagem, Fiscalizacao, Avaliacao, HstUnidadeGestora, HstRegimeUtilizacao, LookupItem } from '../types';
+import type { Imovel, Imagem, Fiscalizacao, Avaliacao, HstUnidadeGestora, HstRegimeUtilizacao, LookupItem } from '@/types';
 
 type FormProps = {
   imovel?: Partial<Imovel>;

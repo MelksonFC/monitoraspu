@@ -4,11 +4,11 @@ import axios from 'axios';
 import { Container, CircularProgress, Alert, Box, Button, Typography, Paper } from '@mui/material';
 import { toast } from 'react-toastify';
 import ImovelForm, { type ImovelFormRef } from './ImovelForm';
-import type { Imovel } from '../types';
-import { useAuth } from '../AuthContext';
+import type { Imovel } from '@/types';
+import { useAuth } from '@/AuthContext';
 
 // Importação do componente SafePdfButton
-import SafePdfButton from '../components/SafePdfButton';
+import SafePdfButton from '@/components/forms/SafePdfButton';
 
 // Ícones para os botões
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

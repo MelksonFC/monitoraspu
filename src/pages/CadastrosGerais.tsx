@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, Tab, Tabs, Paper } from '@mui/material';
-import LocationManagement from '../components/LocationManagement';
-import UnidadeGestoraManagement from '../components/UnidadeGestoraManagement';
-import RegimeUtilizacaoManagement from '../components/RegimeUtilizacaoManagement';
+import LocationManagement from '@/components/management/LocationManagement';
+import UnidadeGestoraManagement from '@/components/management/UnidadeGestoraManagement';
+import RegimeUtilizacaoManagement from '@/components/management/RegimeUtilizacaoManagement';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessIcon from '@mui/icons-material/Business';
 import GavelIcon from '@mui/icons-material/Gavel';

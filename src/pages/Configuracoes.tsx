@@ -11,7 +11,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import EmailIcon from "@mui/icons-material/Email";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Header from "../components/Header";
+import Header from "@/components/layout/Header";
 import axios from "axios";
 import Papa from "papaparse";
 

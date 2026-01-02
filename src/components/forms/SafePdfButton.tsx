@@ -4,7 +4,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { Imovel } from '../types';
+import type { Imovel } from '@/types';
 
 declare module 'jspdf' {
   interface jsPDF {

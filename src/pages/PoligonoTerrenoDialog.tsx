@@ -14,7 +14,7 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "@/AuthContext";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { simplifyAndConvertToTopoJSON } from "../utils/geometryUtils";
 

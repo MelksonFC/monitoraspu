@@ -5,7 +5,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "@/AuthContext";
 
 //import logoSpuPng from '/public/assets/LogoSPU.png';
 
