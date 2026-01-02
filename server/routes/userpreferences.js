@@ -8,6 +8,7 @@ const router = express.Router();
 const defaultPreferences = {
   themepreference: "theme-blue",
   chartcolorscheme: "monochromatic",
+  uimode: "light",
 };
 
 // GET (sem alterações)
@@ -28,15 +29,20 @@ router.get("/:userid", async (req, res) => {
 // --- [ROTA PUT CORRIGIDA E SIMPLIFICADA] ---
 router.put("/:userid", async (req, res) => {
   const { userid } = req.params;
-  const { themepreference, chartcolorscheme } = req.body;
+  const { themepreference, chartcolorscheme, uimode } = req.body;
 
   const validSchemes = ['monochromatic','multicolor'];
   if (chartcolorscheme && !validSchemes.includes(chartcolorscheme)) {
     return res.status(400).json({ error: "Esquema de cores inválido." });
   }
 
+  const validUiModes = ['light', 'dark'];
+  if (uimode && !validUiModes.includes(uimode)) {
+    return res.status(400).json({ error: "Modo de UI inválido." });
+  }
+
   // Verifica se pelo menos uma preferência foi enviada
-  if (!themepreference && !chartcolorscheme) {
+  if (!themepreference && !chartcolorscheme && !uimode) {
     return res.status(400).json({ error: "Nenhuma preferência para atualizar foi fornecida." });
   }
 
@@ -54,6 +60,7 @@ router.put("/:userid", async (req, res) => {
         userid,
         themepreference: themepreference || defaultPreferences.themepreference,
         chartcolorscheme: chartcolorscheme || defaultPreferences.chartcolorscheme,
+        uimode: uimode || defaultPreferences.uimode,
         updatedat: new Date(),
       }, { transaction: t });
     } else {
@@ -63,6 +70,9 @@ router.put("/:userid", async (req, res) => {
       }
       if (chartcolorscheme) {
         userPreference.chartcolorscheme = chartcolorscheme;
+      }
+      if (uimode) {
+        userPreference.uimode = uimode;
       }
       userPreference.updatedat = new Date();
       await userPreference.save({ transaction: t });

@@ -6,11 +6,14 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/AuthContext";
+import { useTheme } from "@/ThemeContext";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
 
 //import logoSpuPng from '/public/assets/LogoSPU.png';
 
 const Header: React.FC = () => {
   const { usuario, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -56,7 +59,17 @@ const Header: React.FC = () => {
             cursor: 'pointer'
           }}
         >
-          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{
+              fontWeight: 'bold',
+              background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '1px 1px 3px rgba(0,0,0,0.1)',
+            }}
+          >
             Monitora SPU-RR
           </Typography>
         </Box>
@@ -96,6 +109,10 @@ const Header: React.FC = () => {
             <MenuItem onClick={() => handleNavigate("/cadastros-gerais")}>
               <AssignmentIcon sx={{ mr: 1.5 }} />
               Cadastros Gerais
+            </MenuItem>
+            <MenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+              {theme === 'light' ? <Brightness4 sx={{ mr: 1.5 }} /> : <Brightness7 sx={{ mr: 1.5 }} />}
+              Modo {theme === 'light' ? 'Escuro' : 'Claro'}
             </MenuItem>
             {/* Itens de Admin */}
             {usuario?.idpermissao === 1 && (

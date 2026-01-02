@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: "monochromatic", // 'multicolor', 'monochromatic'
       },
+      uimode: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        defaultValue: 'light', // 'light', 'dark'
+      },
       updatedat: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

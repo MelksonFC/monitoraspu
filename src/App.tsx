@@ -19,6 +19,7 @@ import "./styles/themes.css";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AtivarConta from "./pages/AtivarConta"; 
 import { LayoutProvider } from "./LayoutContext";
+import { ThemeProvider } from "./ThemeContext";
 
 
 // MUDANÇA: Importando a nova página de edição de imóvel
@@ -36,86 +37,88 @@ const App: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
       <AuthProvider>
-        <LayoutProvider>
-        <BrowserRouter basename="/">
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
-        <Routes>
-          <Route path="/" element={<LoginPage setAutenticado={setAutenticado} />} />
-          <Route path="/reset-senha" element={<ResetPasswordPage />} />
-          <Route path="/ativar-conta" element={<AtivarConta />} />
-          <Route
-            path="/dashboard"
-            element={
-              autenticado
-                ? <AppLayout><Dashboard /></AppLayout>
-                : <Navigate to="/" replace />
-            }
-          />
-          <Route
-            path="/imoveis"
-            element={
-              autenticado
-                ? <AppLayout><ImoveisTable /></AppLayout>
-                : <Navigate to="/" replace />
-            }
-          />
-          <Route
-            path="/mapa"
-            element={
-              autenticado
-                ? <AppLayout><MapPage /></AppLayout>
-                : <Navigate to="/" replace />
-            }
-          />
+        <ThemeProvider>
+          <LayoutProvider>
+            <BrowserRouter basename="/">
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="colored"
+              />
+              <Routes>
+                <Route path="/" element={<LoginPage setAutenticado={setAutenticado} />} />
+                <Route path="/reset-senha" element={<ResetPasswordPage />} />
+                <Route path="/ativar-conta" element={<AtivarConta />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    autenticado
+                      ? <AppLayout><Dashboard /></AppLayout>
+                      : <Navigate to="/" replace />
+                  }
+                />
+                <Route
+                  path="/imoveis"
+                  element={
+                    autenticado
+                      ? <AppLayout><ImoveisTable /></AppLayout>
+                      : <Navigate to="/" replace />
+                  }
+                />
+                <Route
+                  path="/mapa"
+                  element={
+                    autenticado
+                      ? <AppLayout><MapPage /></AppLayout>
+                      : <Navigate to="/" replace />
+                  }
+                />
 
-          {/* MUDANÇA: Nova rota para a página de edição do imóvel */}
-          <Route
-            path="/imovel/:id"
-            element={
-              autenticado
-                ? <AppLayout><ImovelEditPage /></AppLayout>
-                : <Navigate to="/" replace />
-            }
-          />
+                {/* MUDANÇA: Nova rota para a página de edição do imóvel */}
+                <Route
+                  path="/imovel/:id"
+                  element={
+                    autenticado
+                      ? <AppLayout><ImovelEditPage /></AppLayout>
+                      : <Navigate to="/" replace />
+                  }
+                />
 
-          <Route
-            path="/configuracoes"
-            element={
-              autenticado
-                ? <AppLayout><Configuracoes /></AppLayout>
-                : <div>Acesso restrito a administradores.</div>
-            }
-          />
-          <Route
-            path="/perfil"
-            element={
-              autenticado
-                ? <AppLayout><PerfilUsuario /></AppLayout>
-                : <Navigate to="/" replace />
-            }
-          />
-          <Route 
-            path="/cadastros-gerais" 
-            element={
-              autenticado
-              ? <AppLayout><CadastrosGerais /></AppLayout>
-              : <Navigate to="/" replace />
-            } 
-          />
-        </Routes>
-        </BrowserRouter>
-        </LayoutProvider>
+                <Route
+                  path="/configuracoes"
+                  element={
+                    autenticado
+                      ? <AppLayout><Configuracoes /></AppLayout>
+                      : <div>Acesso restrito a administradores.</div>
+                  }
+                />
+                <Route
+                  path="/perfil"
+                  element={
+                    autenticado
+                      ? <AppLayout><PerfilUsuario /></AppLayout>
+                      : <Navigate to="/" replace />
+                  }
+                />
+                <Route 
+                  path="/cadastros-gerais" 
+                  element={
+                    autenticado
+                    ? <AppLayout><CadastrosGerais /></AppLayout>
+                    : <Navigate to="/" replace />
+                  } 
+                />
+              </Routes>
+            </BrowserRouter>
+          </LayoutProvider>
+        </ThemeProvider>
       </AuthProvider>
     </LocalizationProvider>
   );
