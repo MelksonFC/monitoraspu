@@ -12,25 +12,25 @@ const nodemailer = require("nodemailer");
 
 // Carregando a conexão com o banco e os routers
 // IMPORTANTE: Adicionamos a extensão .js no final dos arquivos
-const pool = require("./db.js");
+const pool = require("./pool.js");
 const loginRouter = require("./login.js");
 
-const imoveisRouter = require("../routes/imoveis.js");
-const municipiosRouter = require("../routes/municipio.js");
-const estadoRouter = require("../routes/estado.js");
-const paisRouter = require("../routes/pais.js");
-const fiscalizacaoRouter = require("../routes/fiscalizacao.js");
-const hstregimeutilizacaoRouter = require("../routes/hstregimeutilizacao.js");
-const hstunidadegestoraRouter = require("../routes/hstunidadegestora.js");
-const avaliacaoRouter = require("../routes/avaliacao.js");
-const regimeutilizacaoRouter = require("../routes/regimeutilizacao.js");
-const unidadegestoraRouter = require("../routes/unidadegestora.js");
-const lookupsRouter = require("../routes/lookups.js");
-const usertablesettingsRouter = require("../routes/usertablesettings.js");
-const userpreferences = require("../routes/userpreferences.js");
-const poligonosterrenoRouter = require("../routes/poligonosterreno.js");
+const imoveisRouter = require("./routes/imoveis.js");
+const municipiosRouter = require("./routes/municipio.js");
+const estadoRouter = require("./routes/estado.js");
+const paisRouter = require("./routes/pais.js");
+const fiscalizacaoRouter = require("./routes/fiscalizacao.js");
+const hstregimeutilizacaoRouter = require("./routes/hstregimeutilizacao.js");
+const hstunidadegestoraRouter = require("./routes/hstunidadegestora.js");
+const avaliacaoRouter = require("./routes/avaliacao.js");
+const regimeutilizacaoRouter = require("./routes/regimeutilizacao.js");
+const unidadegestoraRouter = require("./routes/unidadegestora.js");
+const lookupsRouter = require("./routes/lookups.js");
+const usertablesettingsRouter = require("./routes/usertablesettings.js");
+const userpreferences = require("./routes/userpreferences.js");
+const poligonosterrenoRouter = require("./routes/poligonosterreno.js");
 
-const sequelize = require('../models/sequelize.js');
+const sequelize = require('./models/sequelize.js');
 
 
 // ===================================================================

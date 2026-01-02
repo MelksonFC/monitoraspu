@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require("express");
-const pool = require("./db.js");
+const pool = require("./pool.js");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
