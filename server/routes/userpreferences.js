@@ -14,14 +14,23 @@ const defaultPreferences = {
 // GET (sem alterações)
 router.get("/:userid", async (req, res) => {
   const { userid } = req.params;
+  console.log(`[DEBUG] Rota GET /userpreferences/:userid chamada com userid: ${userid}`);
   try {
     const config = await UserPreference.findOne({ where: { userid } });
+    
+    console.log("[DEBUG] Resultado da consulta do Sequelize:", config);
+
     if (config) {
-      res.json(config);
+      // Usar .toJSON() para garantir que estamos lidando com um objeto simples
+      const configJSON = config.toJSON();
+      console.log("[DEBUG] Enviando dados encontrados (JSON):", configJSON);
+      res.json(configJSON);
     } else {
+      console.log("[DEBUG] Nenhuma configuração encontrada, enviando padrão.");
       res.json({ ...defaultPreferences, userid: Number(userid) });
     }
   } catch (error) {
+    console.error("[DEBUG] Erro capturado na rota GET:", error);
     res.status(500).json({ error: "Erro ao buscar preferências do usuário.", details: error.message });
   }
 });
