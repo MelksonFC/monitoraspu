@@ -1,5 +1,4 @@
 const express = require("express");
-const sequelize = require("../models/sequelize.js");
 const db = require('../models/index.js');
 const { UserPreference } = db;
 
@@ -55,7 +54,7 @@ router.put("/:userid", async (req, res) => {
     return res.status(400).json({ error: "Nenhuma preferência para atualizar foi fornecida." });
   }
 
-  const t = await sequelize.transaction();
+  const t = await db.sequelize.transaction();
   try {
     // Tenta encontrar uma preferência existente
     let userPreference = await UserPreference.findOne({
