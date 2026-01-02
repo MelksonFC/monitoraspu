@@ -26,7 +26,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
-  // A referência correta para o Vite
-  "references": [{ "path": "./tsconfig.node.json" }] 
+  "include": ["src"]
 }
