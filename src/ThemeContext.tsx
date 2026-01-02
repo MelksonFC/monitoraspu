@@ -18,8 +18,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchThemePreference = async () => {
       if (usuario?.id) {
+        console.log("Buscando preferência de tema para o usuário:", usuario.id);
         try {
           const { data } = await api.get(`/userpreferences/${usuario.id}`);
+          console.log("API retornou as preferências:", data);
           setThemeState(data.uimode || 'light');
           localStorage.setItem('theme', data.uimode || 'light');
         } catch (error) {
@@ -37,15 +39,17 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [usuario]);
 
   const setTheme = async (newTheme: Theme) => {
+    console.log(`Tentando alterar o tema para: ${newTheme}`);
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme); // Atualização otimista da UI
 
     if (usuario?.id) {
       try {
-        await api.put(`/userpreferences/${usuario.id}`, { uimode: newTheme });
+        console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, { uimode: newTheme });
+        const response = await api.put(`/userpreferences/${usuario.id}`, { uimode: newTheme });
+        console.log("API respondeu ao PUT:", response);
       } catch (error) {
         console.error("Falha ao salvar preferência de tema na API", error);
-        // Opcional: reverter a mudança se a API falhar
       }
     }
   };
