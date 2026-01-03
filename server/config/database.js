@@ -13,10 +13,11 @@ const dbConfig = {
   port: process.env.DB_PORT,
 };
 
-// Adiciona a configuração SSL necessária para ambientes de produção (como o Render)
-if (process.env.NODE_ENV === 'production') {
+// Adiciona a configuração SSL se estiver conectando a um host remoto (ex: Aiven, Render)
+// Isso é necessário tanto para produção quanto para desenvolvimento local apontando para a nuvem.
+if (process.env.DB_HOST && process.env.DB_HOST !== 'localhost') {
   dbConfig.ssl = {
-    rejectUnauthorized: false
+    rejectUnauthorized: false // Necessário para muitos serviços de DB na nuvem
   };
 }
 
