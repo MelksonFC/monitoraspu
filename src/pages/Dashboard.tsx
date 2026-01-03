@@ -10,25 +10,12 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, Ch
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../AuthContext";
-import { useLayout } from "../LayoutContext"; 
+import { useLayout } from "../LayoutContext";
+import { useTheme } from '../ThemeContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const themes = [
-    { name: "theme-blue", label: "Azul (Padrão)", color: "#007bff", isDark: false },
-    { name: "theme-green", label: "Verde Clássico", color: "#28a745", isDark: false },
-    { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14", isDark: false },
-    { name: "theme-volcano", label: "Vulcão Ativo (Escuro)", color: "#E63946", isDark: true },
-    { name: "theme-dark-forest", label: "Dark Forest (Escuro)", color: "#3A8E5A", isDark: true },
-    { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40", isDark: true },
-];
-
-
-const applyTheme = (themeName: string) => {
-    document.documentElement.setAttribute('data-theme', themeName);
-};
-
-const ThemePaletteSwatch = ({ theme }: { theme: typeof themes[0] }) => {
+const ThemePaletteSwatch = ({ theme }: { theme: { name: string, isDark: boolean } }) => {
     // Define qual paleta usar com base na propriedade `isDark`
     const palettePrefix = theme.isDark ? '--chart-color-' : '--chart-mono-';
     
@@ -136,6 +123,8 @@ function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscaliz
 
 export default function ShadcnDashboard() {
     const { usuario } = useAuth();
+    const { theme, setTheme, chartColorScheme, setChartColorScheme, themes } = useTheme();
+
     const [imoveis, setImoveis] = useState<Imovel[]>([]);
     const [municipios, setMunicipios] = useState<any[]>([]);
     const [regimes, setRegimes] = useState<any[]>([]);
@@ -150,50 +139,29 @@ export default function ShadcnDashboard() {
     const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
     const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-    const [currentTheme, setCurrentTheme] = useState("theme-blue");
-    const [selectedTheme, setSelectedTheme] = useState("theme-blue");
-    const [chartColorScheme, setChartColorScheme] = useState<'monochromatic' | 'multicolor'>('monochromatic');
+    
+    // Estado local para gerenciar as seleções no menu antes de aplicar
+    const [selectedTheme, setSelectedTheme] = useState(theme);
     const [selectedChartColorScheme, setSelectedChartColorScheme] = useState(chartColorScheme);
+
     const { isPresentationMode, togglePresentationMode } = useLayout();
 
-    const openThemeMenu = () => { setSelectedTheme(currentTheme); setSelectedChartColorScheme(chartColorScheme); setIsThemeMenuOpen(true); };
-    const handleThemeSelectionChange = (newThemeName: string) => setSelectedTheme(newThemeName);
-    const handleApplyTheme = async () => {
-        if (!usuario?.id) return;
-        
-        const isThemeChanged = selectedTheme !== currentTheme;
-        const isSchemeChanged = selectedChartColorScheme !== chartColorScheme;
+    // Sincroniza o estado local com o contexto quando o menu é aberto
+    const openThemeMenu = () => {
+        setSelectedTheme(theme);
+        setSelectedChartColorScheme(chartColorScheme);
+        setIsThemeMenuOpen(true);
+    };
 
-        if (!isThemeChanged && !isSchemeChanged) {
-            setIsThemeMenuOpen(false);
-            return;
+    const handleApplyTheme = async () => {
+        // Chama as funções do contexto para atualizar o tema e o esquema de cores
+        if (selectedTheme !== theme) {
+            setTheme(selectedTheme);
         }
-        
-        // Atualiza a UI imediatamente
-        if (isThemeChanged) {
-            applyTheme(selectedTheme);
-            setCurrentTheme(selectedTheme);
-        }
-        if(isSchemeChanged) {
+        if (selectedChartColorScheme !== chartColorScheme) {
             setChartColorScheme(selectedChartColorScheme);
         }
-
         setIsThemeMenuOpen(false);
-
-        try {
-            // Envia apenas o que mudou para a API
-            const payload: { themepreference?: string, chartcolorscheme?: string } = {};
-            if (isThemeChanged) payload.themepreference = selectedTheme;
-            if (isSchemeChanged) payload.chartcolorscheme = selectedChartColorScheme;
-
-            await axios.put(`${API_URL}/api/userpreferences/${usuario.id}`, payload);
-        } catch (err) {
-            console.error("Falha ao salvar preferências:", err);
-            // Reverte em caso de erro
-            applyTheme(currentTheme);
-            setCurrentTheme(currentTheme);
-            setChartColorScheme(chartColorScheme);
-        }
     };
 
     useEffect(() => {
@@ -201,24 +169,13 @@ export default function ShadcnDashboard() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes, themeRes] = await Promise.all([
+                const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes] = await Promise.all([
                     axios.get(`${API_URL}/api/imoveis?situacao=true`),
                     axios.get(`${API_URL}/api/municipios`),
                     axios.get(`${API_URL}/api/regimeutilizacao`),
                     axios.get(`${API_URL}/api/fiscalizacoes`),
                     axios.get(`${API_URL}/api/avaliacoes`),
-                    axios.get(`${API_URL}/api/userpreferences/${usuario.id}`),
                 ]);
-
-                const savedTheme = themeRes.data?.themepreference || "theme-blue";
-                const savedScheme = themeRes.data?.chartcolorscheme || "monochromatic";
-
-                setCurrentTheme(savedTheme);
-                setSelectedTheme(savedTheme);
-                applyTheme(savedTheme);
-
-                setChartColorScheme(savedScheme);
-                setSelectedChartColorScheme(savedScheme);
 
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
                 setImoveis(imoveisData);
@@ -453,7 +410,7 @@ export default function ShadcnDashboard() {
                         <div className="space-y-4">
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Tema Visual</label>
-                                <Select value={selectedTheme} onValueChange={handleThemeSelectionChange}>
+                                <Select value={selectedTheme} onValueChange={setSelectedTheme}>
                                     <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
                                     <SelectContent>
                                         {themes.map((theme) => (
@@ -484,7 +441,7 @@ export default function ShadcnDashboard() {
                             <CardFooter className="p-0 pt-4">
                                 <Button
                                     onClick={handleApplyTheme}
-                                    disabled={selectedTheme === currentTheme && selectedChartColorScheme === chartColorScheme}
+                                    disabled={selectedTheme === theme && selectedChartColorScheme === chartColorScheme}
                                     className="w-full"
                                 >
                                     Aplicar
@@ -542,7 +499,7 @@ export default function ShadcnDashboard() {
                             </Tooltip>
                             <div className="absolute bottom-2 right-4 text-xs opacity-90">
                                 Sem edificação: {totalSemEdificacao}
-                            </div>
+[                            </div>
                         </CardContent>
                     </Card>
 
