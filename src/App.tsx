@@ -15,7 +15,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import './styles/globals.css';
-import "./styles/themes.css";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AtivarConta from "./pages/AtivarConta"; 
 import { LayoutProvider } from "./LayoutContext";

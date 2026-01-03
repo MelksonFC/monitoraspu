@@ -664,7 +664,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
    
 
     return (
-      <Container maxWidth="lg" sx={{ mt: 2, mb: 4, ...(isPdfMode && { mt: 0, mb: 0, p: 0, background: '#fff' }) }}>
+      <Container maxWidth="lg" className="bg-background text-foreground" sx={{ mt: 2, mb: 4, bgcolor: 'hsl(var(--background))', color: 'hsl(var(--foreground))', ...(isPdfMode && { mt: 0, mb: 0, p: 0, background: '#fff' }) }}>
         {!isPdfMode && showFormActions && (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, px: 2 }}>
             <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>{imovel?.idimovel ? `Editando Imóvel: #${imovel.idimovel} - ${imovel.nome}` : 'Novo Imóvel'}</Typography>
@@ -697,8 +697,8 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
 
         <form onSubmit={e => { e.preventDefault(); setConfirmSaveOpen(true); }} noValidate id={formId ?? "imovel-form-container"} className={isPdfMode ? "pdf-mode-container" : ""}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: isPdfMode ? 0 : 3 }}>
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
-              <Typography variant="h6" gutterBottom>Identificação e Fotos</Typography>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>Identificação e Fotos</Typography>
               <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                 <Box sx={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 300 }}>
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -759,8 +759,8 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                   </Box>
                 </Box>
             </Paper>
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
-              <Typography variant="h6" gutterBottom>Localização</Typography>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>Localização</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <TextField label="CEP" name="cep" required value={form.cep ?? ""} onChange={handleChange} onBlur={handleCepBlur} variant="outlined" sx={{ flex: 1, minWidth: 120 }} error={!!validationErrors.cep} helperText={validationErrors.cep} InputProps={{ readOnly: isPdfMode }} />
@@ -809,15 +809,15 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
               </Box>
             </Paper>
             {/* CONTATO */}
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
-              <Typography variant="h6" gutterBottom>Contato</Typography>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>Contato</Typography>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <TextField label="e-mail" name="email" value={form.email} onChange={handleChange} onBlur={handleBlur} variant="outlined" sx={{ flex: 1 }} error={!!validationErrors.email} helperText={validationErrors.email} InputProps={{ readOnly: isPdfMode }} />
               </Box>
             </Paper>
             {/* REGISTRO */}
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
-              <Typography variant="h6" gutterBottom>Registro Cartorial</Typography>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>Registro Cartorial</Typography>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <TextField label="Cartório" name="nomecartorio" value={form.nomecartorio} onChange={handleChange} variant="outlined" sx={{ flex: 1 }} InputProps={{ readOnly: isPdfMode }}/>
                 <TextField label="Nº Processo" name="nprocesso" value={form.nprocesso} onChange={handleChange} variant="outlined" sx={{ flex: 1 }} InputProps={{ readOnly: isPdfMode }} error={!!validationErrors.nprocesso} helperText={validationErrors.nprocesso}/>
@@ -825,8 +825,8 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
               </Box>
             </Paper>
             {/* GESTÃO E ÁREAS */}
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
-              <Typography variant="h6" gutterBottom>Gestão e Áreas</Typography>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <Typography variant="h6" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>Gestão e Áreas</Typography>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                 <FormControl variant="outlined" sx={{ flex: 1 }} error={!!validationErrors.idunidadegestora} required>
                   <InputLabel id="unidade-label">Unidade Gestora</InputLabel>
@@ -911,9 +911,9 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                 )}
               </Box>
             </Paper>
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="h6">Fiscalizações</Typography>
+                <Typography variant="h6" sx={{ color: 'hsl(var(--foreground))' }}>Fiscalizações</Typography>
                 {!isPdfMode && <Button startIcon={<AddIcon />} onClick={() => handleOpenDialog('fiscalizacoes')} variant="contained" size="small">Adicionar</Button>}
               </Box>
               <TableContainer>
@@ -945,9 +945,9 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                 </Table>
               </TableContainer>
             </Paper>
-            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default' }}>
+            <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="h6">Avaliações</Typography>
+                <Typography variant="h6" sx={{ color: 'hsl(var(--foreground))' }}>Avaliações</Typography>
                 {!isPdfMode && <Button startIcon={<AddIcon />} onClick={() => handleOpenDialog('avaliacoes')} variant="contained" size="small">Adicionar</Button>}
               </Box>
               <TableContainer>
@@ -980,10 +980,10 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                 </Table>
               </TableContainer>
             </Paper>
-            <Accordion defaultExpanded={true} sx={{ '&.Mui-expanded': { mt: isPdfMode ? 0 : 'default' }, boxShadow: isPdfMode ? 'none' : 'default', '&:before': { display: isPdfMode ? 'none' : 'flex' } }}>
-              <AccordionSummary expandIcon={isPdfMode ? null : <ExpandMoreIcon />}>
+            <Accordion defaultExpanded={true} className="bg-card text-foreground" sx={{ '&.Mui-expanded': { mt: isPdfMode ? 0 : 'default' }, boxShadow: isPdfMode ? 'none' : 'default', '&:before': { display: isPdfMode ? 'none' : 'flex' }, bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <AccordionSummary expandIcon={isPdfMode ? null : <ExpandMoreIcon />} sx={{ bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <Typography variant="h6">Histórico de Unidade Gestora</Typography>
+                  <Typography variant="h6" sx={{ color: 'hsl(var(--foreground))' }}>Histórico de Unidade Gestora</Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
@@ -1021,10 +1021,10 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                 </TableContainer>
               </AccordionDetails>
             </Accordion>
-            <Accordion defaultExpanded={true} sx={{ '&.Mui-expanded': { mt: isPdfMode ? 0 : 'default' }, boxShadow: isPdfMode ? 'none' : 'default', '&:before': { display: isPdfMode ? 'none' : 'flex' } }}>
-              <AccordionSummary expandIcon={isPdfMode ? null : <ExpandMoreIcon />}>
+            <Accordion defaultExpanded={true} className="bg-card text-foreground" sx={{ '&.Mui-expanded': { mt: isPdfMode ? 0 : 'default' }, boxShadow: isPdfMode ? 'none' : 'default', '&:before': { display: isPdfMode ? 'none' : 'flex' }, bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+              <AccordionSummary expandIcon={isPdfMode ? null : <ExpandMoreIcon />} sx={{ bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <Typography variant="h6">Histórico de Regime de Utilização</Typography>
+                  <Typography variant="h6" sx={{ color: 'hsl(var(--foreground))' }}>Histórico de Regime de Utilização</Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails>

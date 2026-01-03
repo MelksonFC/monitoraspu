@@ -41,10 +41,12 @@ const Header: React.FC = () => {
     <AppBar 
       position="fixed" 
       elevation={1} 
+      className="bg-card text-foreground"
       sx={{ 
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        backgroundColor: '#fff', // Fundo branco
-        color: 'text.primary' // Cor do texto padrão
+        backgroundColor: 'hsl(var(--card))',
+        color: 'hsl(var(--foreground))',
+        borderBottom: '1px solid hsl(var(--border))'
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between", minHeight: 64 }}>
@@ -62,12 +64,10 @@ const Header: React.FC = () => {
           <Typography
             variant="h5"
             component="div"
+            className="text-foreground"
             sx={{
               fontWeight: 'bold',
-              background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textShadow: '1px 1px 3px rgba(0,0,0,0.1)',
+              color: 'hsl(var(--foreground))'
             }}
           >
             Monitora SPU-RR
@@ -86,7 +86,7 @@ const Header: React.FC = () => {
               <Avatar sx={{ bgcolor: "primary.main", width: 32, height: 32 }}>
                 <PersonIcon fontSize="small" />
               </Avatar>
-              <Typography variant="subtitle1" fontWeight={500} sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="subtitle1" fontWeight={500} className="text-foreground" sx={{ display: { xs: 'none', sm: 'block' }, color: 'hsl(var(--foreground))' }}>
                 {usuario?.nome ?? "Carregando..."}
               </Typography>
             </IconButton>

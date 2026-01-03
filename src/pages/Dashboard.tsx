@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "../AuthContext";
 import { useLayout } from "../LayoutContext";
 import { useTheme } from '../ThemeContext';
+import '../styles/themes.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -123,7 +124,7 @@ function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscaliz
 
 export default function ShadcnDashboard() {
     const { usuario } = useAuth();
-    const { theme, setTheme, chartColorScheme, setChartColorScheme, themes } = useTheme();
+    const { theme, setTheme, chartColorScheme, setChartColorScheme, getAvailableThemes } = useTheme();
 
     const [imoveis, setImoveis] = useState<Imovel[]>([]);
     const [municipios, setMunicipios] = useState<any[]>([]);
@@ -369,7 +370,7 @@ export default function ShadcnDashboard() {
 
     return (
         <TooltipProvider delayDuration={100}>
-        <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative">
+        <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative bg-background text-foreground" data-theme={theme}>
             {/* --- MENU DE PERSONALIZAÇÃO DE TEMA (ATUALIZADO) --- */}
             <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
                 {/* Botão para o Modo Apresentação */}
@@ -391,7 +392,7 @@ export default function ShadcnDashboard() {
                                 <Select value={theme} onValueChange={setTheme}>
                                     <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
                                     <SelectContent>
-                                        {themes.map((themeOption) => (
+                                        {getAvailableThemes().map((themeOption) => (
                                             <SelectItem key={themeOption.name} value={themeOption.name}>
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10"> {/* Container para a paleta */}

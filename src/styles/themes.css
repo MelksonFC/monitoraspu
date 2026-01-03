@@ -2,6 +2,9 @@
   Este arquivo define todas as paletas de cores para os temas do dashboard.
   --chart-color-*: Usado quando o usuário seleciona "Colorido".
   --chart-mono-*: Usado quando o usuário seleciona "Monocromático".
+  
+  IMPORTANTE: Os temas definidos aqui têm prioridade sobre o modo escuro global.
+  Quando um [data-theme] está definido, ele sobrescreve as variáveis do .dark
 */
 
 :root {
@@ -183,7 +186,7 @@
 /*           TEMA VULCÃO ATIVO              */
 [data-theme="theme-volcano"] {
   /* Cores de Interface: Rocha e Magma */
-  --background: 15 15% 5%;          /* Preto vulcânico profundo */
+  --background: 0 0% 7%;          /* #121212 - Dark Green */
   --foreground: 20 40% 98%;          /* Branco levemente quente (cinza claro) */
   --card: 15 12% 8%;                 /* Cinza basalto */
   --card-foreground: 20 40% 98%;
@@ -246,7 +249,7 @@
 
 /* --- TEMA DARK florestal (Referência Imagem 8) --- */
 [data-theme="theme-dark-forest"] {
-  --background: 168 50% 4%;
+  --background: 0 0% 7%;
   --foreground: 168 20% 90%;
   --card: 168 40% 6%;
   --card-foreground: 168 20% 95%;
@@ -298,7 +301,7 @@
 
 /* --- TEMA DARK MOUNTAIN --- */
 [data-theme="theme-dark-mountain"] {
-  --background: 226 34% 4%;
+  --background: 0 0% 7%;
   --foreground: 226 20% 90%;
   --card: 226 34% 7%;
   --card-foreground: 226 20% 95%;

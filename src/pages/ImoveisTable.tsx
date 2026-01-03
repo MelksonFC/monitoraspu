@@ -684,30 +684,31 @@ export default function ImoveisTable() {
         setIsLayoutReady(true);
     }, [columns, sorted, isLoading, imoveis.length]);
 
-  function getCellBorder(colId: string, columns: string[]) { return colId !== columns[columns.length - 1] ? "1px solid #dedede" : undefined; }
+  function getCellBorder(colId: string, columns: string[]) { return colId !== columns[columns.length - 1] ? "1px solid hsl(var(--border))" : undefined; }
   const totalValorSelecionado = selectedRows.reduce((acc, curr) => { const valor = Number(curr.valorimovel); return acc + (isNaN(valor) ? 0 : valor); }, 0);
   function formatValor(valor: number) { return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
 
-  const headerColor = "#f0f4f8";
-  const zebraColor = "#f7fafc";
-  const rowColor = "#fff";
+  const headerColor = "hsl(var(--card))";
+  const zebraColor = "hsl(var(--muted))";
+  const rowColor = "hsl(var(--card))";
 
   //const lookupMap: { [key: string]: LookupItem[] } = { idpais: paises, idestado: estados, idmunicipio: municipios, idunidadegestora: unidadesGestoras, idregimeutilizacao: regimes, usercreated: usuarios, usermodified: usuarios };
   const rightAlignFields = ["valorimovel", "areaconstruida", "areaterreno"];
 
   return (
     <Paper
-      sx={{ p: 2, width: "100%", maxWidth: PAPER_MAX_WIDTH, margin: "0 auto", overflow: "hidden", height: "calc(100vh - 100px)", display: "flex", flexDirection: "column" }}
+      className="bg-background text-foreground"
+      sx={{ p: 2, width: "100%", maxWidth: PAPER_MAX_WIDTH, margin: "0 auto", overflow: "hidden", height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", bgcolor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}
     >
-      <Toolbar sx={{ px: 0, py: 1, flexShrink: 0, position: 'sticky', top: 0, zIndex: 12, bgcolor: 'background.paper' }}>
+      <Toolbar sx={{ px: 0, py: 1, flexShrink: 0, position: 'sticky', top: 0, zIndex: 12, bgcolor: 'hsl(var(--background))' }}>
         <Typography variant="h6" sx={{ flex: 1 }}>Imóveis</Typography>
-        <Button startIcon={<DownloadIcon />} onClick={e => setExportAnchorEl(e.currentTarget)}>Exportar</Button>
-        <Tooltip title="Editar"><span><Button startIcon={<EditIcon />} disabled={selectedRows.length !== 1} onClick={handleEdit}>Editar</Button></span></Tooltip>
-        <Tooltip title="Excluir"><span><Button startIcon={<DeleteIcon />} disabled={selectedRows.length === 0} onClick={handleDelete}>Excluir</Button></span></Tooltip>
+        <Button startIcon={<DownloadIcon />} onClick={e => setExportAnchorEl(e.currentTarget)} sx={{ color: 'hsl(var(--foreground))' }}>Exportar</Button>
+        <Tooltip title="Editar"><span><Button startIcon={<EditIcon />} disabled={selectedRows.length !== 1} onClick={handleEdit} sx={{ color: 'hsl(var(--foreground))' }}>Editar</Button></span></Tooltip>
+        <Tooltip title="Excluir"><span><Button startIcon={<DeleteIcon />} disabled={selectedRows.length === 0} onClick={handleDelete} sx={{ color: 'hsl(var(--foreground))' }}>Excluir</Button></span></Tooltip>
         <Tooltip title="Incluir"><span><Button startIcon={<AddIcon />} variant="contained" color="primary" onClick={handleAdd}>Incluir</Button></span></Tooltip>
-        <Tooltip title="Restaurar ordem padrão"><IconButton onClick={handleResetOrder}><SettingsBackupRestoreIcon /></IconButton></Tooltip>
-        <Tooltip title="Configurar colunas"><IconButton onClick={e => setAnchorEl(e.currentTarget)}><ViewColumnIcon /></IconButton></Tooltip>
-        <Tooltip title="Limpar todos os filtros"><IconButton onClick={handleClearFilters}><ClearAllIcon /></IconButton></Tooltip>
+        <Tooltip title="Restaurar ordem padrão"><IconButton onClick={handleResetOrder} sx={{ color: 'hsl(var(--foreground))' }}><SettingsBackupRestoreIcon /></IconButton></Tooltip>
+        <Tooltip title="Configurar colunas"><IconButton onClick={e => setAnchorEl(e.currentTarget)} sx={{ color: 'hsl(var(--foreground))' }}><ViewColumnIcon /></IconButton></Tooltip>
+        <Tooltip title="Limpar todos os filtros"><IconButton onClick={handleClearFilters} sx={{ color: 'hsl(var(--foreground))' }}><ClearAllIcon /></IconButton></Tooltip>
       </Toolbar>
 
       <Box sx={{ width: "100%", overflow: "auto", flexGrow: 1 }}>
@@ -749,6 +750,7 @@ export default function ImoveisTable() {
                     key={col.id}
                     sx={{
                       position: "sticky", top: 0, bgcolor: headerColor,
+                      color: 'hsl(var(--foreground))',
                       zIndex: 10,
                       width: columnWidths[col.id], minWidth: columnWidths[col.id], 
                       maxWidth: 400,
@@ -772,7 +774,7 @@ export default function ImoveisTable() {
                         <IconButton
                           size="small"
                           className="filter-icon"
-                          sx={{ ml: 0.5, opacity: isFiltered ? 1 : 0, transition: "opacity 0.2s" }}
+                          sx={{ ml: 0.5, opacity: isFiltered ? 1 : 0, transition: "opacity 0.2s", color: 'hsl(var(--foreground))' }}
                           onClick={(e) => { e.stopPropagation(); handleOpenFilterMenu(e, col); }}
                         >
                           <FilterListIcon fontSize="small" color={isFiltered ? "primary" : "inherit"} />
@@ -822,6 +824,7 @@ export default function ImoveisTable() {
                         transition: "width 0.2s",
                         textAlign: rightAlignFields.includes(colId) ? "right" : col.numeric || col.type === 'boolean' ? "center" : "left",
                         borderRight: getCellBorder(colId, columns),
+                        color: 'hsl(var(--foreground))',
                       }}
                     >
                       {formatTableCell(col.id, item[col.id])}
@@ -836,7 +839,7 @@ export default function ImoveisTable() {
       </Box>
 
       {/* ... (Barra de status e todos os Dialogs/Menus permanecem os mesmos) ... */}
-      <Box sx={{ background: "#f0f4f8", borderTop: "1px solid #dedede", height: 40, display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0 24px", flexShrink: 0 }}>
+      <Box sx={{ background: "hsl(var(--card))", borderTop: "1px solid hsl(var(--border))", height: 40, display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0 24px", flexShrink: 0, color: 'hsl(var(--foreground))' }}>
         <span>{selectedRows.length > 0 ? `Selecionados: ${selectedRows.length} | Valor total: ${formatValor(totalValorSelecionado)}` : "Nenhum registro selecionado"}</span>
       </Box>
       <Menu anchorEl={filterAnchorEl} open={Boolean(filterAnchorEl)} onClose={handleCloseFilterMenu} >

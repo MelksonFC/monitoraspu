@@ -210,15 +210,15 @@ export default function ImovelEditPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
+    <Container maxWidth="lg" className="bg-background text-foreground" sx={{ mt: 2, mb: 4, bgcolor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
       {imovel ? (
         <>
-          <Paper elevation={3} sx={{ p: 2, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          <Paper elevation={3} className="bg-card text-foreground" sx={{ p: 2, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
             <Box>
-                <Typography variant="h5" component="h1">
+                <Typography variant="h5" component="h1" sx={{ color: 'hsl(var(--foreground))' }}>
                   Cadastro do Imóvel
                 </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
+                <Typography variant="subtitle1" sx={{ color: 'hsl(var(--muted-foreground))' }}>
                   {imovel.nome}
                 </Typography>
             </Box>

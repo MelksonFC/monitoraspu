@@ -21,6 +21,7 @@ type ThemeContextType = {
   uiMode: UiMode;
   setUiMode: (mode: UiMode) => void;
   themes: Theme[];
+  getAvailableThemes: () => Theme[];
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -34,8 +35,10 @@ const themes: Theme[] = [
     { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40", isDark: true },
 ];
 
-const applyTheme = (themeName: string) => {
-    document.documentElement.setAttribute('data-theme', themeName);
+const applyTheme = () => {
+    // O tema agora é aplicado diretamente no Dashboard via prop data-theme
+    // Não precisa mais ser aplicado globalmente no documentElement
+    // Mantemos esta função para possíveis chamadas, mas ela não faz nada
 };
 
 const applyUiMode = (mode: UiMode) => {
@@ -68,7 +71,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           setChartColorSchemeState(savedScheme);
           setUiModeState(savedUiMode);
 
-          applyTheme(savedTheme);
+          applyTheme();
           applyUiMode(savedUiMode);
           localStorage.setItem('theme', savedTheme);
           localStorage.setItem('chartColorScheme', savedScheme);
@@ -82,7 +85,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           const storedUiMode = localStorage.getItem('uiMode') as UiMode | null;
           if (storedTheme) {
             setThemeState(storedTheme);
-            applyTheme(storedTheme);
+            applyTheme();
           }
           if (storedScheme) {
             setChartColorSchemeState(storedScheme);
@@ -101,7 +104,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const updateTheme = async (newTheme: ThemeName) => {
     console.log(`Tentando alterar o tema para: ${newTheme}`);
     setThemeState(newTheme);
-    applyTheme(newTheme);
+    applyTheme();
     localStorage.setItem('theme', newTheme); // Atualização otimista da UI
 
     if (usuario?.id) {
@@ -121,10 +124,43 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     applyUiMode(newMode);
     localStorage.setItem('uiMode', newMode);
 
+    // Verifica se o tema atual é compatível com o novo modo
+    const currentThemeObj = themes.find(t => t.name === theme);
+    const needsThemeChange = currentThemeObj && (currentThemeObj.isDark !== (newMode === 'dark'));
+    
+    let themeToSave = theme;
+    let schemeToSave = chartColorScheme;
+
+    if (needsThemeChange) {
+      // Define o tema padrão baseado no modo
+      const defaultTheme = newMode === 'dark' ? 'theme-dark-forest' : 'theme-blue';
+      console.log(`Tema incompatível detectado. Mudando para: ${defaultTheme}`);
+      
+      setThemeState(defaultTheme);
+      applyTheme();
+      localStorage.setItem('theme', defaultTheme);
+      themeToSave = defaultTheme;
+
+      // Define o esquema de cores como monocromático
+      setChartColorSchemeState('monochromatic');
+      localStorage.setItem('chartColorScheme', 'monochromatic');
+      schemeToSave = 'monochromatic';
+    }
+
     if (usuario?.id) {
       try {
-        console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, { uimode: newMode });
-        await api.put(`/userpreferences/${usuario.id}`, { uimode: newMode });
+        const payload: any = { uimode: newMode };
+        
+        // Se houve mudança de tema, salva tudo junto
+        if (needsThemeChange) {
+          payload.themepreference = themeToSave;
+          payload.chartcolorscheme = schemeToSave;
+          console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, payload);
+        } else {
+          console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, payload);
+        }
+        
+        await api.put(`/userpreferences/${usuario.id}`, payload);
       } catch (error) {
         console.error("Falha ao salvar modo de UI na API", error);
       }
@@ -147,6 +183,10 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const getAvailableThemes = () => {
+    return themes.filter(t => t.isDark === (uiMode === 'dark'));
+  };
+
   return (
     <ThemeContext.Provider value={{ 
         theme, 
@@ -155,7 +195,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         setChartColorScheme: updateChartColorScheme,
         uiMode,
         setUiMode: updateUiMode,
-        themes 
+        themes,
+        getAvailableThemes
     }}>
       {children}
     </ThemeContext.Provider>

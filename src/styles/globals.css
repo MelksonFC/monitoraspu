@@ -13,6 +13,8 @@
   }
 
   :root {
+    /* Material Design Light Theme */
+    /* Base colors */
     --blue-dark: 210 100% 12%;
     --blue-primary: 211 100% 50%;
     --blue-light: 208 79% 66%;
@@ -22,48 +24,79 @@
     --text-light: 0 0% 100%;
     --accent-orange: 30 100% 50%;
 
-    --background: var(--gray-light);
-    --foreground: var(--gray-dark);
-    --card: var(--text-light);
-    --card-foreground: var(--gray-dark);
-    --popover: var(--text-light);
-    --popover-foreground: var(--gray-dark);
-    --primary: var(--blue-primary);
-    --primary-foreground: var(--text-light);
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 215 20.2% 65.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: var(--accent-orange);
-    --accent-foreground: var(--text-light);
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: var(--text-light);
-    --border: var(--gray-medium);
-    --input: var(--gray-medium);
-    --ring: var(--blue-primary);
+    /* Surface colors - Material Design elevation system */
+    --background: 0 0% 98%;       /* Base surface (light gray, not pure white) */
+    --card: 0 0% 100%;            /* Elevated surface (pure white) */
+    --popover: 0 0% 100%;         /* Elevated surface */
+    --secondary: 0 0% 96%;        /* Secondary surfaces */
+    --muted: 0 0% 96%;            /* Muted backgrounds */
+    --accent: 30 100% 95%;        /* Accent background (light orange tint) */
+    --input: 0 0% 96%;            /* Input backgrounds */
+    --border: 0 0% 88%;           /* Borders and dividers */
+    
+    /* Text colors - Material Design opacity recommendations */
+    --foreground: 0 0% 13%;       /* High-emphasis text (87% black ≈ #212121) */
+    --card-foreground: 0 0% 13%;  /* High-emphasis text */
+    --popover-foreground: 0 0% 13%;
+    --secondary-foreground: 0 0% 38%; /* Medium-emphasis text (60% black) */
+    --muted-foreground: 0 0% 38%;     /* Medium-emphasis text */
+    
+    /* Primary colors - Saturated for light theme */
+    --primary: 211 100% 50%;      /* Primary brand color (saturated) */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Accent with high saturation */
+    --accent-foreground: 0 0% 13%;
+    
+    /* Disabled text uses 38% black opacity */
+    --disabled: 0 0% 62%;
+    
+    /* Error color - Material baseline */
+    --destructive: 0 90% 51%;     /* #B00020 */
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Ring/focus states */
+    --ring: 211 100% 50%;
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: var(--blue-dark);
-    --foreground: var(--text-light);
-    --card: 210 100% 18%;
-    --card-foreground: var(--text-light);
-    --popover: var(--blue-dark);
-    --popover-foreground: var(--text-light);
-    --primary: var(--blue-light);
-    --primary-foreground: var(--blue-dark);
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 215 20.2% 65.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: var(--blue-light);
-    --accent-foreground: var(--blue-dark);
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 210 40% 98%;
+    /* Base: #121212 (Material Design recommendation) */
+    --background: 0 0% 7%;        /* #121212 - Base surface */
+    
+    /* Elevation system - lighter surfaces at higher elevations */
+    --card: 0 0% 12%;             /* 01dp elevation (5% white overlay on #121212) */
+    --popover: 0 0% 14%;          /* 02dp elevation (7% white overlay) */
+    --secondary: 0 0% 15%;        /* 03dp elevation (8% white overlay) */
+    --muted: 0 0% 16%;            /* 04dp elevation (9% white overlay) */
+    --accent: 0 0% 18%;           /* 06dp elevation (11% white overlay) */
+    --input: 0 0% 19%;            /* 08dp elevation (12% white overlay) */
+    --border: 0 0% 20%;           /* 12dp elevation dividers */
+    
+    /* Text colors - Material Design opacity recommendations */
+    --foreground: 0 0% 87%;       /* High-emphasis text (87% white) */
+    --card-foreground: 0 0% 87%;  /* High-emphasis text */
+    --popover-foreground: 0 0% 87%;
+    --secondary-foreground: 0 0% 60%; /* Medium-emphasis text (60% white) */
+    --muted-foreground: 0 0% 60%;     /* Medium-emphasis text */
+    
+    /* Primary colors - Desaturated for accessibility (WCAG AA) */
+    --primary: 210 50% 70%;       /* Desaturated blue (200 tonal value) */
+    --primary-foreground: 0 0% 9%;
+    
+    /* Disabled states use 38% white */
+    --disabled: 0 0% 38%;
+    
+    /* Error color - Material baseline dark theme */
+    --destructive: 0 74% 70%;     /* #CF6679 lightened for contrast */
+    --destructive-foreground: 0 0% 7%;
+    
+    /* Ring/focus states */
+    --ring: 210 50% 70%;
+    
+    /* Card gradients with elevation */
+    --card-gradient: linear-gradient(135deg, hsl(0, 0%, 12%), hsl(0, 0%, 15%));
+    --card-gradient-foreground: hsl(0, 0%, 87%);
   }
 }
 
@@ -85,6 +118,113 @@
     color: var(--card-gradient-foreground);
     opacity: 0.8;
   }
+}
+
+/* Material Design Dark Theme - Component overrides */
+.dark .MuiAppBar-root {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiPaper-root {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiMenuItem-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiMenuItem-root:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+.dark .MuiDivider-root {
+  border-color: hsl(var(--border)) !important;
+  opacity: 0.12; /* Material Design divider opacity */
+}
+
+/* Material Design Light Theme - Component overrides */
+.MuiDivider-root {
+  border-color: hsl(var(--border)) !important;
+  opacity: 0.12;
+}
+
+/* Text emphasis levels - both themes */
+.text-high-emphasis {
+  opacity: 0.87;
+}
+
+.text-medium-emphasis {
+  opacity: 0.60;
+}
+
+.text-disabled {
+  opacity: 0.38;
+}
+
+/* Dark theme text emphasis */
+.dark .text-high-emphasis {
+  opacity: 0.87;
+}
+
+.dark .text-medium-emphasis {
+  opacity: 0.60;
+}
+
+.dark .text-disabled {
+  opacity: 0.38;
+}
+
+/* Interactive states - Light theme (darker overlay on light surfaces) */
+button:hover,
+.hover\:bg-accent:hover {
+  position: relative;
+}
+
+button:hover::before,
+.hover\:bg-accent:hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.04); /* Material hover overlay for light theme */
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+button:active::before,
+.hover\:bg-accent:active::before {
+  background-color: rgba(0, 0, 0, 0.12); /* Material pressed overlay for light theme */
+}
+
+/* Interactive states - Dark theme (lighter overlay on dark surfaces) */
+.dark button:hover,
+.dark .hover\:bg-accent:hover {
+  position: relative;
+}
+
+.dark button:hover::before,
+.dark .hover\:bg-accent:hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.08); /* Material hover overlay */
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.dark button:active::before,
+.dark .hover\:bg-accent:active::before {
+  background-color: rgba(255, 255, 255, 0.12); /* Material pressed overlay */
+}
+
+/* Images and icons in dark mode - slight reduction for eye comfort */
+.dark img:not([class*="logo"]) {
+  opacity: 0.87;
+}
+
+.dark svg:not([class*="logo"]) {
+  opacity: 0.87;
 }
 
 .leaflet-container {

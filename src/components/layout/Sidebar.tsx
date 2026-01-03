@@ -33,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggleCollapsed, headerH
     <Drawer
       variant="permanent"
       anchor="left"
+      className="bg-card text-foreground"
       sx={{
         width: collapsed ? collapsedWidth : drawerWidth,
         flexShrink: 0,
@@ -43,6 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggleCollapsed, headerH
           overflowX: "hidden",
           marginTop: `${headerHeight}px`,
           height: `calc(100vh - ${headerHeight}px)`,
+          backgroundColor: 'hsl(var(--card))',
+          color: 'hsl(var(--foreground))',
+          borderRight: '1px solid hsl(var(--border))'
         },
       }}
       PaperProps={{
@@ -60,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggleCollapsed, headerH
         justifyContent: collapsed ? "center" : "flex-start",
         pl: collapsed ? 0 : 1
       }}>
-        <IconButton onClick={onToggleCollapsed}>
+        <IconButton onClick={onToggleCollapsed} sx={{ color: 'hsl(var(--foreground))' }}>
           <MenuIcon />
         </IconButton>
       </Box>
@@ -75,11 +79,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggleCollapsed, headerH
             sx={{ justifyContent: collapsed ? "center" : "flex-start", px: collapsed ? 0 : 2 }}
           >
             <Tooltip title="Dashboard" placement="right" disableHoverListener={!collapsed}>
-              <ListItemIcon sx={{ minWidth: 0, justifyContent: "center" }}>
+              <ListItemIcon sx={{ minWidth: 0, justifyContent: "center", color: 'hsl(var(--foreground))' }}>
                 <HomeIcon />
               </ListItemIcon>
             </Tooltip>
-            {!collapsed && <ListItemText primary="Dashboard" sx={{ ml: 2 }}/> }
+            {!collapsed && <ListItemText primary="Dashboard" sx={{ ml: 2, color: 'hsl(var(--foreground))' }}/> }
           </ListItemButton>
         </ListItem>
         {/* Tabela de Imóveis */}
@@ -89,11 +93,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggleCollapsed, headerH
             sx={{ justifyContent: collapsed ? "center" : "flex-start", px: collapsed ? 0 : 2 }}
           >
             <Tooltip title="Imóveis" placement="right" disableHoverListener={!collapsed}>
-              <ListItemIcon sx={{ minWidth: 0, justifyContent: "center" }}>
+              <ListItemIcon sx={{ minWidth: 0, justifyContent: "center", color: 'hsl(var(--foreground))' }}>
                 <TableViewIcon />
               </ListItemIcon>
             </Tooltip>
-            {!collapsed && <ListItemText primary="Imóveis" sx={{ ml: 2 }}/> }
+            {!collapsed && <ListItemText primary="Imóveis" sx={{ ml: 2, color: 'hsl(var(--foreground))' }}/> }
           </ListItemButton>
         </ListItem>
         {/* 2. Adicione o novo item de menu para o Mapa */}
@@ -103,11 +107,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggleCollapsed, headerH
             sx={{ justifyContent: collapsed ? "center" : "flex-start", px: collapsed ? 0 : 2 }}
           >
             <Tooltip title="Mapa" placement="right" disableHoverListener={!collapsed}>
-              <ListItemIcon sx={{ minWidth: 0, justifyContent: "center" }}>
+              <ListItemIcon sx={{ minWidth: 0, justifyContent: "center", color: 'hsl(var(--foreground))' }}>
                 <MapIcon />
               </ListItemIcon>
             </Tooltip>
-            {!collapsed && <ListItemText primary="Mapa" sx={{ ml: 2 }}/> }
+            {!collapsed && <ListItemText primary="Mapa" sx={{ ml: 2, color: 'hsl(var(--foreground))' }}/> }
           </ListItemButton>
         </ListItem>
       </List>
