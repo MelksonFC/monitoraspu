@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     filterops:   { type: DataTypes.JSONB },
     filterrange: { type: DataTypes.JSONB },
     compactmode: { type: DataTypes.BOOLEAN, defaultValue: false },
+    rowsperpage: { type: DataTypes.INTEGER, defaultValue: 50 },
     updatedat:   { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   }, {
     sequelize,

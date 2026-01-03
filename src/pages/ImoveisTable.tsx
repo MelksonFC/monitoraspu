@@ -3,7 +3,7 @@ import {
   Button, Table, TableHead, TableRow, TableCell, TableBody,
   TableSortLabel, TextField, Checkbox, Toolbar, Typography,
   Menu, MenuItem, Paper, Select, IconButton, Tooltip, Dialog, DialogContent, FormControl, InputLabel, OutlinedInput, ListItemText, DialogTitle, DialogActions, Box,
-  CircularProgress
+  CircularProgress, TablePagination
 } from "@mui/material";
 // ... (outras importações)
 import DownloadIcon from "@mui/icons-material/Download";
@@ -46,7 +46,8 @@ async function saveUserTableConfig(userId: number | string, config: {
   filters: any,
   filterops: any,
   filterrange: any,
-  compactmode: boolean
+  compactmode: boolean,
+  rowsperpage: number
 }) {
   const apiUrl = import.meta.env.VITE_API_URL;
   try {
@@ -194,6 +195,8 @@ export default function ImoveisTable() {
     const [isLoading, setIsLoading] = useState(true);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
     const [compactMode, setCompactMode] = useState(false);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(50);
 
     const showLoading = isLoading || !isLayoutReady;
 
@@ -210,6 +213,7 @@ export default function ImoveisTable() {
           setFilterOps(config.filterops || {});
           setFilterRange(config.filterrange || {});
           setCompactMode(config.compactmode || false);
+          setRowsPerPage(config.rowsperpage || 50);
         }
       });
     }, [usuario?.id]);
@@ -223,10 +227,11 @@ export default function ImoveisTable() {
         filters,
         filterops: filterOps,
         filterrange: filterRange,
-        compactmode: compactMode
+        compactmode: compactMode,
+        rowsperpage: rowsPerPage
       };
       saveUserTableConfig(usuario.id, config);
-    }, [columns, orderBy, orderDir, filters, filterOps, filterRange, compactMode, usuario?.id]);
+    }, [columns, orderBy, orderDir, filters, filterOps, filterRange, compactMode, rowsPerPage, usuario?.id]);
 
     async function fetchImoveis() {
     setIsLoading(true);
@@ -266,6 +271,10 @@ export default function ImoveisTable() {
 
   useEffect(() => { fetchImoveis(); }, []);
 
+  // Reseta para a primeira página quando filtros, ordenação ou dados mudam
+  useEffect(() => {
+    setPage(0);
+  }, [filters, filterOps, filterRange, orderBy, orderDir, imoveis.length]);
 
 
   function getLookupNome(arr: LookupItem[], id: number | string | undefined): string {
@@ -433,6 +442,20 @@ export default function ImoveisTable() {
     return options;
   }, [sorted, paises, estados, municipios, unidadesGestoras, regimes, usuarios]);
 
+  // Array paginado - aplicado DEPOIS de filtros e ordenação
+  const paginatedData = useMemo(() => {
+    const startIndex = page * rowsPerPage;
+    return sorted.slice(startIndex, startIndex + rowsPerPage);
+  }, [sorted, page, rowsPerPage]);
+
+  // Otimização: calcula soma apenas dos selecionados com useMemo
+  const totalValorSelecionado = useMemo(() => {
+    return selectedRows.reduce((acc, curr) => {
+      const valor = Number(curr.valorimovel);
+      return acc + (isNaN(valor) ? 0 : valor);
+    }, 0);
+  }, [selectedRows]);
+
   const displayedImovelIds = useMemo(() => sorted.map(imovel => imovel.idimovel), [sorted]);
   const handleNavigate = async (newId: number) => {
     try {
@@ -451,10 +474,24 @@ export default function ImoveisTable() {
     );
   }
   function handleSelectAll(e: React.ChangeEvent<HTMLInputElement>) {
-    setSelectedRows(e.target.checked ? sorted : []);
+    if (e.target.checked) {
+      // Seleciona apenas os itens da página atual
+      const newSelections = paginatedData.filter(
+        item => !selectedRows.find(r => r.idimovel === item.idimovel)
+      );
+      setSelectedRows([...selectedRows, ...newSelections]);
+    } else {
+      // Desmarca apenas os itens da página atual
+      const currentPageIds = paginatedData.map(item => item.idimovel);
+      setSelectedRows(selectedRows.filter(r => !currentPageIds.includes(r.idimovel)));
+    }
   }
-  const allSelected = sorted.length > 0 && sorted.length === selectedRows.length;
-  const someSelected = selectedRows.length > 0 && selectedRows.length < sorted.length;
+  const allSelected = paginatedData.length > 0 && paginatedData.every(item => 
+    selectedRows.find(r => r.idimovel === item.idimovel)
+  );
+  const someSelected = paginatedData.some(item => 
+    selectedRows.find(r => r.idimovel === item.idimovel)
+  ) && !allSelected;
   function handleExport(type: "csv" | "xlsx") {
     const exportData = (selectedRows.length > 0 ? selectedRows : sorted).map(item => {
       const obj: { [key: string]: any } = {};
@@ -630,7 +667,17 @@ export default function ImoveisTable() {
     setFilters({});
     setFilterOps({});
     setFilterRange({});
+    setPage(0); // Reseta para primeira página
   }
+  
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reseta para primeira página ao mudar linhas por página
+  };
   const handleOpenFilterMenu = (event: React.MouseEvent<HTMLElement>, col: ColumnDef) => {
     setFilterAnchorEl(event.currentTarget);
     setCurrentFilteringCol(col);
@@ -684,7 +731,6 @@ export default function ImoveisTable() {
     }, [columns, sorted, isLoading, imoveis.length]);
 
   function getCellBorder(colId: string, columns: string[]) { return colId !== columns[columns.length - 1] ? "1px solid hsl(var(--border))" : undefined; }
-  const totalValorSelecionado = selectedRows.reduce((acc, curr) => { const valor = Number(curr.valorimovel); return acc + (isNaN(valor) ? 0 : valor); }, 0);
   function formatValor(valor: number) { return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
 
   const headerColor = "hsl(0 0% 15%)";
@@ -859,7 +905,7 @@ export default function ImoveisTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sorted.map((item, idx) => (
+            {paginatedData.map((item, idx) => (
               <TableRow 
                 key={item.idimovel} 
                 hover 
@@ -946,20 +992,49 @@ export default function ImoveisTable() {
       )}
       </Box>
 
-      {/* ... (Barra de status e todos os Dialogs/Menus permanecem os mesmos) ... */}
+      {/* Pagina\u00e7\u00e3o */}
+      <TablePagination
+        component="div"
+        count={sorted.length}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[25, 50, 100, 200, 500]}
+        labelRowsPerPage="Linhas por p\u00e1gina:"
+        labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+        sx={{
+          bgcolor: 'hsl(var(--card))',
+          borderTop: '1px solid hsl(var(--border))',
+          color: 'hsl(var(--foreground))',
+          flexShrink: 0,
+          '.MuiTablePagination-select': {
+            color: 'hsl(var(--foreground))',
+          },
+          '.MuiTablePagination-selectIcon': {
+            color: 'hsl(var(--foreground))',
+          },
+          '.MuiTablePagination-actions': {
+            color: 'hsl(var(--foreground))',
+          },
+        }}
+      />
+
+      {/* Barra de status */}
       <Box sx={{ 
         bgcolor: 'hsl(var(--card))', 
-        borderTop: "2px solid hsl(var(--border))", 
+        borderTop: "1px solid hsl(var(--border))", 
         height: 48, 
         display: "flex", 
         alignItems: "center", 
-        justifyContent: "flex-start", 
+        justifyContent: "space-between", 
         px: 3, 
         flexShrink: 0, 
         color: 'hsl(var(--foreground))',
         fontWeight: 500
       }}>
         <span>{selectedRows.length > 0 ? `Selecionados: ${selectedRows.length} | Valor total: ${formatValor(totalValorSelecionado)}` : "Nenhum registro selecionado"}</span>
+        <span>Total de registros: {sorted.length}</span>
       </Box>
       <Menu anchorEl={filterAnchorEl} open={Boolean(filterAnchorEl)} onClose={handleCloseFilterMenu} >
         {currentFilteringCol && (
