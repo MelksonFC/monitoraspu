@@ -69,7 +69,7 @@ router.put("/:userid", async (req, res) => {
         themepreference: themepreference || defaultPreferences.themepreference,
         chartcolorscheme: chartcolorscheme || defaultPreferences.chartcolorscheme,
         uimode: uimode || defaultPreferences.uimode,
-        updatedat: new Date(),
+        updatedAt: new Date(),
       }, { transaction: t });
     } else {
       // Se encontrar, atualiza apenas os campos que foram fornecidos
@@ -82,7 +82,7 @@ router.put("/:userid", async (req, res) => {
       if (uimode) {
         userPreference.uimode = uimode;
       }
-      userPreference.updatedat = new Date();
+      userPreference.updatedAt = new Date();
       await userPreference.save({ transaction: t });
     }
 

@@ -28,9 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 'light', // 'light', 'dark'
       },
-      updatedat: {
+      updatedAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+        field: 'updatedat' // Mapeia o campo 'updatedAt' para a coluna 'updatedat'
       },
     },
     {
