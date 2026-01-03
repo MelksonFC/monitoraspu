@@ -139,30 +139,8 @@ export default function ShadcnDashboard() {
     const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
     const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-    
-    // Estado local para gerenciar as seleções no menu antes de aplicar
-    const [selectedTheme, setSelectedTheme] = useState(theme);
-    const [selectedChartColorScheme, setSelectedChartColorScheme] = useState(chartColorScheme);
 
     const { isPresentationMode, togglePresentationMode } = useLayout();
-
-    // Sincroniza o estado local com o contexto quando o menu é aberto
-    const openThemeMenu = () => {
-        setSelectedTheme(theme);
-        setSelectedChartColorScheme(chartColorScheme);
-        setIsThemeMenuOpen(true);
-    };
-
-    const handleApplyTheme = async () => {
-        // Chama as funções do contexto para atualizar o tema e o esquema de cores
-        if (selectedTheme !== theme) {
-            setTheme(selectedTheme);
-        }
-        if (selectedChartColorScheme !== chartColorScheme) {
-            setChartColorScheme(selectedChartColorScheme);
-        }
-        setIsThemeMenuOpen(false);
-    };
 
     useEffect(() => {
         if (!usuario?.id) { setLoading(false); return; }
@@ -401,7 +379,7 @@ export default function ShadcnDashboard() {
 
                 {/* Menu de Configurações de Tema */}
                 <div className="relative">
-                    <Button variant="outline" size="icon" onClick={isThemeMenuOpen ? () => setIsThemeMenuOpen(false) : openThemeMenu} aria-label="Personalizar Tema">
+                    <Button variant="outline" size="icon" onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)} aria-label="Personalizar Tema">
                         <Settings className="h-5 w-5" />
                     </Button>
                     {isThemeMenuOpen && (
@@ -410,16 +388,16 @@ export default function ShadcnDashboard() {
                         <div className="space-y-4">
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Tema Visual</label>
-                                <Select value={selectedTheme} onValueChange={setSelectedTheme}>
+                                <Select value={theme} onValueChange={setTheme}>
                                     <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
                                     <SelectContent>
-                                        {themes.map((theme) => (
-                                            <SelectItem key={theme.name} value={theme.name}>
+                                        {themes.map((themeOption) => (
+                                            <SelectItem key={themeOption.name} value={themeOption.name}>
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10"> {/* Container para a paleta */}
-                                                        <ThemePaletteSwatch theme={theme} />
+                                                        <ThemePaletteSwatch theme={themeOption} />
                                                     </div>
-                                                    {theme.label}
+                                                    {themeOption.label}
                                                 </div>
                                             </SelectItem>
                                         ))}
@@ -429,7 +407,7 @@ export default function ShadcnDashboard() {
                             {/* [NOVO] Seletor de Esquema de Cores do Gráfico */}
                             <div>
                                 <label className="text-sm font-medium text-muted-foreground">Cores dos Gráficos</label>
-                                <Select value={selectedChartColorScheme} onValueChange={(value) => setSelectedChartColorScheme(value as any)}>
+                                <Select value={chartColorScheme} onValueChange={(value) => setChartColorScheme(value as any)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="multicolor">Colorido</SelectItem>
@@ -437,16 +415,6 @@ export default function ShadcnDashboard() {
                                     </SelectContent>
                                 </Select>
                             </div>
-
-                            <CardFooter className="p-0 pt-4">
-                                <Button
-                                    onClick={handleApplyTheme}
-                                    disabled={selectedTheme === theme && selectedChartColorScheme === chartColorScheme}
-                                    className="w-full"
-                                >
-                                    Aplicar
-                                </Button>
-                            </CardFooter>
                         </div>
                     </div>
                 )}
