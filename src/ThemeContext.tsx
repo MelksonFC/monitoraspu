@@ -4,6 +4,7 @@ import api from './services/api';
 
 type ThemeName = string;
 type ChartColorScheme = 'monochromatic' | 'multicolor';
+type UiMode = 'light' | 'dark';
 
 interface Theme {
   name: ThemeName;
@@ -17,6 +18,8 @@ type ThemeContextType = {
   setTheme: (theme: ThemeName) => void;
   chartColorScheme: ChartColorScheme;
   setChartColorScheme: (scheme: ChartColorScheme) => void;
+  uiMode: UiMode;
+  setUiMode: (mode: UiMode) => void;
   themes: Theme[];
 };
 
@@ -35,10 +38,19 @@ const applyTheme = (themeName: string) => {
     document.documentElement.setAttribute('data-theme', themeName);
 };
 
+const applyUiMode = (mode: UiMode) => {
+    if (mode === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+};
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const { usuario } = useAuth();
   const [theme, setThemeState] = useState<ThemeName>('theme-blue');
   const [chartColorScheme, setChartColorSchemeState] = useState<ChartColorScheme>('monochromatic');
+  const [uiMode, setUiModeState] = useState<UiMode>('light');
 
   useEffect(() => {
     const fetchThemePreference = async () => {
@@ -50,25 +62,34 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           
           const savedTheme = data.themepreference || 'theme-blue';
           const savedScheme = data.chartcolorscheme || 'monochromatic';
+          const savedUiMode = data.uimode || 'light';
 
           setThemeState(savedTheme);
           setChartColorSchemeState(savedScheme);
+          setUiModeState(savedUiMode);
 
           applyTheme(savedTheme);
+          applyUiMode(savedUiMode);
           localStorage.setItem('theme', savedTheme);
           localStorage.setItem('chartColorScheme', savedScheme);
+          localStorage.setItem('uiMode', savedUiMode);
 
         } catch (error) {
           console.error("Falha ao buscar preferência de tema da API", error);
           // Fallback para localStorage se a API falhar
           const storedTheme = localStorage.getItem('theme') as ThemeName | null;
           const storedScheme = localStorage.getItem('chartColorScheme') as ChartColorScheme | null;
+          const storedUiMode = localStorage.getItem('uiMode') as UiMode | null;
           if (storedTheme) {
             setThemeState(storedTheme);
             applyTheme(storedTheme);
           }
           if (storedScheme) {
             setChartColorSchemeState(storedScheme);
+          }
+          if (storedUiMode) {
+            setUiModeState(storedUiMode);
+            applyUiMode(storedUiMode);
           }
         }
       }
@@ -90,6 +111,22 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Falha ao salvar preferência de tema na API", error);
         // TODO: Adicionar lógica para reverter em caso de erro, se necessário
+      }
+    }
+  };
+
+  const updateUiMode = async (newMode: UiMode) => {
+    console.log(`Tentando alterar o modo de UI para: ${newMode}`);
+    setUiModeState(newMode);
+    applyUiMode(newMode);
+    localStorage.setItem('uiMode', newMode);
+
+    if (usuario?.id) {
+      try {
+        console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, { uimode: newMode });
+        await api.put(`/userpreferences/${usuario.id}`, { uimode: newMode });
+      } catch (error) {
+        console.error("Falha ao salvar modo de UI na API", error);
       }
     }
   };
@@ -116,6 +153,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         setTheme: updateTheme, 
         chartColorScheme, 
         setChartColorScheme: updateChartColorScheme,
+        uiMode,
+        setUiMode: updateUiMode,
         themes 
     }}>
       {children}

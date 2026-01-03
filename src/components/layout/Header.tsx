@@ -13,7 +13,7 @@ import { Brightness4, Brightness7 } from "@mui/icons-material";
 
 const Header: React.FC = () => {
   const { usuario, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { uiMode, setUiMode } = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -110,9 +110,9 @@ const Header: React.FC = () => {
               <AssignmentIcon sx={{ mr: 1.5 }} />
               Cadastros Gerais
             </MenuItem>
-            <MenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-              {theme === 'light' ? <Brightness4 sx={{ mr: 1.5 }} /> : <Brightness7 sx={{ mr: 1.5 }} />}
-              Modo {theme === 'light' ? 'Escuro' : 'Claro'}
+            <MenuItem onClick={() => setUiMode(uiMode === 'light' ? 'dark' : 'light')}>
+              {uiMode === 'light' ? <Brightness4 sx={{ mr: 1.5 }} /> : <Brightness7 sx={{ mr: 1.5 }} />}
+              Modo {uiMode === 'light' ? 'Escuro' : 'Claro'}
             </MenuItem>
             {/* Itens de Admin */}
             {usuario?.idpermissao === 1 && (
