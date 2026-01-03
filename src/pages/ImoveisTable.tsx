@@ -16,6 +16,8 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import ViewCompactIcon from "@mui/icons-material/ViewCompact";
+import ViewStreamIcon from "@mui/icons-material/ViewStream";
 import ImovelForm from "./ImovelForm";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -43,7 +45,8 @@ async function saveUserTableConfig(userId: number | string, config: {
   orderdir: string,
   filters: any,
   filterops: any,
-  filterrange: any
+  filterrange: any,
+  compactmode: boolean
 }) {
   const apiUrl = import.meta.env.VITE_API_URL;
   try {
@@ -190,6 +193,7 @@ export default function ImoveisTable() {
     const [currentFilteringCol, setCurrentFilteringCol] = useState<ColumnDef | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isLayoutReady, setIsLayoutReady] = useState(false);
+    const [compactMode, setCompactMode] = useState(false);
 
     const showLoading = isLoading || !isLayoutReady;
 
@@ -205,6 +209,7 @@ export default function ImoveisTable() {
           setFilters(config.filters || {});
           setFilterOps(config.filterops || {});
           setFilterRange(config.filterrange || {});
+          setCompactMode(config.compactmode || false);
         }
       });
     }, [usuario?.id]);
@@ -217,10 +222,11 @@ export default function ImoveisTable() {
         orderdir: orderDir,
         filters,
         filterops: filterOps,
-        filterrange: filterRange
+        filterrange: filterRange,
+        compactmode: compactMode
       };
       saveUserTableConfig(usuario.id, config);
-    }, [columns, orderBy, orderDir, filters, filterOps, filterRange, usuario?.id]);
+    }, [columns, orderBy, orderDir, filters, filterOps, filterRange, compactMode, usuario?.id]);
 
     async function fetchImoveis() {
     setIsLoading(true);
@@ -268,17 +274,10 @@ export default function ImoveisTable() {
     return found ? (found.descricao || found.nome) : String(id);
   }
 
-  function formatTableCell(colId: string, value: any, context: 'display' | 'export' = 'display') {
+  function formatTableCell(colId: string, value: any) {
     if (colId === "situacao") {
       const isChecked = value === 1 || value === true;
-      if (context === 'export') {
-        return isChecked ? "Sim" : "Não";
-      }
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Checkbox checked={isChecked} readOnly />
-        </Box>
-      );
+      return isChecked ? "Sim" : "Não";
     }
     
     if (["valorimovel", "areaconstruida", "areaterreno"].includes(colId)) {
@@ -460,7 +459,7 @@ export default function ImoveisTable() {
     const exportData = (selectedRows.length > 0 ? selectedRows : sorted).map(item => {
       const obj: { [key: string]: any } = {};
       columns.forEach(colId => {
-        obj[getColumnLabel(colId)] = formatTableCell(colId, item[colId], 'export');
+        obj[getColumnLabel(colId)] = formatTableCell(colId, item[colId]);
       });
       return obj;
     });
@@ -688,48 +687,89 @@ export default function ImoveisTable() {
   const totalValorSelecionado = selectedRows.reduce((acc, curr) => { const valor = Number(curr.valorimovel); return acc + (isNaN(valor) ? 0 : valor); }, 0);
   function formatValor(valor: number) { return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
 
-  const headerColor = "hsl(var(--card))";
-  const zebraColor = "hsl(var(--muted))";
+  const headerColor = "hsl(0 0% 15%)";
+  const headerHoverColor = "hsl(0 0% 20%)"; // Hover do header sem transparência
+  const zebraColor = "hsl(0 0% 10%)";
   const rowColor = "hsl(var(--card))";
+  const hoverColor = "hsl(0 0% 18%)"; // Hover das linhas sem transparência
+  const selectedColor = "hsl(210 100% 20%)";
 
   //const lookupMap: { [key: string]: LookupItem[] } = { idpais: paises, idestado: estados, idmunicipio: municipios, idunidadegestora: unidadesGestoras, idregimeutilizacao: regimes, usercreated: usuarios, usermodified: usuarios };
   const rightAlignFields = ["valorimovel", "areaconstruida", "areaterreno"];
 
   return (
-    <Paper
-      className="bg-background text-foreground"
-      sx={{ p: 2, width: "100%", maxWidth: PAPER_MAX_WIDTH, margin: "0 auto", overflow: "hidden", height: "calc(100vh - 100px)", display: "flex", flexDirection: "column", bgcolor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}
+    <Box
+      sx={{ 
+        width: "100%", 
+        maxWidth: PAPER_MAX_WIDTH, 
+        margin: "0 auto",
+        p: 3,
+        height: "calc(100vh - 100px)", 
+        display: "flex", 
+        flexDirection: "column",
+      }}
     >
-      <Toolbar sx={{ px: 0, py: 1, flexShrink: 0, position: 'sticky', top: 0, zIndex: 12, bgcolor: 'hsl(var(--background))' }}>
-        <Typography variant="h6" sx={{ flex: 1 }}>Imóveis</Typography>
+      <Paper
+        elevation={0}
+        sx={{ 
+          display: "flex", 
+          flexDirection: "column", 
+          overflow: "hidden",
+          height: "100%",
+          bgcolor: 'hsl(var(--card))',
+          border: '1px solid hsl(var(--border))',
+          borderRadius: 2,
+        }}
+      >
+      <Toolbar sx={{ 
+        px: 3, 
+        py: 2, 
+        flexShrink: 0, 
+        bgcolor: 'hsl(var(--card))',
+        borderBottom: '2px solid hsl(var(--border))',
+        gap: 1
+      }}>
+        <Typography variant="h6" sx={{ flex: 1, fontWeight: 600, color: 'hsl(var(--foreground))' }}>Imóveis</Typography>
         <Button startIcon={<DownloadIcon />} onClick={e => setExportAnchorEl(e.currentTarget)} sx={{ color: 'hsl(var(--foreground))' }}>Exportar</Button>
-        <Tooltip title="Editar"><span><Button startIcon={<EditIcon />} disabled={selectedRows.length !== 1} onClick={handleEdit} sx={{ color: 'hsl(var(--foreground))' }}>Editar</Button></span></Tooltip>
-        <Tooltip title="Excluir"><span><Button startIcon={<DeleteIcon />} disabled={selectedRows.length === 0} onClick={handleDelete} sx={{ color: 'hsl(var(--foreground))' }}>Excluir</Button></span></Tooltip>
+        <Tooltip title="Editar"><span><Button startIcon={<EditIcon />} disabled={selectedRows.length !== 1} onClick={handleEdit} sx={{ color: 'hsl(var(--foreground))', '&.Mui-disabled': { color: 'hsl(var(--muted-foreground))' } }}>Editar</Button></span></Tooltip>
+        <Tooltip title="Excluir"><span><Button startIcon={<DeleteIcon />} disabled={selectedRows.length === 0} onClick={handleDelete} sx={{ color: 'hsl(var(--foreground))', '&.Mui-disabled': { color: 'hsl(var(--muted-foreground))' } }}>Excluir</Button></span></Tooltip>
         <Tooltip title="Incluir"><span><Button startIcon={<AddIcon />} variant="contained" color="primary" onClick={handleAdd}>Incluir</Button></span></Tooltip>
+        <Tooltip title={compactMode ? "Modo Extenso" : "Modo Compacto"}>
+          <IconButton onClick={() => setCompactMode(!compactMode)} sx={{ color: 'hsl(var(--foreground))' }}>
+            {compactMode ? <ViewStreamIcon /> : <ViewCompactIcon />}
+          </IconButton>
+        </Tooltip>
         <Tooltip title="Restaurar ordem padrão"><IconButton onClick={handleResetOrder} sx={{ color: 'hsl(var(--foreground))' }}><SettingsBackupRestoreIcon /></IconButton></Tooltip>
         <Tooltip title="Configurar colunas"><IconButton onClick={e => setAnchorEl(e.currentTarget)} sx={{ color: 'hsl(var(--foreground))' }}><ViewColumnIcon /></IconButton></Tooltip>
         <Tooltip title="Limpar todos os filtros"><IconButton onClick={handleClearFilters} sx={{ color: 'hsl(var(--foreground))' }}><ClearAllIcon /></IconButton></Tooltip>
       </Toolbar>
 
-      <Box sx={{ width: "100%", overflow: "auto", flexGrow: 1 }}>
+      <Box sx={{ 
+        width: "100%", 
+        overflow: "auto", 
+        flexGrow: 1,
+        bgcolor: 'hsl(var(--background))',
+      }}>
         {showLoading ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', pt: 10 }}>
             <CircularProgress />
             <Typography sx={{ mt: 2 }}>Carregando dados...</Typography>
           </Box>
         ) : (
-        <Table stickyHeader sx={{ minWidth: TABLE_MIN_WIDTH, tableLayout: "fixed" }} size="small">
+        <Table stickyHeader sx={{ minWidth: TABLE_MIN_WIDTH, tableLayout: "fixed" }} size={compactMode ? "small" : "medium"}>
           <TableHead>
             <TableRow>
               {/* --- INÍCIO DA CORREÇÃO 2: Checkbox --- */}
               <TableCell
-                padding="none" // Remove todo o padding da célula
+                padding="none"
                 sx={{
                   position: "sticky", left: 0,
                   zIndex: 11,
                   bgcolor: headerColor,
                   width: 60, minWidth: 60, maxWidth: 60,
-                  borderRight: "1px solid #dedede",
+                  borderRight: "2px solid hsl(var(--border))",
+                  borderBottom: "2px solid hsl(var(--border))",
+                  fontWeight: 600,
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -737,7 +777,12 @@ export default function ImoveisTable() {
                     checked={allSelected}
                     indeterminate={someSelected}
                     onChange={handleSelectAll}
-                    sx={{ p: 0 }}
+                    sx={{ 
+                      p: 0,
+                      color: 'hsl(var(--foreground))',
+                      '&.Mui-checked': { color: 'primary.main' },
+                      '&.MuiCheckbox-indeterminate': { color: 'primary.main' }
+                    }}
                   />
                 </Box>
               </TableCell>
@@ -751,15 +796,20 @@ export default function ImoveisTable() {
                     sx={{
                       position: "sticky", top: 0, bgcolor: headerColor,
                       color: 'hsl(var(--foreground))',
+                      fontWeight: 600,
                       zIndex: 10,
                       width: columnWidths[col.id], minWidth: columnWidths[col.id], 
                       maxWidth: 400,
-                      userSelect: "none", transition: "width 0.2s",
+                      userSelect: "none", transition: "all 0.2s",
                       whiteSpace: "normal", 
                       wordBreak: "break-word",
                       textAlign: rightAlignFields.includes(colId) ? "right" : col.numeric || col.type === 'boolean' ? "center" : "left",
                       borderRight: getCellBorder(colId, columns),
+                      borderBottom: "2px solid hsl(var(--border))",
                       cursor: "pointer",
+                      "&:hover": {
+                        bgcolor: headerHoverColor,
+                      },
                       "&:hover .filter-icon": {
                         opacity: 1,
                       },
@@ -768,7 +818,28 @@ export default function ImoveisTable() {
                   >
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <TableSortLabel active={orderBy === col.id} direction={orderBy === col.id ? orderDir : "asc"}>
+                        <TableSortLabel 
+                          active={orderBy === col.id} 
+                          direction={orderBy === col.id ? orderDir : "asc"}
+                          sx={{
+                            color: 'hsl(var(--muted-foreground))',
+                            '&:hover': {
+                              color: 'hsl(var(--foreground))',
+                            },
+                            '&.Mui-active': {
+                              color: 'hsl(var(--foreground))',
+                              fontWeight: 700,
+                            },
+                            '& .MuiTableSortLabel-icon': {
+                              color: 'hsl(var(--muted-foreground)) !important',
+                              opacity: 0.5,
+                            },
+                            '&.Mui-active .MuiTableSortLabel-icon': {
+                              color: 'hsl(var(--foreground)) !important',
+                              opacity: 1,
+                            },
+                          }}
+                        >
                           <strong>{col.label}</strong>
                         </TableSortLabel>
                         <IconButton
@@ -789,46 +860,83 @@ export default function ImoveisTable() {
           </TableHead>
           <TableBody>
             {sorted.map((item, idx) => (
-              <TableRow key={item.idimovel} hover onDoubleClick={() => handleOpenForm(item)} sx={{ bgcolor: idx % 2 === 0 ? rowColor : zebraColor }}>
+              <TableRow 
+                key={item.idimovel} 
+                hover 
+                onDoubleClick={() => handleOpenForm(item)} 
+                sx={{ 
+                  bgcolor: !!selectedRows.find(r => r.idimovel === item.idimovel) 
+                    ? selectedColor 
+                    : (idx % 2 === 0 ? rowColor : zebraColor),
+                  '&:hover': {
+                    bgcolor: hoverColor + ' !important',
+                  },
+                  transition: 'background-color 0.15s',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid hsl(var(--border) / 0.5)',
+                }}
+              >
                 {/* --- INÍCIO DA CORREÇÃO 2: Checkbox --- */}
                 <TableCell
-                  padding="none" // Remove todo o padding da célula
+                  padding="none"
                   sx={{
                     position: "sticky", left: 0,
-                    zIndex: 1,
-                    bgcolor: 'inherit',
+                    zIndex: 2,
+                    bgcolor: (!!selectedRows.find(r => r.idimovel === item.idimovel) 
+                      ? selectedColor 
+                      : (idx % 2 === 0 ? rowColor : zebraColor)) + ' !important',
                     width: 60, minWidth: 60, maxWidth: 60,
-                    borderRight: "1px solid #dedede",
+                    borderRight: "2px solid hsl(var(--border))",
                   }}
                   >
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                     <Checkbox
                       checked={!!selectedRows.find(r => r.idimovel === item.idimovel)}
                       onChange={e => handleSelectRow(item, e.target.checked)}
-                      sx={{ p: 0 }}
+                      sx={{ 
+                        p: 0,
+                        color: 'hsl(var(--foreground))',
+                        '&.Mui-checked': { color: 'primary.main' }
+                      }}
                     />
                   </Box>
                 </TableCell>
                 {/* --- FIM DA CORREÇÃO 2: Checkbox --- */}
                 {columns.map(colId => {
                   const col = columnsAll.find(c => c.id === colId)!;
+                  const cellValue = formatTableCell(col.id, item[col.id]);
+                  const cellText = typeof cellValue === 'string' || typeof cellValue === 'number' ? String(cellValue) : '';
+                  
                   return (
-                    <TableCell
+                    <Tooltip 
                       key={col.id}
-                      sx={{
-                        width: columnWidths[col.id], minWidth: columnWidths[col.id], 
-                        maxWidth: 400,
-                        whiteSpace: "normal",
-                        wordBreak: "break-word",
-                        verticalAlign: 'top',
-                        transition: "width 0.2s",
-                        textAlign: rightAlignFields.includes(colId) ? "right" : col.numeric || col.type === 'boolean' ? "center" : "left",
-                        borderRight: getCellBorder(colId, columns),
-                        color: 'hsl(var(--foreground))',
-                      }}
+                      title={compactMode && cellText ? cellText : ''}
+                      placement="top"
+                      arrow
                     >
-                      {formatTableCell(col.id, item[col.id])}
-                    </TableCell>
+                      <TableCell
+                        sx={{
+                          width: columnWidths[col.id], minWidth: columnWidths[col.id], 
+                          maxWidth: 400,
+                          whiteSpace: compactMode ? "nowrap" : "normal",
+                          wordBreak: "break-word",
+                          overflow: compactMode ? "hidden" : "visible",
+                          textOverflow: compactMode ? "ellipsis" : "clip",
+                          verticalAlign: 'top',
+                          transition: "width 0.2s",
+                          textAlign: rightAlignFields.includes(colId) ? "right" : col.numeric || col.type === 'boolean' ? "center" : "left",
+                          borderRight: getCellBorder(colId, columns),
+                          color: 'hsl(var(--foreground))',
+                          ...(compactMode && {
+                            py: 0.5,
+                            height: '36px',
+                            maxHeight: '36px',
+                          }),
+                        }}
+                      >
+                        {cellValue}
+                      </TableCell>
+                    </Tooltip>
                   );
                 })}
               </TableRow>
@@ -839,7 +947,18 @@ export default function ImoveisTable() {
       </Box>
 
       {/* ... (Barra de status e todos os Dialogs/Menus permanecem os mesmos) ... */}
-      <Box sx={{ background: "hsl(var(--card))", borderTop: "1px solid hsl(var(--border))", height: 40, display: "flex", alignItems: "center", justifyContent: "flex-start", padding: "0 24px", flexShrink: 0, color: 'hsl(var(--foreground))' }}>
+      <Box sx={{ 
+        bgcolor: 'hsl(var(--card))', 
+        borderTop: "2px solid hsl(var(--border))", 
+        height: 48, 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "flex-start", 
+        px: 3, 
+        flexShrink: 0, 
+        color: 'hsl(var(--foreground))',
+        fontWeight: 500
+      }}>
         <span>{selectedRows.length > 0 ? `Selecionados: ${selectedRows.length} | Valor total: ${formatValor(totalValorSelecionado)}` : "Nenhum registro selecionado"}</span>
       </Box>
       <Menu anchorEl={filterAnchorEl} open={Boolean(filterAnchorEl)} onClose={handleCloseFilterMenu} >
@@ -903,18 +1022,139 @@ export default function ImoveisTable() {
         <MenuItem onClick={() => handleExport("csv")}>Exportar CSV (;)</MenuItem>
         <MenuItem onClick={() => handleExport("xlsx")}>Exportar XLSX</MenuItem>
       </Menu>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)} PaperProps={{ style: { maxHeight: 400, minWidth: 270 } }}>
+      <Menu 
+        anchorEl={anchorEl} 
+        open={Boolean(anchorEl)} 
+        onClose={() => setAnchorEl(null)} 
+        PaperProps={{ 
+          style: { 
+            maxHeight: 500, 
+            width: 380,
+          },
+          sx: {
+            bgcolor: 'hsl(var(--card))',
+            color: 'hsl(var(--foreground))',
+            border: '1px solid hsl(var(--border))',
+          }
+        }}
+      >
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid hsl(var(--border))', position: 'sticky', top: 0, bgcolor: 'hsl(var(--card))', zIndex: 1 }}>
+          <Typography variant="subtitle1" fontWeight={600}>Configurar Colunas</Typography>
+          <Typography variant="caption" color="hsl(var(--muted-foreground))">
+            {columns.length} de {columnsAll.length} colunas visíveis
+          </Typography>
+        </Box>
+        
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid hsl(var(--border))', bgcolor: 'hsl(var(--muted) / 0.3)' }}>
+          <Button 
+            size="small" 
+            onClick={() => setColumns(defaultColumns)}
+            sx={{ mr: 1 }}
+          >
+            Restaurar Padrão
+          </Button>
+          <Button 
+            size="small" 
+            onClick={() => setColumns(columnsAll.map(c => c.id))}
+          >
+            Mostrar Todas
+          </Button>
+        </Box>
+
         {columnsAll.map(c => {
             const currentIdx = columns.indexOf(c.id);
+            const isVisible = columns.includes(c.id);
             return (
-              <MenuItem key={c.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ minWidth: 110 }}>{c.label}</span>
-                <Checkbox checked={columns.includes(c.id)} onChange={() => handleToggleColumn(c.id)} />
-                <IconButton disabled={currentIdx <= 0} onClick={() => moveColumn(c.id, -1)} size="small" color="primary" sx={{ mx: 0.5 }}><ArrowUpwardIcon fontSize="small" /></IconButton>
-                <IconButton disabled={currentIdx < 0 || currentIdx === columns.length - 1} onClick={() => moveColumn(c.id, 1)} size="small" color="primary" sx={{ mx: 0.5 }}><ArrowDownwardIcon fontSize="small" /></IconButton>
+              <MenuItem 
+                key={c.id} 
+                sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "space-between",
+                  py: 1,
+                  px: 2,
+                  bgcolor: isVisible ? 'hsl(var(--accent) / 0.1)' : 'transparent',
+                  '&:hover': {
+                    bgcolor: isVisible ? 'hsl(var(--accent) / 0.2)' : 'hsl(var(--accent) / 0.1)',
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                  <Checkbox 
+                    checked={isVisible} 
+                    onChange={() => handleToggleColumn(c.id)}
+                    size="small"
+                    sx={{ mr: 1, p: 0 }}
+                  />
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontWeight: isVisible ? 500 : 400,
+                      color: isVisible ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {c.label}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+                  <Tooltip title="Mover para cima">
+                    <span>
+                      <IconButton 
+                        disabled={currentIdx <= 0} 
+                        onClick={(e) => { e.stopPropagation(); moveColumn(c.id, -1); }} 
+                        size="small" 
+                        sx={{ 
+                          p: 0.5,
+                          color: 'hsl(var(--foreground))',
+                          '&:hover': {
+                            bgcolor: 'hsl(var(--accent))',
+                          },
+                          '&:disabled': { 
+                            opacity: 0.3,
+                            color: 'hsl(var(--muted-foreground))',
+                          }
+                        }}
+                      >
+                        <ArrowUpwardIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                  <Tooltip title="Mover para baixo">
+                    <span>
+                      <IconButton 
+                        disabled={currentIdx < 0 || currentIdx === columns.length - 1} 
+                        onClick={(e) => { e.stopPropagation(); moveColumn(c.id, 1); }} 
+                        size="small"
+                        sx={{ 
+                          p: 0.5,
+                          color: 'hsl(var(--foreground))',
+                          '&:hover': {
+                            bgcolor: 'hsl(var(--accent))',
+                          },
+                          '&:disabled': { 
+                            opacity: 0.3,
+                            color: 'hsl(var(--muted-foreground))',
+                          }
+                        }}
+                      >
+                        <ArrowDownwardIcon fontSize="small" />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                </Box>
               </MenuItem>
             );
         })}
+        
+        <Box sx={{ px: 2, py: 1.5, borderTop: '1px solid hsl(var(--border))', position: 'sticky', bottom: 0, bgcolor: 'hsl(var(--card))', display: 'flex', justifyContent: 'flex-end' }}>
+          <Button onClick={() => setAnchorEl(null)} variant="contained" size="small">
+            Fechar
+          </Button>
+        </Box>
       </Menu>
       <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="xl">
         <DialogContent sx={{ p: 0 }}>
@@ -929,6 +1169,7 @@ export default function ImoveisTable() {
           <Button color="error" variant="contained" onClick={handleDeleteConfirmed} disabled={deleting}>Excluir</Button>
         </DialogActions>
       </Dialog>
-    </Paper>
+      </Paper>
+    </Box>
   );
 }

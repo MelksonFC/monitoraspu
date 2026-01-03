@@ -24,6 +24,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           width: '100%',
           height: '100vh',
           overflow: 'auto',
+          bgcolor: 'hsl(var(--background))',
+          color: 'hsl(var(--foreground))',
         }}
       >
         {children}
@@ -52,7 +54,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           component="main"
           sx={{
             flex: 1,
-            background: "#fafafa",
+            bgcolor: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
             display: "flex",
             flexDirection: "column",
             minHeight: 0, 

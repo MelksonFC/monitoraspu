@@ -20,7 +20,8 @@ const defaultConfig = {
   orderdir: "asc",
   filters: {},
   filterops: {},
-  filterrange: {}
+  filterrange: {},
+  compactmode: false
 };
 
 // GET /api/usertablesettings/:userid/:tablename
@@ -46,7 +47,7 @@ router.get("/:userid/:tablename", async (req, res) => {
 // PUT /api/usertablesettings/:userid/:tablename
 router.put("/:userid/:tablename", async (req, res) => {
   const { userid, tablename } = req.params;
-  const { columns, orderby, orderdir, filters, filterops, filterrange } = req.body;
+  const { columns, orderby, orderdir, filters, filterops, filterrange, compactmode } = req.body;
 
   const t = await sequelize.transaction();
   try {
@@ -54,7 +55,7 @@ router.put("/:userid/:tablename", async (req, res) => {
     const [config, created] = await UserTableSetting.findOrCreate({
       where: { userid, tablename },
       defaults: {
-        columns, orderby, orderdir, filters, filterops, filterrange,
+        columns, orderby, orderdir, filters, filterops, filterrange, compactmode,
         updatedat: new Date(),
       },
       transaction: t,
@@ -62,7 +63,7 @@ router.put("/:userid/:tablename", async (req, res) => {
 
     if (!created) {
       await config.update(
-        { columns, orderby, orderdir, filters, filterops, filterrange, updatedat: new Date() },
+        { columns, orderby, orderdir, filters, filterops, filterrange, compactmode, updatedat: new Date() },
         { transaction: t }
       );
     }

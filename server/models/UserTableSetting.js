@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     filters:     { type: DataTypes.JSONB },
     filterops:   { type: DataTypes.JSONB },
     filterrange: { type: DataTypes.JSONB },
+    compactmode: { type: DataTypes.BOOLEAN, defaultValue: false },
     updatedat:   { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   }, {
     sequelize,
