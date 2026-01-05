@@ -16,66 +16,6 @@ import '../styles/themes.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Componente que renderiza um indicador de cor usando as variáveis CSS do tema atual
-const ChartColorIndicator = ({ cssVarName, scheme }: { cssVarName: string; scheme: 'multicolor' | 'monochromatic' }) => {
-    const [color, setColor] = React.useState<string>('');
-    const { theme } = useTheme();
-    const divRef = React.useRef<HTMLDivElement>(null);
-    
-    React.useEffect(() => {
-        // Pequeno delay para garantir que o CSS foi aplicado
-        const timer = setTimeout(() => {
-            if (divRef.current) {
-                const computedStyle = window.getComputedStyle(divRef.current);
-                const bgColor = computedStyle.backgroundColor;
-                if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-                    setColor(bgColor);
-                }
-            }
-        }, 50);
-        
-        return () => clearTimeout(timer);
-    }, [cssVarName, theme, scheme]);
-    
-    return (
-        <div 
-            ref={divRef}
-            className="h-3 w-3 shrink-0 rounded-sm border border-white/20" 
-            style={{ 
-                backgroundColor: color || `hsl(var(${cssVarName}))`,
-            }}
-        />
-    );
-};
-
-// Função para obter o valor real da variável CSS
-const getCssVarValue = (varName: string): string => {
-    if (typeof window === 'undefined') return '';
-    const value = getComputedStyle(document.documentElement).getPropertyValue(varName);
-    return value.trim();
-};
-
-// Função para converter a string de cor do config em cor HSL real
-const resolveChartColor = (colorString: string): string => {
-    if (!colorString) return 'transparent';
-    
-    // Se a cor já é um valor direto HSL, retorna
-    if (!colorString.includes('var(')) return colorString;
-    
-    // Extrai o nome da variável CSS: hsl(var(--chart-mono-1)) -> --chart-mono-1
-    const match = colorString.match(/var\((--[^)]+)\)/);
-    if (match && match[1]) {
-        const cssVarValue = getCssVarValue(match[1]);
-        if (cssVarValue) {
-            return `hsl(${cssVarValue})`;
-        }
-    }
-    
-    return 'transparent';
-};
-
-
-
 const ThemePaletteSwatch = ({ theme }: { theme: { name: string, isDark: boolean } }) => {
     // Define qual paleta usar com base na propriedade `isDark`
     const palettePrefix = theme.isDark ? '--chart-color-' : '--chart-mono-';
@@ -131,8 +71,6 @@ const generateChartConfig = (
         config[key] = {
             label: item.name,
             color: `hsl(var(${prefix}${colorIndex}))`,
-            // Adiciona a variável CSS para uso em inline styles
-            cssVar: `${prefix}${colorIndex}`,
         };
     });
     return config;
@@ -621,10 +559,24 @@ export default function ShadcnDashboard() {
                                     {activeRegime && (() => {
                                         const configKey = toConfigKey(activeRegime);
                                         const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime];
-                                        const cssVar = (config as any)?.cssVar || '--chart-mono-1';
+                                        const colorString = config?.color || 'hsl(var(--chart-mono-1))';
+                                        
+                                        // Extrai a variável CSS e resolve para cor real
+                                        let resolvedColor = colorString;
+                                        const match = colorString.match(/var\((--[^)]+)\)/);
+                                        if (match && match[1]) {
+                                            const cssValue = getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim();
+                                            if (cssValue) {
+                                                resolvedColor = `hsl(${cssValue})`;
+                                            }
+                                        }
+                                        
                                         return (
                                             <div className="flex items-center gap-2">
-                                                <ChartColorIndicator cssVarName={cssVar} scheme={chartColorScheme} />
+                                                <div 
+                                                    className="h-3 w-3 shrink-0 rounded-sm border border-white/20" 
+                                                    style={{ backgroundColor: resolvedColor }}
+                                                />
                                                 <span>{activeRegime}</span>
                                             </div>
                                         );
@@ -642,7 +594,17 @@ export default function ShadcnDashboard() {
                                     
                                     // Se por algum motivo a config não existir, ainda renderizamos com um fallback
                                     const label = config?.label || item.name;
-                                    const cssVar = (config as any)?.cssVar || '--chart-mono-1';
+                                    const colorString = config?.color || 'hsl(var(--chart-mono-1))';
+                                    
+                                    // Extrai a variável CSS e resolve para cor real
+                                    let resolvedColor = colorString;
+                                    const match = colorString.match(/var\((--[^)]+)\)/);
+                                    if (match && match[1]) {
+                                        const cssValue = getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim();
+                                        if (cssValue) {
+                                            resolvedColor = `hsl(${cssValue})`;
+                                        }
+                                    }
 
                                     return (
                                         <SelectItem 
@@ -651,7 +613,10 @@ export default function ShadcnDashboard() {
                                             className="rounded-lg cursor-pointer text-card-foreground hover:bg-accent hover:text-accent-foreground data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
                                         >
                                             <div className="flex items-center gap-2 text-xs">
-                                                <ChartColorIndicator cssVarName={cssVar} scheme={chartColorScheme} />
+                                                <div 
+                                                    className="h-3 w-3 shrink-0 rounded-sm border border-white/20" 
+                                                    style={{ backgroundColor: resolvedColor }}
+                                                />
                                                 {label}
                                             </div>
                                         </SelectItem>
