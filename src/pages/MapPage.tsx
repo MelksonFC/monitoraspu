@@ -152,9 +152,9 @@ export default function MapPage() {
 
   if (loading && imoveis.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box className="bg-background text-foreground" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
         <CircularProgress />
-        <Typography sx={{ ml: 2, color: 'text.primary' }}>Buscando imóveis...</Typography>
+        <Typography sx={{ ml: 2, color: 'hsl(var(--foreground))' }}>Buscando imóveis...</Typography>
       </Box>
     );
   }

@@ -118,8 +118,8 @@ export default function UnidadeGestoraManagement() {
                   <TableCell>{unidade.id}</TableCell>
                   <TableCell>{unidade.nome}</TableCell>
                   <TableCell align="right">
-                    <IconButton color="primary" onClick={() => handleOpenDialog(unidade)}><EditIcon /></IconButton>
-                    <IconButton color="error" onClick={() => handleDelete(unidade.id)}><DeleteIcon /></IconButton>
+                    <IconButton color="default" onClick={() => handleOpenDialog(unidade)}><EditIcon /></IconButton>
+                    <IconButton color="default" onClick={() => handleDelete(unidade.id)}><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
               ))}

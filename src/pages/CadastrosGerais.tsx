@@ -40,7 +40,7 @@ export default function CadastrosGerais() {
   };
 
   return (
-    <Paper sx={{ p: 3, mt: 4, width: '100%' }}>
+    <Paper sx={{ p: 3, mt: 4, mx: 3, width: 'calc(100% - 48px)' }}>
       <Typography variant="h4" gutterBottom>Cadastros Gerais</Typography>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="abas de cadastros gerais">

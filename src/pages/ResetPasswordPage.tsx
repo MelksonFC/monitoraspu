@@ -90,7 +90,7 @@ const ResetPasswordPage: React.FC = () => {
       <Box sx={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundImage: `url(${fundoJpg})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(4px)', zIndex: -1, }} />
       <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
         <Container maxWidth="xs" disableGutters>
-          <Box sx={{ p: 4, borderRadius: 4, backgroundColor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(10px)', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', textAlign: 'center' }}>
+          <Box className="login-auth-page" sx={{ p: 4, borderRadius: 4, backgroundColor: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(10px)', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', textAlign: 'center' }}>
             <Typography variant="h4" component="h1" fontWeight="bold" color="primary.main" gutterBottom>
               Criar Nova Senha
             </Typography>

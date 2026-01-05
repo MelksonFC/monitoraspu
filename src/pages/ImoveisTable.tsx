@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { useAuth } from "../AuthContext";
+import { useTheme } from "../ThemeContext";
 import { formatValorBR } from './ImovelForm';
 
 const TABLE_SETTINGS_TABLENAME = "imoveis";
@@ -733,12 +734,16 @@ export default function ImoveisTable() {
   function getCellBorder(colId: string, columns: string[]) { return colId !== columns[columns.length - 1] ? "1px solid hsl(var(--border))" : undefined; }
   function formatValor(valor: number) { return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
 
-  const headerColor = "hsl(0 0% 15%)";
-  const headerHoverColor = "hsl(0 0% 20%)"; // Hover do header sem transparência
-  const zebraColor = "hsl(0 0% 10%)";
+  const { uiMode } = useTheme();
+  const isDark = uiMode === 'dark';
+  
+  const headerColor = isDark ? "hsl(0 0% 15%)" : "hsl(210 15% 92%)";
+  const headerTextColor = isDark ? "hsl(0 0% 95%)" : "hsl(210 15% 20%)";
+  const headerHoverColor = isDark ? "hsl(0 0% 20%)" : "hsl(210 20% 85%)";
+  const zebraColor = isDark ? "hsl(0 0% 10%)" : "hsl(210 15% 96%)";
   const rowColor = "hsl(var(--card))";
-  const hoverColor = "hsl(0 0% 18%)"; // Hover das linhas sem transparência
-  const selectedColor = "hsl(210 100% 20%)";
+  const hoverColor = isDark ? "hsl(0 0% 18%)" : "hsl(210 15% 90%)";
+  const selectedColor = isDark ? "hsl(210 100% 20%)" : "hsl(210 100% 88%)";
 
   //const lookupMap: { [key: string]: LookupItem[] } = { idpais: paises, idestado: estados, idmunicipio: municipios, idunidadegestora: unidadesGestoras, idregimeutilizacao: regimes, usercreated: usuarios, usermodified: usuarios };
   const rightAlignFields = ["valorimovel", "areaconstruida", "areaterreno"];
@@ -825,7 +830,7 @@ export default function ImoveisTable() {
                     onChange={handleSelectAll}
                     sx={{ 
                       p: 0,
-                      color: 'hsl(var(--foreground))',
+                      color: headerTextColor,
                       '&.Mui-checked': { color: 'primary.main' },
                       '&.MuiCheckbox-indeterminate': { color: 'primary.main' }
                     }}
@@ -841,7 +846,7 @@ export default function ImoveisTable() {
                     key={col.id}
                     sx={{
                       position: "sticky", top: 0, bgcolor: headerColor,
-                      color: 'hsl(var(--foreground))',
+                      color: headerTextColor,
                       fontWeight: 600,
                       zIndex: 10,
                       width: columnWidths[col.id], minWidth: columnWidths[col.id], 
@@ -868,20 +873,20 @@ export default function ImoveisTable() {
                           active={orderBy === col.id} 
                           direction={orderBy === col.id ? orderDir : "asc"}
                           sx={{
-                            color: 'hsl(var(--muted-foreground))',
+                            color: isDark ? 'hsl(0 0% 70%)' : 'hsl(210 15% 35%)',
                             '&:hover': {
-                              color: 'hsl(var(--foreground))',
+                              color: headerTextColor,
                             },
                             '&.Mui-active': {
-                              color: 'hsl(var(--foreground))',
+                              color: headerTextColor,
                               fontWeight: 700,
                             },
                             '& .MuiTableSortLabel-icon': {
-                              color: 'hsl(var(--muted-foreground)) !important',
+                              color: isDark ? 'hsl(0 0% 70%) !important' : 'hsl(210 15% 35%) !important',
                               opacity: 0.5,
                             },
                             '&.Mui-active .MuiTableSortLabel-icon': {
-                              color: 'hsl(var(--foreground)) !important',
+                              color: headerTextColor + ' !important',
                               opacity: 1,
                             },
                           }}
@@ -891,7 +896,7 @@ export default function ImoveisTable() {
                         <IconButton
                           size="small"
                           className="filter-icon"
-                          sx={{ ml: 0.5, opacity: isFiltered ? 1 : 0, transition: "opacity 0.2s", color: 'hsl(var(--foreground))' }}
+                          sx={{ ml: 0.5, opacity: isFiltered ? 1 : 0, transition: "opacity 0.2s", color: headerTextColor }}
                           onClick={(e) => { e.stopPropagation(); handleOpenFilterMenu(e, col); }}
                         >
                           <FilterListIcon fontSize="small" color={isFiltered ? "primary" : "inherit"} />
@@ -941,7 +946,7 @@ export default function ImoveisTable() {
                       onChange={e => handleSelectRow(item, e.target.checked)}
                       sx={{ 
                         p: 0,
-                        color: 'hsl(var(--foreground))',
+                        color: isDark ? 'hsl(0 0% 75%)' : 'hsl(210 15% 30%)',
                         '&.Mui-checked': { color: 'primary.main' }
                       }}
                     />
@@ -1001,8 +1006,12 @@ export default function ImoveisTable() {
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
         rowsPerPageOptions={[25, 50, 100, 200, 500]}
-        labelRowsPerPage="Linhas por p\u00e1gina:"
-        labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+        labelRowsPerPage="Linhas por página:"
+        labelDisplayedRows={({ from, to, count }) => {
+          const totalPages = Math.ceil(count / rowsPerPage);
+          const currentPage = page + 1;
+          return `Página ${currentPage} de ${totalPages} | ${from}-${to} de ${count} registros`;
+        }}
         sx={{
           bgcolor: 'hsl(var(--card))',
           borderTop: '1px solid hsl(var(--border))',
@@ -1042,7 +1051,26 @@ export default function ImoveisTable() {
             <Typography variant="subtitle1" gutterBottom>Filtrar por {currentFilteringCol.label}</Typography>
             {currentFilteringCol.type === 'boolean' && (
               <FormControl fullWidth size="small">
-                <Select value={filters[currentFilteringCol.id] ?? ''} onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: e.target.value }))} displayEmpty>
+                <Select 
+                  value={filters[currentFilteringCol.id] ?? ''} 
+                  onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: e.target.value }))} 
+                  displayEmpty
+                  sx={{
+                    color: 'hsl(var(--foreground))',
+                    '.MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'hsl(var(--border))',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'hsl(var(--foreground))',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'hsl(var(--primary))',
+                    },
+                    '.MuiSvgIcon-root': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                  }}
+                >
                   <MenuItem value="">Todos</MenuItem>
                   <MenuItem value="true">Sim</MenuItem>
                   <MenuItem value="false">Não</MenuItem>
@@ -1051,8 +1079,29 @@ export default function ImoveisTable() {
             )}
             {currentFilteringCol.type === 'lookup' && (
               <FormControl fullWidth size="small">
-                <InputLabel>{currentFilteringCol.label}</InputLabel>
-                <Select multiple value={filters[currentFilteringCol.id] ?? []} onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: typeof e.target.value === "string" ? e.target.value.split(",") : e.target.value }))} input={<OutlinedInput label={currentFilteringCol.label} />} renderValue={selected => (selected as string[]).join(", ")}>
+                <InputLabel sx={{ color: 'hsl(var(--muted-foreground))', '&.Mui-focused': { color: 'hsl(var(--primary))' } }}>{currentFilteringCol.label}</InputLabel>
+                <Select 
+                  multiple 
+                  value={filters[currentFilteringCol.id] ?? []} 
+                  onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: typeof e.target.value === "string" ? e.target.value.split(",") : e.target.value }))} 
+                  input={<OutlinedInput label={currentFilteringCol.label} />} 
+                  renderValue={selected => (selected as string[]).join(", ")}
+                  sx={{
+                    color: 'hsl(var(--foreground))',
+                    '.MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'hsl(var(--border))',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'hsl(var(--foreground))',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'hsl(var(--primary))',
+                    },
+                    '.MuiSvgIcon-root': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                  }}
+                >
                   {/* Troca o lookupMap pelo dynamicLookupOptions */}
                   {(dynamicLookupOptions[currentFilteringCol.id] || []).map(item => (
                     <MenuItem key={item.id} value={item.descricao || item.nome}>
@@ -1066,11 +1115,26 @@ export default function ImoveisTable() {
             {(currentFilteringCol.type === 'string' || currentFilteringCol.type === 'number' || currentFilteringCol.type === 'date' || currentFilteringCol.type === 'datetime') && (
               <Box>
                 <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-                  <InputLabel>Operador</InputLabel>
+                  <InputLabel sx={{ color: 'hsl(var(--muted-foreground))', '&.Mui-focused': { color: 'hsl(var(--primary))' } }}>Operador</InputLabel>
                   <Select
                     label="Operador"
                     value={filterOps[currentFilteringCol.id] || (currentFilteringCol.type === 'string' ? 'contains' : 'equals')}
                     onChange={e => setFilterOps(o => ({ ...o, [currentFilteringCol.id]: e.target.value as string }))}
+                    sx={{
+                      color: 'hsl(var(--foreground))',
+                      '.MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--border))',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--foreground))',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--primary))',
+                      },
+                      '.MuiSvgIcon-root': {
+                        color: 'hsl(var(--foreground))',
+                      },
+                    }}
                   >
                     {(currentFilteringCol.type === 'string' ? stringOperators : (currentFilteringCol.type === 'number' ? numberOperators : dateOperators)).map(opt => (
                       <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
@@ -1079,11 +1143,95 @@ export default function ImoveisTable() {
                 </FormControl>
                 {filterOps[currentFilteringCol.id] === 'between' ? (
                   <Box display="flex" gap={1}>
-                    <TextField fullWidth size="small" type={currentFilteringCol.type === 'number' ? 'number' : 'date'} label="Mínimo" value={filterRange[currentFilteringCol.id]?.[0] ?? ""} onChange={e => setFilterRange(r => ({ ...r, [currentFilteringCol.id]: [e.target.value, filterRange[currentFilteringCol.id]?.[1] ?? ""] }))} InputLabelProps={{ shrink: true }} />
-                    <TextField fullWidth size="small" type={currentFilteringCol.type === 'number' ? 'number' : 'date'} label="Máximo" value={filterRange[currentFilteringCol.id]?.[1] ?? ""} onChange={e => setFilterRange(r => ({ ...r, [currentFilteringCol.id]: [filterRange[currentFilteringCol.id]?.[0] ?? "", e.target.value] }))} InputLabelProps={{ shrink: true }} />
+                    <TextField 
+                      fullWidth 
+                      size="small" 
+                      type={currentFilteringCol.type === 'number' ? 'number' : 'date'} 
+                      label="Mínimo" 
+                      value={filterRange[currentFilteringCol.id]?.[0] ?? ""} 
+                      onChange={e => setFilterRange(r => ({ ...r, [currentFilteringCol.id]: [e.target.value, filterRange[currentFilteringCol.id]?.[1] ?? ""] }))} 
+                      InputLabelProps={{ shrink: true }}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          color: 'hsl(var(--foreground))',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--border))',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--foreground))',
+                        },
+                        '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--primary))',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'hsl(var(--muted-foreground))',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: 'hsl(var(--primary))',
+                        },
+                      }}
+                    />
+                    <TextField 
+                      fullWidth 
+                      size="small" 
+                      type={currentFilteringCol.type === 'number' ? 'number' : 'date'} 
+                      label="Máximo" 
+                      value={filterRange[currentFilteringCol.id]?.[1] ?? ""} 
+                      onChange={e => setFilterRange(r => ({ ...r, [currentFilteringCol.id]: [filterRange[currentFilteringCol.id]?.[0] ?? "", e.target.value] }))} 
+                      InputLabelProps={{ shrink: true }}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          color: 'hsl(var(--foreground))',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--border))',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--foreground))',
+                        },
+                        '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--primary))',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'hsl(var(--muted-foreground))',
+                        },
+                        '& .MuiInputLabel-root.Mui-focused': {
+                          color: 'hsl(var(--primary))',
+                        },
+                      }}
+                    />
                   </Box>
                 ) : (
-                  <TextField fullWidth size="small" type={currentFilteringCol.type === 'date' || currentFilteringCol.type === 'datetime' ? 'date' : 'text'} label="Valor" value={filters[currentFilteringCol.id] ?? ""} onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: e.target.value }))} InputLabelProps={{ shrink: true }} />
+                  <TextField 
+                    fullWidth 
+                    size="small" 
+                    type={currentFilteringCol.type === 'date' || currentFilteringCol.type === 'datetime' ? 'date' : 'text'} 
+                    label="Valor" 
+                    value={filters[currentFilteringCol.id] ?? ""} 
+                    onChange={e => setFilters(f => ({ ...f, [currentFilteringCol.id]: e.target.value }))} 
+                    InputLabelProps={{ shrink: true }}
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        color: 'hsl(var(--foreground))',
+                      },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--border))',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--foreground))',
+                      },
+                      '& .Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--primary))',
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'hsl(var(--muted-foreground))',
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: 'hsl(var(--primary))',
+                      },
+                    }}
+                  />
                 )}
               </Box>
             )}

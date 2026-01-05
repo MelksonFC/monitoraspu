@@ -129,22 +129,186 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
             <Autocomplete size="small" options={estados} getOptionLabel={(o) => o.nome} value={filtros.selectedEstado} onChange={(_, v) => handleFiltroChange('selectedEstado', v)} loading={loadingEstados} disabled={!filtros.selectedPais} renderInput={(params) => <TextField {...params} label="Estado" InputProps={{ ...params.InputProps, endAdornment: (<>{loadingEstados ? <CircularProgress color="inherit" size={20} /> : null}{params.InputProps.endAdornment}</>)}} />} />
             <Autocomplete size="small" options={municipios} getOptionLabel={(o) => o.nome} value={filtros.selectedMunicipio} onChange={(_, v) => handleFiltroChange('selectedMunicipio', v)} loading={loadingMunicipios} disabled={!filtros.selectedEstado} renderInput={(params) => <TextField {...params} label="Município" InputProps={{ ...params.InputProps, endAdornment: (<>{loadingMunicipios ? <CircularProgress color="inherit" size={20} /> : null}{params.InputProps.endAdornment}</>)}} />} />
             <Divider sx={{ my: 1 }} />
-            <Autocomplete size="small" multiple options={unidades} getOptionLabel={(o) => o.nome} value={filtros.selectedUnidades} onChange={(_, v) => handleFiltroChange('selectedUnidades', v)} renderInput={(params) => <TextField {...params} label="Unidades Gestoras" />} />
-            <Autocomplete size="small" multiple options={regimes} getOptionLabel={(o) => o.descricao} value={filtros.selectedRegimes} onChange={(_, v) => handleFiltroChange('selectedRegimes', v)} renderInput={(params) => <TextField {...params} label="Regimes de Utilização" />} />
+            <Autocomplete 
+              size="small" 
+              multiple 
+              options={unidades} 
+              getOptionLabel={(o) => o.nome} 
+              value={filtros.selectedUnidades} 
+              onChange={(_, v) => handleFiltroChange('selectedUnidades', v)} 
+              renderInput={(params) => <TextField {...params} label="Unidades Gestoras" />}
+              sx={{
+                '& .MuiChip-root': {
+                  backgroundColor: 'hsl(var(--accent))',
+                  color: 'hsl(var(--foreground))',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: 'hsl(var(--foreground))',
+                }
+              }}
+            />
+            <Autocomplete 
+              size="small" 
+              multiple 
+              options={regimes} 
+              getOptionLabel={(o) => o.descricao} 
+              value={filtros.selectedRegimes} 
+              onChange={(_, v) => handleFiltroChange('selectedRegimes', v)} 
+              renderInput={(params) => <TextField {...params} label="Regimes de Utilização" />}
+              sx={{
+                '& .MuiChip-root': {
+                  backgroundColor: 'hsl(var(--accent))',
+                  color: 'hsl(var(--foreground))',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: 'hsl(var(--foreground))',
+                }
+              }}
+            />
             <Divider sx={{ my: 1 }} />
             <TextField size="small" label="Matrícula" fullWidth value={filtros.matricula} onChange={e => handleFiltroChange('matricula', e.target.value)} />
             <TextField size="small" label="RIP do Imóvel" fullWidth value={filtros.ripImovel} onChange={e => handleFiltroChange('ripImovel', e.target.value)} />
             <TextField size="small" label="RIP de Utilização" fullWidth value={filtros.ripUtilizacao} onChange={e => handleFiltroChange('ripUtilizacao', e.target.value)} />
             <Divider sx={{ my: 1 }} />
             <FormControl component="fieldset">
-                <FormLabel component="legend" sx={{ fontSize: '0.8rem' }}>Período por</FormLabel>
+                <FormLabel component="legend" sx={{ fontSize: '0.8rem', color: 'hsl(var(--foreground))', '&.Mui-focused': { color: 'hsl(var(--foreground))' } }}>Período por</FormLabel>
                 <RadioGroup row value={filtros.tipoData} onChange={(e) => handleFiltroChange('tipoData', e.target.value)}>
-                <FormControlLabel value="avaliacao" control={<Radio size="small" />} label="Avaliação" />
-                <FormControlLabel value="fiscalizacao" control={<Radio size="small" />} label="Fiscalização" />
+                <FormControlLabel value="avaliacao" control={<Radio size="small" sx={{ color: 'hsl(var(--foreground))' }} />} label="Avaliação" sx={{ '& .MuiFormControlLabel-label': { color: 'hsl(var(--foreground))' } }} />
+                <FormControlLabel value="fiscalizacao" control={<Radio size="small" sx={{ color: 'hsl(var(--foreground))' }} />} label="Fiscalização" sx={{ '& .MuiFormControlLabel-label': { color: 'hsl(var(--foreground))' } }} />
                 </RadioGroup>
             </FormControl>
-            <DatePicker disabled={!filtros.tipoData} label="Desde" value={filtros.dataInicio} onChange={v => handleFiltroChange('dataInicio', v)} slotProps={{ textField: { fullWidth: true, size: 'small' } }} />
-            <DatePicker disabled={!filtros.tipoData} label="Até" value={filtros.dataFim} onChange={v => handleFiltroChange('dataFim', v)} slotProps={{ textField: { fullWidth: true, size: 'small' } }} />
+            <DatePicker 
+              label="Desde" 
+              value={filtros.dataInicio} 
+              onChange={v => handleFiltroChange('dataInicio', v)}
+              disabled={!filtros.tipoData}
+              slotProps={{ 
+                textField: { 
+                  fullWidth: true, 
+                  size: 'small',
+                  InputProps: {
+                    style: { color: 'hsl(var(--foreground))' }
+                  },
+                  inputProps: {
+                    style: { color: 'hsl(var(--foreground))' }
+                  },
+                  sx: {
+                    '& .MuiInputBase-root': { color: 'hsl(var(--foreground)) !important' },
+                    '& .MuiInputBase-input': { 
+                      color: 'hsl(var(--foreground)) !important',
+                    },
+                    '& input': {
+                      color: 'hsl(var(--foreground)) !important',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--border))' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--foreground))' },
+                    '& .Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--primary))' },
+                    '& .MuiInputLabel-root': { color: 'hsl(var(--muted-foreground))' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'hsl(var(--primary))' },
+                    '& .MuiSvgIcon-root': { color: 'hsl(var(--foreground))' },
+                    '& .Mui-disabled .MuiInputBase-input': { 
+                      color: 'hsl(var(--muted-foreground)) !important',
+                    }
+                  }
+                },
+                popper: {
+                  sx: {
+                    '& .MuiPaper-root': {
+                      bgcolor: 'hsl(var(--card))',
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiPickersDay-root': {
+                      color: 'hsl(var(--foreground))',
+                      '&:hover': {
+                        bgcolor: 'hsl(var(--accent))',
+                      },
+                      '&.Mui-selected': {
+                        bgcolor: 'hsl(var(--primary))',
+                        color: '#fff',
+                      }
+                    },
+                    '& .MuiDayCalendar-weekDayLabel': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiPickersCalendarHeader-label': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiPickersYear-yearButton': {
+                      color: 'hsl(var(--foreground))',
+                    }
+                  }
+                }
+              }} 
+            />
+            <DatePicker 
+              label="Até" 
+              value={filtros.dataFim} 
+              onChange={v => handleFiltroChange('dataFim', v)}
+              disabled={!filtros.tipoData}
+              slotProps={{ 
+                textField: { 
+                  fullWidth: true, 
+                  size: 'small',
+                  InputProps: {
+                    style: { color: 'hsl(var(--foreground))' }
+                  },
+                  inputProps: {
+                    style: { color: 'hsl(var(--foreground))' }
+                  },
+                  sx: {
+                    '& .MuiInputBase-root': { color: 'hsl(var(--foreground)) !important' },
+                    '& .MuiInputBase-input': { 
+                      color: 'hsl(var(--foreground)) !important',
+                    },
+                    '& input': {
+                      color: 'hsl(var(--foreground)) !important',
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--border))' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--foreground))' },
+                    '& .Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--primary))' },
+                    '& .MuiInputLabel-root': { color: 'hsl(var(--muted-foreground))' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'hsl(var(--primary))' },
+                    '& .MuiSvgIcon-root': { color: 'hsl(var(--foreground))' },
+                    '& .Mui-disabled .MuiInputBase-input': { 
+                      color: 'hsl(var(--muted-foreground)) !important',
+                    }
+                  }
+                },
+                popper: {
+                  sx: {
+                    '& .MuiPaper-root': {
+                      bgcolor: 'hsl(var(--card))',
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiPickersDay-root': {
+                      color: 'hsl(var(--foreground))',
+                      '&:hover': {
+                        bgcolor: 'hsl(var(--accent))',
+                      },
+                      '&.Mui-selected': {
+                        bgcolor: 'hsl(var(--primary))',
+                        color: '#fff',
+                      }
+                    },
+                    '& .MuiDayCalendar-weekDayLabel': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiPickersCalendarHeader-label': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      color: 'hsl(var(--foreground))',
+                    },
+                    '& .MuiPickersYear-yearButton': {
+                      color: 'hsl(var(--foreground))',
+                    }
+                  }
+                }
+              }} 
+            />
         </Box>
         <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
             <Button variant="contained" onClick={handleApply} fullWidth>Aplicar Filtros</Button>

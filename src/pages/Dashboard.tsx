@@ -16,6 +16,66 @@ import '../styles/themes.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Componente que renderiza um indicador de cor usando as variáveis CSS do tema atual
+const ChartColorIndicator = ({ cssVarName, scheme }: { cssVarName: string; scheme: 'multicolor' | 'monochromatic' }) => {
+    const [color, setColor] = React.useState<string>('');
+    const { theme } = useTheme();
+    const divRef = React.useRef<HTMLDivElement>(null);
+    
+    React.useEffect(() => {
+        // Pequeno delay para garantir que o CSS foi aplicado
+        const timer = setTimeout(() => {
+            if (divRef.current) {
+                const computedStyle = window.getComputedStyle(divRef.current);
+                const bgColor = computedStyle.backgroundColor;
+                if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+                    setColor(bgColor);
+                }
+            }
+        }, 50);
+        
+        return () => clearTimeout(timer);
+    }, [cssVarName, theme, scheme]);
+    
+    return (
+        <div 
+            ref={divRef}
+            className="h-3 w-3 shrink-0 rounded-sm border border-white/20" 
+            style={{ 
+                backgroundColor: color || `hsl(var(${cssVarName}))`,
+            }}
+        />
+    );
+};
+
+// Função para obter o valor real da variável CSS
+const getCssVarValue = (varName: string): string => {
+    if (typeof window === 'undefined') return '';
+    const value = getComputedStyle(document.documentElement).getPropertyValue(varName);
+    return value.trim();
+};
+
+// Função para converter a string de cor do config em cor HSL real
+const resolveChartColor = (colorString: string): string => {
+    if (!colorString) return 'transparent';
+    
+    // Se a cor já é um valor direto HSL, retorna
+    if (!colorString.includes('var(')) return colorString;
+    
+    // Extrai o nome da variável CSS: hsl(var(--chart-mono-1)) -> --chart-mono-1
+    const match = colorString.match(/var\((--[^)]+)\)/);
+    if (match && match[1]) {
+        const cssVarValue = getCssVarValue(match[1]);
+        if (cssVarValue) {
+            return `hsl(${cssVarValue})`;
+        }
+    }
+    
+    return 'transparent';
+};
+
+
+
 const ThemePaletteSwatch = ({ theme }: { theme: { name: string, isDark: boolean } }) => {
     // Define qual paleta usar com base na propriedade `isDark`
     const palettePrefix = theme.isDark ? '--chart-color-' : '--chart-mono-';
@@ -71,6 +131,8 @@ const generateChartConfig = (
         config[key] = {
             label: item.name,
             color: `hsl(var(${prefix}${colorIndex}))`,
+            // Adiciona a variável CSS para uso em inline styles
+            cssVar: `${prefix}${colorIndex}`,
         };
     });
     return config;
@@ -551,10 +613,28 @@ export default function ShadcnDashboard() {
                             <CardDescription>Percentual de imóveis por regime</CardDescription>
                         </div>
                         <Select value={activeRegime} onValueChange={setActiveRegime}>
-                            <SelectTrigger className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" aria-label="Selecione o Regime">
-                                <SelectValue placeholder="Selecione" />
+                            <SelectTrigger 
+                                className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" 
+                                aria-label="Selecione o Regime"
+                            >
+                                <SelectValue placeholder="Selecione">
+                                    {activeRegime && (() => {
+                                        const configKey = toConfigKey(activeRegime);
+                                        const config = chartConfigRegime[configKey as keyof typeof chartConfigRegime];
+                                        const cssVar = (config as any)?.cssVar || '--chart-mono-1';
+                                        return (
+                                            <div className="flex items-center gap-2">
+                                                <ChartColorIndicator cssVarName={cssVar} scheme={chartColorScheme} />
+                                                <span>{activeRegime}</span>
+                                            </div>
+                                        );
+                                    })()}
+                                </SelectValue>
                             </SelectTrigger>
-                            <SelectContent align="end" className="rounded-xl">
+                            <SelectContent 
+                                align="end" 
+                                className="rounded-xl z-50 bg-card text-card-foreground border-border"
+                            >
                                 {/* Mapeamos diretamente o `dataRegime` para garantir que todos os itens apareçam */}
                                 {dataRegime.map((item) => {
                                     const configKey = toConfigKey(item.name);
@@ -562,12 +642,16 @@ export default function ShadcnDashboard() {
                                     
                                     // Se por algum motivo a config não existir, ainda renderizamos com um fallback
                                     const label = config?.label || item.name;
-                                    const color = config?.color || 'hsl(var(--muted))';
+                                    const cssVar = (config as any)?.cssVar || '--chart-mono-1';
 
                                     return (
-                                        <SelectItem key={item.name} value={item.name} className="rounded-lg [&_span]:flex">
+                                        <SelectItem 
+                                            key={item.name} 
+                                            value={item.name} 
+                                            className="rounded-lg cursor-pointer text-card-foreground hover:bg-accent hover:text-accent-foreground data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
+                                        >
                                             <div className="flex items-center gap-2 text-xs">
-                                                <span className="flex h-3 w-3 shrink-0 rounded-sm" style={{ backgroundColor: color }} />
+                                                <ChartColorIndicator cssVarName={cssVar} scheme={chartColorScheme} />
                                                 {label}
                                             </div>
                                         </SelectItem>
@@ -708,24 +792,35 @@ export default function ShadcnDashboard() {
                     {/* Drill Down Modal/List para Município, Regime e Status */}
                     {(selectedStatus || selectedMunicipio || selectedRegimeCard) && (
                     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-4 relative">
-                        <button className="absolute top-4 right-6 text-lg" onClick={() => {
-                            setSelectedStatus(null);
-                            setSelectedMunicipio(null);
-                            setSelectedRegimeCard(null);
-                            setDrillImoveis([]);
-                        }}>Fechar</button>
-                        <h2 className="text-xl font-bold mb-2">
+                        <div className="rounded-lg shadow-lg max-w-2xl w-full p-4 relative" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}>
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="absolute top-4 right-4"
+                            style={{ 
+                                transition: 'none',
+                                transform: 'none'
+                            }}
+                            onClick={() => {
+                                setSelectedStatus(null);
+                                setSelectedMunicipio(null);
+                                setSelectedRegimeCard(null);
+                                setDrillImoveis([]);
+                            }}
+                        >
+                            Fechar
+                        </Button>
+                        <h2 className="text-xl font-bold mb-2 pr-20" style={{ color: 'hsl(var(--card-foreground))' }}>
                             {selectedStatus && (<>Imóveis - {chartConfigStatusFiscalizacao[selectedStatus]?.label || selectedStatus}</>)}
                             {selectedMunicipio && (<>Imóveis no Município - {selectedMunicipio}</>)}
                             {selectedRegimeCard && (<>Imóveis - {selectedRegimeCard}</>)}
                         </h2>
                         <ul className="max-h-[400px] overflow-y-auto">
                             {drillImoveis.length === 0 ? (
-                            <li>Nenhum imóvel encontrado.</li>
+                            <li style={{ color: 'hsl(var(--card-foreground))' }}>Nenhum imóvel encontrado.</li>
                             ) : (
                             drillImoveis.map(imovel => (
-                                <li key={imovel.idimovel} className="py-2 border-b">
+                                <li key={imovel.idimovel} className="py-2 border-b" style={{ color: 'hsl(var(--card-foreground))', borderColor: 'hsl(var(--border))' }}>
                                 <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
                                 </li>
                             ))

@@ -139,6 +139,17 @@
   background-color: hsl(var(--accent)) !important;
 }
 
+/* MenuItem de logout sempre vermelho */
+.MuiMenuItem-root[data-logout="true"],
+.dark .MuiMenuItem-root[data-logout="true"] {
+  color: #dc3545 !important;
+}
+
+.MuiMenuItem-root[data-logout="true"] .MuiSvgIcon-root,
+.dark .MuiMenuItem-root[data-logout="true"] .MuiSvgIcon-root {
+  color: #dc3545 !important;
+}
+
 .dark .MuiDivider-root {
   border-color: hsl(var(--border)) !important;
   opacity: 0.12; /* Material Design divider opacity */
@@ -241,4 +252,330 @@ button:active::before,
 .leaflet-marker-icon {
   width: auto !important;
   height: auto !important;
+}
+
+/* Material-UI TextField and Select styles for dark theme */
+.dark .MuiInputBase-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiOutlinedInput-notchedOutline {
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: hsl(var(--primary)) !important;
+}
+
+.dark .MuiInputLabel-root {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .MuiInputLabel-root.Mui-focused {
+  color: hsl(var(--primary)) !important;
+}
+
+.dark .MuiSelect-icon {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiFormHelperText-root {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .MuiFormHelperText-root.Mui-error {
+  color: hsl(var(--destructive)) !important;
+}
+
+.dark .MuiSvgIcon-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Exceção: manter a estrela amarela da foto padrão */
+.dark .MuiSvgIcon-root[style*="color: rgb(251, 191, 36)"],
+.dark .MuiSvgIcon-root[style*="color:#fbbf24"],
+.dark .MuiSvgIcon-root[style*="color: #fbbf24"] {
+  color: #fbbf24 !important;
+}
+
+/* Classe específica para estrela amarela */
+.star-default-yellow {
+  color: #fbbf24 !important;
+}
+
+.dark .star-default-yellow {
+  color: #fbbf24 !important;
+}
+
+.dark .MuiCheckbox-root {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .MuiCheckbox-root.Mui-checked {
+  color: hsl(var(--primary)) !important;
+}
+
+/* Radio buttons no modo escuro */
+.dark .MuiRadio-root {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .MuiRadio-root.Mui-checked {
+  color: hsl(var(--primary)) !important;
+}
+
+.dark .MuiFormControlLabel-label {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Tabs no modo escuro */
+.dark .MuiTab-root {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .MuiTab-root.Mui-selected {
+  color: hsl(var(--primary)) !important;
+}
+
+.dark .MuiTabs-indicator {
+  background-color: hsl(var(--primary)) !important;
+}
+
+/* Botões outlined no modo escuro */
+.dark .MuiButton-outlined {
+  color: hsl(var(--primary)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark .MuiButton-outlined:hover {
+  border-color: hsl(var(--primary)) !important;
+  background-color: hsl(var(--accent)) !important;
+}
+
+/* ListItemText secondary no modo escuro */
+.dark .MuiListItemText-secondary {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .MuiIconButton-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiMenuItem-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiListItemText-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Date picker styles for dark theme */
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) grayscale(0.1) brightness(1.8) contrast(0.9);
+  cursor: pointer;
+  opacity: 0.87;
+}
+
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+
+/* Disabled/ReadOnly fields styles for dark theme */
+.dark .MuiInputBase-root.Mui-disabled,
+.dark .MuiInputBase-root.Mui-readOnly,
+.dark .MuiInputBase-input:read-only {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.dark .MuiInputBase-root.Mui-disabled .MuiInputBase-input,
+.dark .MuiInputBase-input.Mui-disabled {
+  color: hsl(var(--foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline,
+.dark .MuiOutlinedInput-root.Mui-readOnly .MuiOutlinedInput-notchedOutline {
+  border-color: hsl(var(--border)) !important;
+  border-style: dashed !important;
+}
+
+/* Table styles for dark theme */
+.dark .MuiTable-root {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiTableCell-root {
+  color: hsl(var(--foreground)) !important;
+  border-bottom-color: hsl(var(--border)) !important;
+}
+
+.dark .MuiTableCell-head {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600;
+}
+
+.dark .MuiTableRow-root:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+.dark .MuiTableContainer-root {
+  background-color: hsl(var(--card)) !important;
+}
+
+.dark .MuiPaper-root {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .MuiDialogContent-root {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  min-height: auto !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* Reduzir padding do Container dentro de Dialogs */
+.dark .MuiDialogContent-root .MuiContainer-root {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  max-width: 100% !important;
+}
+
+.dark .MuiDialog-paper {
+  background-color: hsl(var(--card)) !important;
+}
+/* ============================
+   LOGIN/AUTH PAGES EXCEPTION
+   ============================ */
+/* Força todas as páginas de login/autenticação a manterem aparência light (texto preto) 
+   independente do tema do usuário */
+.login-auth-page .MuiInputBase-root {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+.login-auth-page .MuiInputLabel-root {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.login-auth-page .MuiInputLabel-root.Mui-focused {
+  color: #1976d2 !important;
+}
+
+.login-auth-page .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+.login-auth-page .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.login-auth-page .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #1976d2 !important;
+}
+
+.login-auth-page .MuiSvgIcon-root {
+  color: rgba(0, 0, 0, 0.54) !important;
+}
+
+.login-auth-page .MuiIconButton-root {
+  color: rgba(0, 0, 0, 0.54) !important;
+}
+
+.login-auth-page .MuiTypography-root {
+  color: #000000 !important;
+}
+
+/* Exceção para o título da logo - mantém a cor azul */
+.login-auth-page .MuiTypography-root.logo-title {
+  color: #1976d2 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.login-auth-page .MuiAlert-root {
+  color: inherit !important;
+}
+
+/* Dialog de Redefinir Senha na página de Login */
+.login-auth-dialog.MuiPaper-root {
+  background-color: #ffffff !important;
+}
+
+.login-auth-dialog.MuiDialogTitle-root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* SelectContent do gráfico deve usar cores do tema */
+[data-radix-popper-content-wrapper] [role="listbox"] {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+/* SelectItems devem usar cores do tema */
+[data-radix-popper-content-wrapper] [role="option"] {
+  color: hsl(var(--card-foreground)) !important;
+}
+
+[data-radix-popper-content-wrapper] [role="option"]:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+[data-radix-popper-content-wrapper] [role="option"][data-state="checked"] {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.login-auth-dialog.MuiDialogContent-root {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.login-auth-dialog .MuiInputBase-root {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
+.login-auth-dialog .MuiInputLabel-root {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.login-auth-dialog .MuiInputLabel-root.Mui-focused {
+  color: #1976d2 !important;
+}
+
+.login-auth-dialog .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.23) !important;
+}
+
+.login-auth-dialog .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.login-auth-dialog .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #1976d2 !important;
+}
+
+.login-auth-dialog .MuiTypography-root {
+  color: #000000 !important;
+}
+
+.login-auth-dialog .MuiAlert-root {
+  color: inherit !important;
 }

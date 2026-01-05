@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Container, CircularProgress, Alert, Box, Button, Typography, Paper } from '@mui/material';
+import { CircularProgress, Alert, Box, Button, Typography, Paper } from '@mui/material';
 import { toast } from 'react-toastify';
 import ImovelForm, { type ImovelFormRef } from './ImovelForm';
 import type { Imovel } from '@/types';
 import { useAuth } from '@/AuthContext';
+import { useTheme } from '@/ThemeContext';
 
 // Importação do componente SafePdfButton
 import SafePdfButton from '@/components/forms/SafePdfButton';
@@ -202,18 +203,23 @@ export default function ImovelEditPage() {
   };
 
   if (loading) {
-    return <Container sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}><CircularProgress /></Container>;
+    return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, p: 2 }}><CircularProgress /></Box>;
   }
 
   if (error) {
-    return <Container><Alert severity="error" sx={{ mt: 2 }}>{error}</Alert></Container>;
+    return <Box sx={{ p: 2 }}><Alert severity="error" sx={{ mt: 2 }}>{error}</Alert></Box>;
   }
 
+  const { uiMode } = useTheme();
+  const isDark = uiMode === 'dark';
+  const paperBg = isDark ? 'hsl(var(--card))' : '#ffffff';
+  const bgColor = isDark ? 'hsl(var(--background))' : '#ffffff';
+
   return (
-    <Container maxWidth="lg" className="bg-background text-foreground" sx={{ mt: 2, mb: 4, bgcolor: 'hsl(var(--background))', color: 'hsl(var(--foreground))' }}>
+    <Box sx={{ width: '100%', p: 2, bgcolor: bgColor, color: 'hsl(var(--foreground))' }}>
       {imovel ? (
         <>
-          <Paper elevation={3} className="bg-card text-foreground" sx={{ p: 2, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
+          <Paper elevation={3} className="bg-card text-foreground" sx={{ p: 2, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, bgcolor: paperBg, color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
             <Box>
                 <Typography variant="h5" component="h1" sx={{ color: 'hsl(var(--foreground))' }}>
                   Cadastro do Imóvel
@@ -273,6 +279,6 @@ export default function ImovelEditPage() {
           />
         </>
       ) : null}
-    </Container>
+    </Box>
   );
 }

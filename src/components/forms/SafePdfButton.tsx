@@ -487,6 +487,18 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         fullWidth={fullWidth} size={size} onClick={handleClick}
         endIcon={<ArrowDropDownIcon />}
         startIcon={isGenerating ? <CircularProgress size={20} /> : <PictureAsPdfIcon />}
+        sx={{
+          borderColor: '#1976d2',
+          color: '#1976d2',
+          '&:hover': {
+            borderColor: '#1565c0',
+            backgroundColor: 'rgba(25, 118, 210, 0.04)',
+          },
+          '&.Mui-disabled': {
+            borderColor: 'rgba(0, 0, 0, 0.12)',
+            color: 'rgba(0, 0, 0, 0.26)',
+          }
+        }}
       >
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>

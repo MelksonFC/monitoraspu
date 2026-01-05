@@ -150,14 +150,14 @@ export default function LocationManagement() {
           <Paper variant="outlined">
             <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ddd' }}>
               <Typography variant="h6">Países</Typography>
-              <Button startIcon={<AddIcon />} size="small" variant="outlined" onClick={() => handleOpenDialog('pais')}>Novo</Button>
+              <Button startIcon={<AddIcon />} size="small" variant="contained" onClick={() => handleOpenDialog('pais')}>Novo</Button>
             </Box>
             <List dense component="nav" sx={{ maxHeight: 400, overflow: 'auto' }}>
               {paises.map((pais) => (
                 <ListItemButton key={pais.idpais} selected={selectedPais?.idpais === pais.idpais} onClick={() => handleSelectPais(pais)}>
                   <ListItemText primary={pais.nome} />
-                  <IconButton edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleOpenDialog('pais', pais); }}><EditIcon fontSize="small" /></IconButton>
-                  <IconButton edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleDelete('pais', pais.idpais); }}><DeleteIcon fontSize="small" /></IconButton>
+                  <IconButton color="default" edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleOpenDialog('pais', pais); }}><EditIcon fontSize="small" /></IconButton>
+                  <IconButton color="default" edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleDelete('pais', pais.idpais); }}><DeleteIcon fontSize="small" /></IconButton>
                 </ListItemButton>
               ))}
             </List>
@@ -169,14 +169,14 @@ export default function LocationManagement() {
           <Paper variant="outlined">
             <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ddd' }}>
               <Typography variant="h6">Estados</Typography>
-              <Button startIcon={<AddIcon />} size="small" variant="outlined" disabled={!selectedPais} onClick={() => handleOpenDialog('estado')}>Novo</Button>
+              <Button startIcon={<AddIcon />} size="small" variant="contained" disabled={!selectedPais} onClick={() => handleOpenDialog('estado')}>Novo</Button>
             </Box>
             <List dense component="nav" sx={{ maxHeight: 400, overflow: 'auto' }}>
               {selectedPais ? estados.map((estado) => (
                 <ListItemButton key={estado.idestado} selected={selectedEstado?.idestado === estado.idestado} onClick={() => handleSelectEstado(estado)}>
                   <ListItemText primary={`${estado.nome} (${estado.uf})`} />
-                   <IconButton edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleOpenDialog('estado', estado); }}><EditIcon fontSize="small" /></IconButton>
-                   <IconButton edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleDelete('estado', estado.idestado); }}><DeleteIcon fontSize="small" /></IconButton>
+                   <IconButton color="default" edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleOpenDialog('estado', estado); }}><EditIcon fontSize="small" /></IconButton>
+                   <IconButton color="default" edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleDelete('estado', estado.idestado); }}><DeleteIcon fontSize="small" /></IconButton>
                 </ListItemButton>
               )) : <ListItemButton disabled><ListItemText secondary="Selecione um país" /></ListItemButton>}
             </List>
@@ -188,14 +188,14 @@ export default function LocationManagement() {
           <Paper variant="outlined">
             <Box sx={{ p: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ddd' }}>
               <Typography variant="h6">Municípios</Typography>
-              <Button startIcon={<AddIcon />} size="small" variant="outlined" disabled={!selectedEstado} onClick={() => handleOpenDialog('municipio')}>Novo</Button>
+              <Button startIcon={<AddIcon />} size="small" variant="contained" disabled={!selectedEstado} onClick={() => handleOpenDialog('municipio')}>Novo</Button>
             </Box>
             <List dense component="nav" sx={{ maxHeight: 400, overflow: 'auto' }}>
               {selectedEstado ? municipios.map((municipio) => (
                 <ListItemButton key={municipio.idmunicipio}>
                   <ListItemText primary={municipio.nome} />
-                   <IconButton edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleOpenDialog('municipio', municipio); }}><EditIcon fontSize="small" /></IconButton>
-                   <IconButton edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleDelete('municipio', municipio.idmunicipio); }}><DeleteIcon fontSize="small" /></IconButton>
+                   <IconButton color="default" edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleOpenDialog('municipio', municipio); }}><EditIcon fontSize="small" /></IconButton>
+                   <IconButton color="default" edge="end" size="small" onClick={(e) => { e.stopPropagation(); handleDelete('municipio', municipio.idmunicipio); }}><DeleteIcon fontSize="small" /></IconButton>
                 </ListItemButton>
               )) : <ListItemButton disabled><ListItemText secondary="Selecione um estado" /></ListItemButton>}
             </List>

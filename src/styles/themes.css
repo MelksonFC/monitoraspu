@@ -298,7 +298,72 @@
   --chart-mono-17: 165 37% 76%; --chart-mono-18: 165, 39%, 84%;
   --chart-mono-19: 165 41% 92%; --chart-mono-20: 165, 43%, 99%;
 }
+/* ======================================== */
+/*        TEMA DARK OCEAN (PADRÃO ESCURO)   */
+/* ======================================== */
+/* Inspirado nos tons de azul do oceano profundo: Azure, Cerulean, Navy, Midnight */
+[data-theme="theme-dark-ocean"] {
+  --background: 0 0% 7%;       /* Azul oceânico profundo */
+  --foreground: 200 30% 90%;       /* Texto claro azulado */
+  --card: 218 30% 10%;              /* Card azul muito escuro para contraste */
+  --card-foreground: 210 10% 96%;  /* Branco quase puro para contraste com cores dos gráficos */
+  --primary: 210 85% 55%;          /* Azul oceânico vibrante (Azure/Cerulean) */
+  --primary-foreground: 210 10% 96%;
+  --border: 215 35% 18%;           /* Bordas azul escuro */
+  --ring: 210 85% 55%;
 
+  --card-gradient: linear-gradient(to bottom right, hsl(220 55% 35%), hsl(235 40% 14%));
+  --card-gradient-foreground: hsl(200, 30%, 95%);
+
+  --color-status-nunca: 220 10% 70%;
+
+  /* COLORIDO: Paleta de Oceano - Do azul claro ao profundo com complementares */
+  /* Baseado nos tons: Baby Blue, Powder Blue, Cornflower, Azure, Cerulean, Cobalt, Navy, Midnight */
+  --chart-color-1: 195 80% 70%;   /* Baby Blue - Azul bebê claro */
+  --chart-color-2: 200 75% 65%;   /* Powder Blue - Azul pó */
+  --chart-color-3: 220 70% 60%;   /* Cornflower - Azul centáurea */
+  --chart-color-4: 210 85% 55%;   /* Azure - Azul celeste */
+  --chart-color-5: 200 90% 45%;   /* Cerulean - Cerúleo */
+  --chart-color-6: 215 80% 40%;   /* Cobalt - Cobalto */
+  --chart-color-7: 230 75% 35%;   /* Navy - Marinho */
+  --chart-color-8: 235 70% 25%;   /* Midnight - Meia-noite */
+  --chart-color-9: 185 70% 55%;   /* Turquesa/Teal */
+  --chart-color-10: 240 60% 45%;  /* Indigo oceânico */
+  /* Complementares para contraste */
+  --chart-color-11: 35 85% 60%;   /* Coral - complementar do azul */
+  --chart-color-12: 25 80% 55%;   /* Laranja queimado */
+  --chart-color-13: 45 75% 65%;   /* Dourado */
+  --chart-color-14: 175 60% 50%;  /* Verde-água */
+  --chart-color-15: 190 65% 60%;  /* Ciano claro */
+  --chart-color-16: 250 55% 60%;  /* Roxo azulado */
+  --chart-color-17: 205 70% 75%;  /* Azul céu */
+  --chart-color-18: 215 50% 50%;  /* Azul médio */
+  --chart-color-19: 225 60% 65%;  /* Azul lavanda */
+  --chart-color-20: 195 70% 80%;  /* Azul muito claro */
+
+  /* MONOCROMÁTICO: Gradiente de azuis do oceano - Do claro (superfície) ao escuro (profundo) */
+  /* Simulando profundidade oceânica com maior diferença entre tons */
+  --chart-mono-1: 200 65% 70%;    /* Superfície - azul claro */
+  --chart-mono-2: 205 65% 65%;
+  --chart-mono-3: 210 65% 60%;
+  --chart-mono-4: 212 65% 55%;
+  --chart-mono-5: 215 65% 50%;    /* Águas rasas */
+  --chart-mono-6: 215 65% 45%;
+  --chart-mono-7: 218 63% 40%;
+  --chart-mono-8: 220 60% 36%;
+  --chart-mono-9: 222 58% 32%;
+  --chart-mono-10: 224 55% 28%;   /* Zona intermediária */
+  --chart-mono-11: 226 53% 25%;
+  --chart-mono-12: 228 50% 22%;
+  --chart-mono-13: 230 48% 20%;
+  --chart-mono-14: 232 45% 18%;
+  --chart-mono-15: 234 43% 16%;   /* Águas profundas */
+  --chart-mono-16: 235 40% 15%;
+  --chart-mono-17: 236 38% 14%;
+  --chart-mono-18: 237 35% 13%;
+  --chart-mono-19: 238 33% 12%;
+  --chart-mono-20: 240 30% 11%;   /* Abismo - azul muito escuro */
+}
 /* --- TEMA DARK MOUNTAIN --- */
 [data-theme="theme-dark-mountain"] {
   --background: 0 0% 7%;

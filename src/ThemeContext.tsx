@@ -30,9 +30,10 @@ const themes: Theme[] = [
     { name: "theme-blue", label: "Azul (Padrão)", color: "#007bff", isDark: false },
     { name: "theme-green", label: "Verde Clássico", color: "#28a745", isDark: false },
     { name: "theme-orange", label: "Laranja Vibrante", color: "#fd7e14", isDark: false },
-    { name: "theme-volcano", label: "Vulcão Ativo (Escuro)", color: "#E63946", isDark: true },
-    { name: "theme-dark-forest", label: "Dark Forest (Escuro)", color: "#3A8E5A", isDark: true },
-    { name: "theme-dark-mountain", label: "Dark Mountain (Escuro)", color: "#343a40", isDark: true },
+    { name: "theme-dark-ocean", label: "Dark Ocean (Padrão)", color: "#3B82F6", isDark: true },
+    { name: "theme-volcano", label: "Vulcão Ativo", color: "#E63946", isDark: true },
+    { name: "theme-dark-forest", label: "Dark Forest", color: "#3A8E5A", isDark: true },
+    { name: "theme-dark-mountain", label: "Dark Mountain", color: "#343a40", isDark: true },
 ];
 
 const applyTheme = () => {
@@ -58,10 +59,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const fetchThemePreference = async () => {
       if (usuario?.id) {
-        console.log("Buscando preferência de tema para o usuário:", usuario.id);
         try {
           const { data } = await api.get(`/userpreferences/${usuario.id}`);
-          console.log("API retornou as preferências:", data);
           
           const savedTheme = data.themepreference || 'theme-blue';
           const savedScheme = data.chartcolorscheme || 'monochromatic';
@@ -78,7 +77,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           localStorage.setItem('uiMode', savedUiMode);
 
         } catch (error) {
-          console.error("Falha ao buscar preferência de tema da API", error);
           // Fallback para localStorage se a API falhar
           const storedTheme = localStorage.getItem('theme') as ThemeName | null;
           const storedScheme = localStorage.getItem('chartColorScheme') as ChartColorScheme | null;
@@ -102,14 +100,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [usuario]);
 
   const updateTheme = async (newTheme: ThemeName) => {
-    console.log(`Tentando alterar o tema para: ${newTheme}`);
     setThemeState(newTheme);
     applyTheme();
     localStorage.setItem('theme', newTheme); // Atualização otimista da UI
 
     if (usuario?.id) {
       try {
-        console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, { themepreference: newTheme });
         await api.put(`/userpreferences/${usuario.id}`, { themepreference: newTheme });
       } catch (error) {
         console.error("Falha ao salvar preferência de tema na API", error);
@@ -119,7 +115,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateUiMode = async (newMode: UiMode) => {
-    console.log(`Tentando alterar o modo de UI para: ${newMode}`);
     setUiModeState(newMode);
     applyUiMode(newMode);
     localStorage.setItem('uiMode', newMode);
@@ -133,8 +128,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (needsThemeChange) {
       // Define o tema padrão baseado no modo
-      const defaultTheme = newMode === 'dark' ? 'theme-dark-forest' : 'theme-blue';
-      console.log(`Tema incompatível detectado. Mudando para: ${defaultTheme}`);
+      const defaultTheme = newMode === 'dark' ? 'theme-dark-ocean' : 'theme-blue';
       
       setThemeState(defaultTheme);
       applyTheme();
@@ -155,7 +149,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         if (needsThemeChange) {
           payload.themepreference = themeToSave;
           payload.chartcolorscheme = schemeToSave;
-          console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, payload);
         } else {
           console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, payload);
         }
@@ -168,13 +161,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateChartColorScheme = async (newScheme: ChartColorScheme) => {
-    console.log(`Tentando alterar o esquema de cores para: ${newScheme}`);
     setChartColorSchemeState(newScheme);
     localStorage.setItem('chartColorScheme', newScheme); // Atualização otimista
 
     if (usuario?.id) {
       try {
-        console.log(`Enviando para a API: PUT /userpreferences/${usuario.id}`, { chartcolorscheme: newScheme });
         await api.put(`/userpreferences/${usuario.id}`, { chartcolorscheme: newScheme });
       } catch (error) {
         console.error("Falha ao salvar esquema de cores na API", error);

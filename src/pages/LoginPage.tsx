@@ -127,6 +127,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
         {/* Caixa de Login com Efeito de Vidro */}
         <Container maxWidth="xs" disableGutters>
           <Box
+            className="login-auth-page"
             sx={{
               p: 4,
               borderRadius: 4,
@@ -137,7 +138,17 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
               textAlign: 'center',
             }}
           >
-            <Typography variant="h4" component="h1" fontWeight="bold" color="primary.main" gutterBottom>
+            <Typography 
+              variant="h4" 
+              component="h1" 
+              fontWeight="bold" 
+              gutterBottom
+              className="logo-title"
+              sx={{
+                color: '#1976d2',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            >
               Monitora SPU-RR
             </Typography>
             <Typography variant="h6" component="h2" color="text.secondary" mb={3}>
@@ -287,9 +298,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
       </Box>
 
       {/* Dialog de Redefinir Senha */}
-      <Dialog open={showReset} onClose={() => setShowReset(false)}>
-        <DialogTitle>Redefinir senha</DialogTitle>
-        <DialogContent>
+      <Dialog open={showReset} onClose={() => setShowReset(false)} PaperProps={{ className: 'login-auth-dialog' }}>
+        <DialogTitle className="login-auth-dialog">Redefinir senha</DialogTitle>
+        <DialogContent className="login-auth-dialog">
           <Typography variant="body2" sx={{ mb: 2 }}>
             Digite seu e-mail abaixo. Se ele estiver cadastrado em nosso sistema, enviaremos um link para você criar uma nova senha.
           </Typography>

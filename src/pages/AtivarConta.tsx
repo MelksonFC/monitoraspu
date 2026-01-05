@@ -35,7 +35,7 @@ const AtivarConta: React.FC = () => {
   }, [location.search]);
 
   return (
-    <Box sx={{ mt: 8, p: 4, boxShadow: 3, borderRadius: 2, maxWidth: 400, mx: "auto" }}>
+    <Box className="login-auth-page" sx={{ mt: 8, p: 4, boxShadow: 3, borderRadius: 2, maxWidth: 400, mx: "auto" }}>
       <Typography variant="h5" align="center" mb={3}>
         Ativação de Conta
       </Typography>

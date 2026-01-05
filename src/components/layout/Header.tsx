@@ -64,10 +64,10 @@ const Header: React.FC = () => {
           <Typography
             variant="h5"
             component="div"
-            className="text-foreground"
             sx={{
               fontWeight: 'bold',
-              color: 'hsl(var(--foreground))'
+              color: '#1976d2',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
             }}
           >
             Monitora SPU-RR
@@ -122,8 +122,8 @@ const Header: React.FC = () => {
               </MenuItem>
             )}
             <Divider sx={{ my: 1 }} />
-            <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-              <LogoutIcon sx={{ mr: 1.5 }} />
+            <MenuItem onClick={handleLogout} data-logout="true">
+              <LogoutIcon sx={{ mr: 1.5, color: '#dc3545 !important' }} />
               Sair
             </MenuItem>
           </Menu>

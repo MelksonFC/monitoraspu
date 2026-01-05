@@ -103,8 +103,8 @@ export default function RegimeUtilizacaoManagement() {
                     <Checkbox checked={!!regime.destinado} disabled />
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton onClick={() => handleOpenDialog(regime)}><EditIcon /></IconButton>
-                    <IconButton onClick={() => handleDelete(regime.id)}><DeleteIcon /></IconButton>
+                    <IconButton color="default" onClick={() => handleOpenDialog(regime)}><EditIcon /></IconButton>
+                    <IconButton color="default" onClick={() => handleDelete(regime.id)}><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
               ))}

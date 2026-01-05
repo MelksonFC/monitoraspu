@@ -47,9 +47,9 @@ export default function PropertySidebar({ imoveis, onImovelSelect, selectedImove
     };
 
     return (
-        <Box sx={{ width: 400, height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: 'background.paper', boxShadow: 4, borderLeft: '1px solid', borderColor: 'divider' }}>
-            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
+        <Box className="bg-card text-foreground" sx={{ width: 400, height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: 4, borderLeft: '1px solid', borderColor: 'hsl(var(--border))' }}>
+            <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'hsl(var(--border))', flexShrink: 0 }}>
+                <Typography variant="h6" sx={{ mb: 2, color: 'hsl(var(--foreground))' }}>
                     Imóveis ({imoveis.length})
                 </Typography>
                 <FormControl fullWidth size="small">
@@ -64,10 +64,10 @@ export default function PropertySidebar({ imoveis, onImovelSelect, selectedImove
             <Box sx={{ flex: '1 1 auto', overflowY: 'auto' }}>
                 {imoveis.length === 0 && isFilterApplied ? (
                     <Box sx={{ textAlign: 'center', p: 3 }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>
                             Nenhum imóvel encontrado
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        <Typography variant="body2" sx={{ mb: 2, color: 'hsl(var(--muted-foreground))' }}>
                             Tente ajustar os seus filtros ou limpe a busca para ver todos os imóveis.
                         </Typography>
                         <Button variant="outlined" onClick={onClearFilters}>
@@ -78,21 +78,21 @@ export default function PropertySidebar({ imoveis, onImovelSelect, selectedImove
                     <List ref={listRef}>
                         {sortedImoveis.map((imovel) => (
                             <React.Fragment key={imovel.idimovel}>
-                                <ListItem id={`imovel-item-${imovel.idimovel}`} disablePadding sx={{ backgroundColor: selectedImovel?.idimovel === imovel.idimovel ? 'action.hover' : 'transparent', transition: 'background-color 0.3s', alignItems: 'flex-start', pt: 0.0, pb: 0.0 }}
+                                <ListItem id={`imovel-item-${imovel.idimovel}`} disablePadding sx={{ backgroundColor: selectedImovel?.idimovel === imovel.idimovel ? 'hsl(var(--accent))' : 'transparent', transition: 'background-color 0.3s', alignItems: 'flex-start', pt: 0.0, pb: 0.0 }}
                                     secondaryAction={
                                         <IconButton edge="end" aria-label="editar imóvel" onClick={() => handleEdit(imovel.idimovel)} sx={{mt: 1}}>
                                             <SettingsIcon />
                                         </IconButton>
                                     }
                                 >
-                                    <ListItemButton onClick={() => onImovelSelect(imovel)} sx={{ alignItems: 'flex-start' }}>
+                                    <ListItemButton onClick={() => onImovelSelect(imovel)} sx={{ alignItems: 'flex-start', '&:hover': { backgroundColor: 'hsl(var(--accent) / 0.5)' } }}>
                                         <ListItemAvatar sx={{ mt: 0.5 }}>
                                             <Avatar variant="rounded" src={getDefaultImage(imovel)} sx={{ width: 60, height: 60, mr: 2 }}><ImageIcon /></Avatar>
                                         </ListItemAvatar>
                                         <ListItemText
-                                            primary={<Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{imovel.nome}</Typography>}
+                                            primary={<Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold', color: 'hsl(var(--foreground))' }}>{imovel.nome}</Typography>}
                                             secondary={
-                                                <Typography component="span" variant="body2" color="text.secondary">
+                                                <Typography component="span" variant="body2" sx={{ color: 'hsl(var(--muted-foreground))' }}>
                                                     <div>RIP Imóvel: {imovel.ripimovel || 'N/A'}</div>
                                                     <div>Valor: {imovel.valorimovel ? `R$ ${formatValorBR(imovel.valorimovel)}` : 'N/A'}</div>
                                                     <div>{imovel.endereco}{imovel.numero ? `, ${imovel.numero}` : ''}</div>
@@ -103,7 +103,7 @@ export default function PropertySidebar({ imoveis, onImovelSelect, selectedImove
                                         />
                                     </ListItemButton>
                                 </ListItem>
-                                <Divider variant="fullWidth" component="li" />
+                                <Divider variant="fullWidth" component="li" sx={{ borderColor: 'hsl(var(--border))' }} />
                             </React.Fragment>
                         ))}
                     </List>
