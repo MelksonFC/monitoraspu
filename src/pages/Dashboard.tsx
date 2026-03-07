@@ -614,7 +614,7 @@ export default function ShadcnDashboard() {
                             </Tooltip>
                             <div className="absolute bottom-2 right-4 text-xs opacity-90">
                                 Sem edificação: {totalSemEdificacao}
-[                            </div>
+                            </div>
                         </CardContent>
                     </Card>
 
