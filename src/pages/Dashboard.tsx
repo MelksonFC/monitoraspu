@@ -96,7 +96,9 @@ const formatArea = (areaInM2: number) => {
 function getDateRangeFromTimeRange(range: string) {
     const now = new Date();
     let start = new Date(now);
-    if (range.endsWith("m")) {
+    if (range.endsWith("y")) {
+        start.setFullYear(now.getFullYear() - parseInt(range.replace("y", ""), 10));
+    } else if (range.endsWith("m")) {
         start.setMonth(now.getMonth() - parseInt(range.replace("m", ""), 10));
     } else if (range.endsWith("d")) {
         start.setDate(now.getDate() - parseInt(range.replace("d", ""), 10));
@@ -675,8 +677,9 @@ export default function ShadcnDashboard() {
                             <SelectTrigger className="w-[160px] rounded-lg sm:ml-auto" aria-label="Select a value">
                                 <SelectValue placeholder="Selecione o período" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                                <SelectItem value="24m" className="rounded-lg">Últimos 2 anos</SelectItem>
+                            <SelectContent className="rounded-xl">                                <SelectItem value="5y" className="rounded-lg">Últimos 5 anos</SelectItem>
+                                <SelectItem value="4y" className="rounded-lg">Últimos 4 anos</SelectItem>
+                                <SelectItem value="3y" className="rounded-lg">Últimos 3 anos</SelectItem>                                <SelectItem value="24m" className="rounded-lg">Últimos 2 anos</SelectItem>
                                 <SelectItem value="12m" className="rounded-lg">Últimos 12 meses</SelectItem>
                                 <SelectItem value="6m" className="rounded-lg">Últimos 6 meses</SelectItem>
                                 <SelectItem value="3m" className="rounded-lg">Últimos 3 meses</SelectItem>
