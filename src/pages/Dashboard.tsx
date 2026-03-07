@@ -136,7 +136,7 @@ export default function ShadcnDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeRegime, setActiveRegime] = useState<string>("");
-    const [timeRange, setTimeRange] = useState("24m");
+    const [timeRange, setTimeRange] = useState("5y");
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const [drillImoveis, setDrillImoveis] = useState<Imovel[]>([]);
     const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
