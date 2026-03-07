@@ -671,7 +671,7 @@ export default function ShadcnDashboard() {
             </div>
 
             {/* Linha de Gráficos Principais */}
-            <div className="grid gap-1 lg:grid-cols-7">
+            <div className="grid gap-6 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
                     <CardHeader><CardTitle>Imóveis por Município</CardTitle></CardHeader>
                     <CardContent>
