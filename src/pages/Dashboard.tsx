@@ -337,8 +337,15 @@ export default function ShadcnDashboard() {
     }, [imoveisFiltrados, regimeMap]);
 
     const chartConfigRegime = generateChartConfig(dataRegime, chartColorScheme);
-    const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0); // Linha restaurada
+    const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0);
     const activeIndexRegime = React.useMemo(() => dataRegime.findIndex((item) => item.name === activeRegime), [activeRegime, dataRegime]);
+
+    // Quando os filtros globais mudarem, atualiza o regime ativo para o primeiro com registros
+    useEffect(() => {
+        if (dataRegime.length > 0) {
+            setActiveRegime(dataRegime[0].name);
+        }
+    }, [filterMunicipio, filterUnidadeGestora, filterRegime]);
     const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
     const totalVago = dataRegime.find(r => r.name === 'Vago para Uso')?.value || 0;
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
@@ -730,7 +737,7 @@ export default function ShadcnDashboard() {
                         </div>
                         <Select value={activeRegime} onValueChange={setActiveRegime}>
                             <SelectTrigger 
-                                className="ml-auto h-7 w-[150px] rounded-lg pl-2.5" 
+                                className="ml-auto h-7 w-[220px] rounded-lg pl-2.5" 
                                 aria-label="Selecione o Regime"
                             >
                                 <SelectValue placeholder="Selecione">
