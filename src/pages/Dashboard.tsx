@@ -4,7 +4,7 @@ import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, S
 import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '@/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette, Maximize, Minimize } from 'lucide-react';
+import { Library, ClipboardList, LandPlot, Building2, CircleDollarSign, Settings, Palette, Maximize, Minimize, X, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription} from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -131,6 +131,7 @@ export default function ShadcnDashboard() {
     const [imoveis, setImoveis] = useState<Imovel[]>([]);
     const [municipios, setMunicipios] = useState<any[]>([]);
     const [regimes, setRegimes] = useState<any[]>([]);
+    const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
     const [fiscalizacoes, setFiscalizacoes] = useState<Fiscalizacao[]>([]);
     const [avaliacoes, setAcaliacoes] = useState<Avaliacao[]>([]);
     const [loading, setLoading] = useState(true);
@@ -143,6 +144,11 @@ export default function ShadcnDashboard() {
     const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
 
+    // Filtros globais do dashboard
+    const [filterMunicipio, setFilterMunicipio] = useState<string>("");
+    const [filterUnidadeGestora, setFilterUnidadeGestora] = useState<string>("");
+    const [filterRegime, setFilterRegime] = useState<string>("");
+
     const { isPresentationMode, togglePresentationMode } = useLayout();
 
     useEffect(() => {
@@ -150,12 +156,13 @@ export default function ShadcnDashboard() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes] = await Promise.all([
+                const [imoveisRes, municipiosRes, regimesRes, fiscalizacoesRes, avaliacoesRes, ugRes] = await Promise.all([
                     axios.get(`${API_URL}/api/imoveis?situacao=true`),
                     axios.get(`${API_URL}/api/municipios`),
                     axios.get(`${API_URL}/api/regimeutilizacao`),
                     axios.get(`${API_URL}/api/fiscalizacoes`),
                     axios.get(`${API_URL}/api/avaliacoes`),
+                    axios.get(`${API_URL}/api/unidadegestora`),
                 ]);
 
                 const imoveisData = Array.isArray(imoveisRes.data) ? imoveisRes.data : [];
@@ -164,6 +171,7 @@ export default function ShadcnDashboard() {
                 setRegimes(Array.isArray(regimesRes.data) ? regimesRes.data : []);
                 setFiscalizacoes(Array.isArray(fiscalizacoesRes.data) ? fiscalizacoesRes.data : []);
                 setAcaliacoes(Array.isArray(avaliacoesRes.data) ? avaliacoesRes.data : []);
+                setUnidadesGestoras(Array.isArray(ugRes.data) ? ugRes.data : []);
 
                 if (imoveisData.length > 0) {
                     const regimeMap = new Map((regimesRes.data as any[]).map(r => [r.id, r.descricao || r.nome]));
@@ -187,8 +195,57 @@ export default function ShadcnDashboard() {
 
     const municipioMap = new Map(municipios.map((m: any) => [m.idmunicipio, m.nome]));
     const regimeMap = new Map(regimes.map((r: any) => [r.id, r.descricao || r.nome]));
+    const unidadeGestoraMap = new Map(unidadesGestoras.map((u: any) => [u.id, u.nome]));
+
+    // Lista ordenada de municípios presentes nos imóveis (para o filtro)
+    const municipiosDisponiveis = React.useMemo(() => {
+        const nomes = new Set(imoveis.map(i => i.idmunicipio ? (municipioMap.get(i.idmunicipio) || '') : '').filter(Boolean));
+        return Array.from(nomes).sort();
+    }, [imoveis, municipioMap]);
+
+    const ugDisponiveis = React.useMemo(() => {
+        const ids = new Set(imoveis.map(i => i.idunidadegestora).filter(Boolean));
+        return Array.from(ids)
+            .map(id => ({ id: id as number, nome: unidadeGestoraMap.get(id as number) || `ID ${id}` }))
+            .sort((a, b) => a.nome.localeCompare(b.nome));
+    }, [imoveis, unidadeGestoraMap]);
+
+    const regimesDisponiveis = React.useMemo(() => {
+        const ids = new Set(imoveis.map(i => i.idregimeutilizacao).filter(Boolean));
+        return Array.from(ids)
+            .map(id => ({ id: id as number, nome: regimeMap.get(id as number) || `ID ${id}` }))
+            .sort((a, b) => a.nome.localeCompare(b.nome));
+    }, [imoveis, regimeMap]);
+
+    // Imóveis filtrados pelos 3 filtros globais — base para todos os gráficos e KPIs
+    const imoveisFiltrados = React.useMemo(() => {
+        return imoveis.filter(imovel => {
+            if (filterMunicipio) {
+                const nome = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || '') : '';
+                if (nome !== filterMunicipio) return false;
+            }
+            if (filterUnidadeGestora) {
+                const nome = imovel.idunidadegestora ? (unidadeGestoraMap.get(imovel.idunidadegestora) || '') : '';
+                if (nome !== filterUnidadeGestora) return false;
+            }
+            if (filterRegime) {
+                const nome = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || '') : '';
+                if (nome !== filterRegime) return false;
+            }
+            return true;
+        });
+    }, [imoveis, filterMunicipio, filterUnidadeGestora, filterRegime, municipioMap, unidadeGestoraMap, regimeMap]);
+
+    const hasActiveFilters = !!(filterMunicipio || filterUnidadeGestora || filterRegime);
+
+    function clearFilters() {
+        setFilterMunicipio("");
+        setFilterUnidadeGestora("");
+        setFilterRegime("");
+    }
 
     // [INÍCIO DAS FUNÇÕES RESTAURADAS]
+    // Drill-down opera sobre imoveisFiltrados para respeitar os filtros globais
     function getImoveisPorStatus(status: string): Imovel[] {
         const hoje = new Date();
         const prazoVencido = new Date(); prazoVencido.setFullYear(hoje.getFullYear() - 2);
@@ -200,7 +257,7 @@ export default function ShadcnDashboard() {
                 if (!dataAtual || new Date(fisc.datafiscalizacao) > new Date(dataAtual)) ultimasFiscalizacoes.set(fisc.idimovel, fisc.datafiscalizacao);
             }
         }
-        return imoveis.filter(imovel => {
+        return imoveisFiltrados.filter(imovel => {
             const ultimaFiscalizacao = imovel.idimovel ? ultimasFiscalizacoes.get(imovel.idimovel) : undefined;
             if (status === "nuncaFiscalizado") return !ultimaFiscalizacao;
             if (!ultimaFiscalizacao) return false;
@@ -213,14 +270,14 @@ export default function ShadcnDashboard() {
     }
 
     function getImoveisPorMunicipio(municipioNome: string): Imovel[] {
-        return imoveis.filter(imovel => {
+        return imoveisFiltrados.filter(imovel => {
             const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
             return nomeMunicipio === municipioNome;
         });
     }
 
     function getImoveisPorRegime(regimeNome: string): Imovel[] {
-        return imoveis.filter(imovel => {
+        return imoveisFiltrados.filter(imovel => {
             const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
             return nomeRegime === regimeNome;
         });
@@ -243,13 +300,13 @@ export default function ShadcnDashboard() {
     // [FIM DAS FUNÇÕES RESTAURADAS]
 
     const dataMunicipio = React.useMemo(() => {
-        const imoveisPorMunicipio = imoveis.reduce<Record<string, number>>((acc, imovel) => {
+        const imoveisPorMunicipio = imoveisFiltrados.reduce<Record<string, number>>((acc, imovel) => {
             const nomeMunicipio = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || `ID Mun. ${imovel.idmunicipio}`) : 'Não especificado';
             acc[nomeMunicipio] = (acc[nomeMunicipio] || 0) + 1;
             return acc;
         }, {});
         return Object.entries(imoveisPorMunicipio).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-    }, [imoveis, municipioMap]);
+    }, [imoveisFiltrados, municipioMap]);
     
     const chartConfigMunicipio = React.useMemo(() => {
         // 1. Cria a configuração base para o tooltip
@@ -271,13 +328,13 @@ export default function ShadcnDashboard() {
 
 
     const dataRegime = React.useMemo(() => {
-        const imoveisPorRegime = imoveis.reduce<Record<string, number>>((acc, imovel) => {
+        const imoveisPorRegime = imoveisFiltrados.reduce<Record<string, number>>((acc, imovel) => {
             const nomeRegime = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || `ID Reg. ${imovel.idregimeutilizacao}`) : 'Não especificado';
             acc[nomeRegime] = (acc[nomeRegime] || 0) + 1;
             return acc;
         }, {});
         return Object.entries(imoveisPorRegime).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-    }, [imoveis, regimeMap]);
+    }, [imoveisFiltrados, regimeMap]);
 
     const chartConfigRegime = generateChartConfig(dataRegime, chartColorScheme);
     const totalImoveisRegime = dataRegime.reduce((sum, item) => sum + item.value, 0); // Linha restaurada
@@ -285,7 +342,7 @@ export default function ShadcnDashboard() {
     const regimesDestinadosIds = regimes.filter((r: any) => r.destinado === true).map((r: any) => r.id);
     const totalVago = dataRegime.find(r => r.name === 'Vago para Uso')?.value || 0;
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
-    const totalDestinados = imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
+    const totalDestinados = imoveisFiltrados.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
     
     const monthlyTimelineData = React.useMemo(() => groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange), [avaliacoes, fiscalizacoes, timeRange]);
     const chartConfigTimeline = React.useMemo((): ChartConfig => {
@@ -316,7 +373,7 @@ export default function ShadcnDashboard() {
         }
 
         const statusCounts = { emDia: 0, aVencer: 0, vencido: 0, nuncaFiscalizado: 0 };
-        for (const imovel of imoveis) {
+        for (const imovel of imoveisFiltrados) {
             if (imovel.idimovel) {
                 const ultimaFiscalizacao = ultimasFiscalizacoes.get(imovel.idimovel);
                 if (!ultimaFiscalizacao) { statusCounts.nuncaFiscalizado++; continue; }
@@ -329,7 +386,7 @@ export default function ShadcnDashboard() {
             }
         }
         return [{ name: "Status", ...statusCounts }];
-    }, [imoveis, fiscalizacoes]);
+    }, [imoveisFiltrados, fiscalizacoes]);
 
     const chartConfigStatusFiscalizacao = React.useMemo((): ChartConfig => {
         const prefix = chartColorScheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
@@ -360,72 +417,135 @@ export default function ShadcnDashboard() {
     if (error) return <div className="container mx-auto p-8"><Card className="bg-destructive text-destructive-foreground"><CardHeader><CardTitle>Erro</CardTitle></CardHeader><CardContent>{error}</CardContent></Card></div>;
     if (!usuario) return <div className="flex items-center justify-center h-screen"><p>Por favor, faça login para acessar o dashboard.</p></div>;
 
-    const totalRipImoveis = new Set(imoveis.map(i => i.ripimovel).filter(Boolean)).size;
-    const totalRipUtilizacao = new Set(imoveis.map(i => i.riputilizacao).filter(Boolean)).size;
-    const totalAreaTerreno = imoveis.reduce((s, i) => s + Number(i.areaterreno || 0), 0);
-    const totalAreaConstruida = imoveis.reduce((s, i) => s + Number(i.areaconstruida || 0), 0);
-    const valorTotalImoveis = imoveis.reduce((s, i) => s + Number(i.valorimovel || 0), 0);
-    const totalSemEdificacao = imoveis.filter(i => !i.areaconstruida || Number(i.areaconstruida) === 0).length;
-    const mediaValorImoveis = imoveis.length > 0 ? (valorTotalImoveis / imoveis.length) : 0;
+    const totalRipImoveis = new Set(imoveisFiltrados.map(i => i.ripimovel).filter(Boolean)).size;
+    const totalRipUtilizacao = new Set(imoveisFiltrados.map(i => i.riputilizacao).filter(Boolean)).size;
+    const totalAreaTerreno = imoveisFiltrados.reduce((s, i) => s + Number(i.areaterreno || 0), 0);
+    const totalAreaConstruida = imoveisFiltrados.reduce((s, i) => s + Number(i.areaconstruida || 0), 0);
+    const valorTotalImoveis = imoveisFiltrados.reduce((s, i) => s + Number(i.valorimovel || 0), 0);
+    const totalSemEdificacao = imoveisFiltrados.filter(i => !i.areaconstruida || Number(i.areaconstruida) === 0).length;
+    const mediaValorImoveis = imoveisFiltrados.length > 0 ? (valorTotalImoveis / imoveisFiltrados.length) : 0;
     const formattedAreaTerreno = formatArea(totalAreaTerreno);
     const formattedAreaConstruida = formatArea(totalAreaConstruida);
 
     return (
         <TooltipProvider delayDuration={100}>
-        <main className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8 relative bg-background text-foreground" data-theme={theme}>
-            {/* --- MENU DE PERSONALIZAÇÃO DE TEMA (ATUALIZADO) --- */}
-            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
-                {/* Botão para o Modo Apresentação */}
-                <Button variant="outline" size="icon" onClick={togglePresentationMode} aria-label="Modo Apresentação">
-                    {isPresentationMode ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
-                </Button>
+        <main className="flex flex-1 flex-col bg-background text-foreground" data-theme={theme}>
 
-                {/* Menu de Configurações de Tema */}
-                <div className="relative">
-                    <Button variant="outline" size="icon" onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)} aria-label="Personalizar Tema">
-                        <Settings className="h-5 w-5" />
+            {/* BARRA SUPERIOR CONGELADA: filtros (esquerda) + ações (direita) */}
+            <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b flex items-center gap-2 px-4 md:px-8 py-2">
+
+                {/* Lado esquerdo: filtros */}
+                <div className="flex flex-1 flex-wrap items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground shrink-0">
+                        <Filter className="h-4 w-4" />
+                        <span>Filtros:</span>
+                    </div>
+
+                    <Select value={filterMunicipio} onValueChange={setFilterMunicipio}>
+                        <SelectTrigger className="h-8 w-[160px] rounded-lg text-sm">
+                            <SelectValue placeholder="Município" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {municipiosDisponiveis.map(nome => (
+                                <SelectItem key={nome} value={nome}>{nome}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={filterUnidadeGestora} onValueChange={setFilterUnidadeGestora}>
+                        <SelectTrigger className="h-8 w-[180px] rounded-lg text-sm">
+                            <SelectValue placeholder="Unidade Gestora" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {ugDisponiveis.map(ug => (
+                                <SelectItem key={ug.id} value={ug.nome}>{ug.nome}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={filterRegime} onValueChange={setFilterRegime}>
+                        <SelectTrigger className="h-8 w-[180px] rounded-lg text-sm">
+                            <SelectValue placeholder="Regime de Utilização" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {regimesDisponiveis.map(r => (
+                                <SelectItem key={r.id} value={r.nome}>{r.nome}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Button
+                        variant={hasActiveFilters ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={clearFilters}
+                        disabled={!hasActiveFilters}
+                        className="h-8 gap-1.5 shrink-0"
+                    >
+                        <X className="h-3.5 w-3.5" />
+                        Limpar
                     </Button>
-                    {isThemeMenuOpen && (
-                    <div className="absolute top-14 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95">
-                        <div className="flex items-center gap-3 mb-4"><Palette className="h-5 w-5 text-muted-foreground" /><h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3></div>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">Tema Visual</label>
-                                <Select value={theme} onValueChange={setTheme}>
-                                    <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
-                                    <SelectContent>
-                                        {getAvailableThemes().map((themeOption) => (
-                                            <SelectItem key={themeOption.name} value={themeOption.name}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10"> {/* Container para a paleta */}
-                                                        <ThemePaletteSwatch theme={themeOption} />
+
+                    {hasActiveFilters && (
+                        <span className="text-xs text-muted-foreground shrink-0">
+                            {imoveisFiltrados.length}/{imoveis.length} imóveis
+                        </span>
+                    )}
+                </div>
+
+                {/* Lado direito: apresentação + tema */}
+                <div className="flex items-center gap-2 shrink-0">
+                    <Button variant="outline" size="icon" onClick={togglePresentationMode} aria-label="Modo Apresentação">
+                        {isPresentationMode ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                    </Button>
+
+                    <div className="relative">
+                        <Button variant="outline" size="icon" onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)} aria-label="Personalizar Tema">
+                            <Settings className="h-5 w-5" />
+                        </Button>
+                        {isThemeMenuOpen && (
+                        <div className="absolute top-12 right-0 w-72 rounded-lg bg-card shadow-lg border p-4 animate-in fade-in-0 zoom-in-95">
+                            <div className="flex items-center gap-3 mb-4"><Palette className="h-5 w-5 text-muted-foreground" /><h3 className="font-semibold text-card-foreground">Personalizar Aparência</h3></div>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Tema Visual</label>
+                                    <Select value={theme} onValueChange={setTheme}>
+                                        <SelectTrigger><SelectValue placeholder="Selecione um tema" /></SelectTrigger>
+                                        <SelectContent>
+                                            {getAvailableThemes().map((themeOption) => (
+                                                <SelectItem key={themeOption.name} value={themeOption.name}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10">
+                                                            <ThemePaletteSwatch theme={themeOption} />
+                                                        </div>
+                                                        {themeOption.label}
                                                     </div>
-                                                    {themeOption.label}
-                                                </div>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            {/* [NOVO] Seletor de Esquema de Cores do Gráfico */}
-                            <div>
-                                <label className="text-sm font-medium text-muted-foreground">Cores dos Gráficos</label>
-                                <Select value={chartColorScheme} onValueChange={(value) => setChartColorScheme(value as any)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="multicolor">Colorido</SelectItem>
-                                        <SelectItem value="monochromatic">Monocromático</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <label className="text-sm font-medium text-muted-foreground">Cores dos Gráficos</label>
+                                    <Select value={chartColorScheme} onValueChange={(value) => setChartColorScheme(value as any)}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="multicolor">Colorido</SelectItem>
+                                            <SelectItem value="monochromatic">Monocromático</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
+                        )}
                     </div>
-                )}
                 </div>
             </div>
 
+            {/* Conteúdo rolável */}
+            <div className="flex flex-col gap-6 p-4 md:gap-8 md:p-8">
+
             {/* Linha de KPIs principais */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 pt-14">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
                 {/* RIP Imóvel */}
                 <Card className="shadow-md card-gradient">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -799,6 +919,7 @@ export default function ShadcnDashboard() {
                     )}      
                 </div>
             </div>
+            </div>{/* fecha conteúdo rolável */}
         </main>
         </TooltipProvider>
     );
