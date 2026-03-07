@@ -441,49 +441,66 @@ export default function ShadcnDashboard() {
                         <span>Filtros:</span>
                     </div>
 
-                    <Select value={filterMunicipio} onValueChange={setFilterMunicipio}>
+                    <Select
+                        value={filterMunicipio || "__todos__"}
+                        onValueChange={v => setFilterMunicipio(v === "__todos__" ? "" : v)}
+                    >
                         <SelectTrigger className="h-8 w-[160px] rounded-lg text-sm">
-                            <SelectValue placeholder="Município" />
+                            <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem value="__todos__">Município: Todos</SelectItem>
                             {municipiosDisponiveis.map(nome => (
                                 <SelectItem key={nome} value={nome}>{nome}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
 
-                    <Select value={filterUnidadeGestora} onValueChange={setFilterUnidadeGestora}>
+                    <Select
+                        value={filterUnidadeGestora || "__todos__"}
+                        onValueChange={v => setFilterUnidadeGestora(v === "__todos__" ? "" : v)}
+                    >
                         <SelectTrigger className="h-8 w-[180px] rounded-lg text-sm">
-                            <SelectValue placeholder="Unidade Gestora" />
+                            <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem value="__todos__">Unid. Gestora: Todos</SelectItem>
                             {ugDisponiveis.map(ug => (
                                 <SelectItem key={ug.id} value={ug.nome}>{ug.nome}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
 
-                    <Select value={filterRegime} onValueChange={setFilterRegime}>
+                    <Select
+                        value={filterRegime || "__todos__"}
+                        onValueChange={v => setFilterRegime(v === "__todos__" ? "" : v)}
+                    >
                         <SelectTrigger className="h-8 w-[180px] rounded-lg text-sm">
-                            <SelectValue placeholder="Regime de Utilização" />
+                            <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
+                            <SelectItem value="__todos__">Regime: Todos</SelectItem>
                             {regimesDisponiveis.map(r => (
                                 <SelectItem key={r.id} value={r.nome}>{r.nome}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
 
-                    <Button
-                        variant={hasActiveFilters ? "secondary" : "ghost"}
-                        size="sm"
-                        onClick={clearFilters}
-                        disabled={!hasActiveFilters}
-                        className="h-8 gap-1.5 shrink-0"
-                    >
-                        <X className="h-3.5 w-3.5" />
-                        Limpar
-                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                variant={hasActiveFilters ? "secondary" : "ghost"}
+                                size="icon"
+                                onClick={clearFilters}
+                                disabled={!hasActiveFilters}
+                                className="h-8 w-8 shrink-0"
+                                aria-label="Limpar todos os filtros"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Limpar todos os filtros</TooltipContent>
+                    </Tooltip>
 
                     {hasActiveFilters && (
                         <span className="text-xs text-muted-foreground shrink-0">
@@ -494,9 +511,16 @@ export default function ShadcnDashboard() {
 
                 {/* Lado direito: apresentação + tema */}
                 <div className="flex items-center gap-2 shrink-0">
-                    <Button variant="outline" size="icon" onClick={togglePresentationMode} aria-label="Modo Apresentação">
-                        {isPresentationMode ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
-                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" onClick={togglePresentationMode} aria-label="Modo Apresentação">
+                                {isPresentationMode ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                            {isPresentationMode ? "Sair do modo apresentação" : "Modo apresentação"}
+                        </TooltipContent>
+                    </Tooltip>
 
                     <div className="relative">
                         <Button variant="outline" size="icon" onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)} aria-label="Personalizar Tema">
