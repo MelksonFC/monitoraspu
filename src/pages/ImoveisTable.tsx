@@ -18,6 +18,10 @@ import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ViewCompactIcon from "@mui/icons-material/ViewCompact";
 import ViewStreamIcon from "@mui/icons-material/ViewStream";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import LastPageIcon from "@mui/icons-material/LastPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import ImovelForm from "./ImovelForm";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -28,6 +32,45 @@ import { useTheme } from "../ThemeContext";
 import { formatValorBR } from './ImovelForm';
 
 const TABLE_SETTINGS_TABLENAME = "imoveis";
+
+function TablePaginationActions(props: { count: number; page: number; rowsPerPage: number; onPageChange: (event: React.MouseEvent<HTMLButtonElement>, newPage: number) => void }) {
+  const { count, page, rowsPerPage, onPageChange } = props;
+  const lastPage = Math.max(0, Math.ceil(count / rowsPerPage) - 1);
+  const color = 'hsl(var(--foreground))';
+  const disabledColor = 'hsl(var(--muted-foreground))';
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+      <Tooltip title="Primeira página">
+        <span>
+          <IconButton onClick={e => onPageChange(e, 0)} disabled={page === 0} size="small" sx={{ color: page === 0 ? disabledColor : color }}>
+            <FirstPageIcon fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+      <Tooltip title="Página anterior">
+        <span>
+          <IconButton onClick={e => onPageChange(e, page - 1)} disabled={page === 0} size="small" sx={{ color: page === 0 ? disabledColor : color }}>
+            <KeyboardArrowLeft fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+      <Tooltip title="Próxima página">
+        <span>
+          <IconButton onClick={e => onPageChange(e, page + 1)} disabled={page >= lastPage} size="small" sx={{ color: page >= lastPage ? disabledColor : color }}>
+            <KeyboardArrowRight fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+      <Tooltip title="Última página">
+        <span>
+          <IconButton onClick={e => onPageChange(e, lastPage)} disabled={page >= lastPage} size="small" sx={{ color: page >= lastPage ? disabledColor : color }}>
+            <LastPageIcon fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+    </Box>
+  );
+}
 
 async function fetchUserTableConfig(userId: number | string) {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -1005,6 +1048,7 @@ export default function ImoveisTable() {
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        ActionsComponent={TablePaginationActions}
         rowsPerPageOptions={[25, 50, 100, 200, 500]}
         labelRowsPerPage="Linhas por página:"
         labelDisplayedRows={({ from, to, count }) => {
@@ -1284,7 +1328,10 @@ export default function ImoveisTable() {
           </Button>
         </Box>
 
-        {columnsAll.map(c => {
+        {[
+            ...columns.map(id => columnsAll.find(c => c.id === id)!),
+            ...columnsAll.filter(c => !columns.includes(c.id))
+          ].map(c => {
             const currentIdx = columns.indexOf(c.id);
             const isVisible = columns.includes(c.id);
             return (
