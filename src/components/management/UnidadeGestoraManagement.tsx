@@ -13,6 +13,7 @@ const API_URL = `${apiUrl}/api/unidadegestora`;
 interface Unidade {
   id: number;
   nome: string;
+  codigo: string;
 }
 
 // Define um tipo para o item que pode não ter um ID ainda (ao criar)
@@ -46,7 +47,7 @@ export default function UnidadeGestoraManagement() {
     // --- PONTO PRINCIPAL DA CORREÇÃO ---
     // Se o item for nulo (clicou em "Adicionar"), iniciamos com um objeto vazio.
     // Isso garante que o ManagementDialog sempre receba um objeto, nunca `null`.
-    setCurrentItem(item || { nome: '' });
+    setCurrentItem(item ? item : { id: 0, nome: '', codigo: '' });
     setDialogOpen(true);
   };
 
@@ -67,7 +68,7 @@ export default function UnidadeGestoraManagement() {
     const method = isEditing ? 'put' : 'post';
 
     try {
-      await axios[method](url, { nome: item.nome });
+      await axios[method](url, { nome: item.nome, codigo: item.codigo });
       toast.success(`Unidade ${isEditing ? 'atualizada' : 'salva'} com sucesso!`);
       handleCloseDialog();
       fetchData(); // Recarrega os dados
@@ -104,6 +105,7 @@ export default function UnidadeGestoraManagement() {
             <TableHead>
               <TableRow>
                 <TableCell sx={{ width: '10%' }}>ID</TableCell>
+                <TableCell sx={{ width: '20%' }}>Código</TableCell>
                 <TableCell>Nome</TableCell>
                 <TableCell align="right" sx={{ width: '15%' }}>Ações</TableCell>
               </TableRow>
@@ -116,6 +118,7 @@ export default function UnidadeGestoraManagement() {
               ) : unidades.map((unidade) => (
                 <TableRow key={unidade.id} hover>
                   <TableCell>{unidade.id}</TableCell>
+                  <TableCell>{unidade.codigo}</TableCell>
                   <TableCell>{unidade.nome}</TableCell>
                   <TableCell align="right">
                     <IconButton color="default" onClick={() => handleOpenDialog(unidade)}><EditIcon /></IconButton>
@@ -138,6 +141,9 @@ export default function UnidadeGestoraManagement() {
           title={currentItem.id ? 'Editar Unidade Gestora' : 'Nova Unidade Gestora'}
           label="Nome da Unidade"
           fieldName="nome"
+          extraFields={[
+            { type: 'text', name: 'codigo', label: 'Código', defaultValue: '' }
+          ]}
         />
       )}
     </>
