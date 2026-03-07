@@ -673,7 +673,15 @@ export default function ShadcnDashboard() {
                             <CartesianGrid horizontal={false} />
                             <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
                             <XAxis dataKey="value" type="number" hide />
-                            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" hideLabel />} />
+                            <ChartTooltip
+                                cursor={false}
+                                content={
+                                    <ChartTooltipContent
+                                        indicator="line"
+                                        labelFormatter={(_, payload) => payload?.[0]?.payload?.name ?? ''}
+                                    />
+                                }
+                            />
                             <Bar dataKey="value" radius={4} onClick={(_data, index) => { const municipio = dataMunicipio[index].name; 
                                 setSelectedMunicipio(municipio); 
                                 setDrillImoveis(getImoveisPorMunicipio(municipio)); }}>
@@ -681,8 +689,32 @@ export default function ShadcnDashboard() {
                                         const key = toConfigKey(entry.name);
                                         const config = chartConfigMunicipio[key];
                                         return <Cell key={`cell-${key}`} fill={config?.color || `hsl(var(--chart-color-1))`} />;
-                                    })} 
-                                <LabelList dataKey="name" position="insideLeft" offset={8} className="fill-primary-foreground" fontSize={12} />
+                                    })}
+                                <LabelList
+                                    dataKey="name"
+                                    position="insideLeft"
+                                    offset={8}
+                                    content={(props: any) => {
+                                        const { x, y, width, height, value } = props;
+                                        if (!value || typeof width !== 'number' || width < 20) return null;
+                                        const availableWidth = width - 16;
+                                        const charWidth = 7;
+                                        const maxChars = Math.max(3, Math.floor(availableWidth / charWidth));
+                                        const name = String(value);
+                                        const displayName = name.length <= maxChars ? name : name.slice(0, maxChars - 1) + '…';
+                                        return (
+                                            <text
+                                                x={Number(x) + 8}
+                                                y={Number(y) + Number(height) / 2}
+                                                dominantBaseline="middle"
+                                                fontSize={12}
+                                                className="fill-primary-foreground"
+                                            >
+                                                {displayName}
+                                            </text>
+                                        );
+                                    }}
+                                />
                                 <LabelList dataKey="value" position="right" offset={8} className="fill-foreground" fontSize={12} />
                             </Bar>
                         </BarChart>
