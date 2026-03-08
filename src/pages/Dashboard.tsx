@@ -720,7 +720,7 @@ export default function ShadcnDashboard() {
                     <CardHeader><CardTitle>Imóveis por Município</CardTitle></CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfigMunicipio} className="w-full" style={{ maxHeight: "460px", overflowY: "auto" }}>
-                        <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}>
+                        <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 48 }} height={Math.max(260, dataMunicipio.length * 45)}>
                             <CartesianGrid horizontal={false} />
                             <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
                             <XAxis dataKey="value" type="number" hide />
