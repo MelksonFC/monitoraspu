@@ -57,11 +57,14 @@ export default function UnidadeGestoraManagement() {
   };
 
   const handleSave = async (item: EditableUnidade) => {
-    if (!item.nome || item.nome.trim() === '') {
+    const nome = item.nome?.trim() ?? '';
+    const codigo = item.codigo?.trim() ?? '';
+
+    if (!nome) {
         toast.warn('O nome da unidade não pode estar vazio.');
         return;
     }
-    if (!item.codigo || item.codigo.trim() === '') {
+    if (!codigo) {
         toast.warn('O código da unidade não pode estar vazio.');
         return;
     }
@@ -71,7 +74,7 @@ export default function UnidadeGestoraManagement() {
     const method = isEditing ? 'put' : 'post';
 
     try {
-      await axios[method](url, { nome: item.nome, codigo: item.codigo });
+      await axios[method](url, { nome, codigo });
       toast.success(`Unidade ${isEditing ? 'atualizada' : 'salva'} com sucesso!`);
       handleCloseDialog();
       fetchData();

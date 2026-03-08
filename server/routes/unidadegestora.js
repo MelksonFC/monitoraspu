@@ -9,7 +9,10 @@ router.get("/:id", async (req, res) => res.json(await UnidadeGestora.findByPk(re
 
 router.post("/", async (req, res) => {
   try {
-    const item = await UnidadeGestora.create(req.body);
+    const body = { ...req.body };
+    if (body.codigo) body.codigo = body.codigo.trim();
+    if (body.nome) body.nome = body.nome.trim();
+    const item = await UnidadeGestora.create(body);
     res.json(item);
   } catch (err) {
     const isUnique = err.name === 'SequelizeUniqueConstraintError';
@@ -19,7 +22,10 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    await UnidadeGestora.update(req.body, { where: { id: req.params.id } });
+    const body = { ...req.body };
+    if (body.codigo) body.codigo = body.codigo.trim();
+    if (body.nome) body.nome = body.nome.trim();
+    await UnidadeGestora.update(body, { where: { id: req.params.id } });
     res.json(await UnidadeGestora.findByPk(req.params.id));
   } catch (err) {
     const isUnique = err.name === 'SequelizeUniqueConstraintError';
