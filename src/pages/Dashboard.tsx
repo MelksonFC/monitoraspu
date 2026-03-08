@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Autocomplete, TextField, Chip } from '@mui/material';
 import { LineChart, Line, Bar, BarChart, CartesianGrid, Legend, Pie, PieChart, Sector, XAxis, YAxis, LabelList, Label as RechartsLabel, Cell } from 'recharts';
 import type { PieSectorDataItem } from "recharts/types/polar/Pie"
 import type { Imovel, Fiscalizacao, Avaliacao } from '@/types';
@@ -15,6 +16,51 @@ import { useTheme } from '../ThemeContext';
 import '../styles/themes.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+const filterAutocompleteSx = (width: number) => ({
+  width,
+  '& .MuiInputBase-root': {
+    height: '32px', overflow: 'hidden',
+    fontSize: '0.875rem', borderRadius: '0.5rem',
+    color: 'hsl(var(--foreground))', bgcolor: 'transparent', flexWrap: 'nowrap',
+    // Reserve space for the absolutely-positioned clear + popup buttons (MUI default ~65px)
+    paddingRight: '65px !important',
+  },
+  '& .MuiInputBase-input': { padding: '2px 4px !important', color: 'hsl(var(--foreground))', minWidth: '0px', width: '0px' },
+  '& .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--border))' },
+  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'hsl(var(--foreground))' },
+  '& .MuiSvgIcon-root': { color: 'hsl(var(--muted-foreground))' },
+  '& input::placeholder': { color: 'hsl(var(--muted-foreground))', opacity: 1 },
+});
+
+const filterChipSx = {
+  height: '20px', fontSize: '0.7rem',
+  flex: '1 1 0', minWidth: 0, // shrinks within flex wrapper
+  backgroundColor: 'hsl(var(--accent))',
+  color: 'hsl(var(--foreground))',
+  '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  '& .MuiChip-deleteIcon': { color: 'hsl(var(--foreground))', opacity: 0.7, fontSize: '14px', flexShrink: 0 },
+};
+
+const filterPlusStyle: React.CSSProperties = {
+  fontSize: '0.75rem', color: 'hsl(var(--foreground))',
+  whiteSpace: 'nowrap', paddingLeft: '2px', lineHeight: '20px',
+  flexShrink: 0, // never squished
+};
+
+function renderFilterTags<T>(getLabel: (o: T) => string) {
+  return (value: T[], getTagProps: (p: { index: number }) => { key: any; [k: string]: any }) => {
+    if (value.length === 0) return null;
+    const extra = value.length - 1;
+    const { key, ...props } = getTagProps({ index: 0 });
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', flex: '1 1 0', minWidth: 0, overflow: 'hidden', gap: '4px' }}>
+        <Chip key={key} {...props} label={getLabel(value[0])} size="small" sx={filterChipSx} />
+        {extra > 0 && <span style={filterPlusStyle}>+{extra}</span>}
+      </div>
+    );
+  };
+}
 
 const ThemePaletteSwatch = ({ theme }: { theme: { name: string, isDark: boolean } }) => {
     // Define qual paleta usar com base na propriedade `isDark`
@@ -145,9 +191,9 @@ export default function ShadcnDashboard() {
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
 
     // Filtros globais do dashboard
-    const [filterMunicipio, setFilterMunicipio] = useState<string>("");
-    const [filterUnidadeGestora, setFilterUnidadeGestora] = useState<string>("");
-    const [filterRegime, setFilterRegime] = useState<string>("");
+    const [filterMunicipio, setFilterMunicipio] = useState<string[]>([]);
+    const [filterUnidadeGestora, setFilterUnidadeGestora] = useState<string[]>([]);
+    const [filterRegime, setFilterRegime] = useState<string[]>([]);
 
     const { isPresentationMode, togglePresentationMode } = useLayout();
 
@@ -206,9 +252,12 @@ export default function ShadcnDashboard() {
     const ugDisponiveis = React.useMemo(() => {
         const ids = new Set(imoveis.map(i => i.idunidadegestora).filter(Boolean));
         return Array.from(ids)
-            .map(id => ({ id: id as number, nome: unidadeGestoraMap.get(id as number) || `ID ${id}` }))
+            .map(id => {
+                const ug = unidadesGestoras.find((u: any) => (u.id ?? u.idunidadegestora) === id);
+                return { id: id as number, nome: unidadeGestoraMap.get(id as number) || `ID ${id}`, codigo: ug?.codigo as string | undefined };
+            })
             .sort((a, b) => a.nome.localeCompare(b.nome));
-    }, [imoveis, unidadeGestoraMap]);
+    }, [imoveis, unidadeGestoraMap, unidadesGestoras]);
 
     const regimesDisponiveis = React.useMemo(() => {
         const ids = new Set(imoveis.map(i => i.idregimeutilizacao).filter(Boolean));
@@ -220,28 +269,28 @@ export default function ShadcnDashboard() {
     // Imóveis filtrados pelos 3 filtros globais — base para todos os gráficos e KPIs
     const imoveisFiltrados = React.useMemo(() => {
         return imoveis.filter(imovel => {
-            if (filterMunicipio) {
+            if (filterMunicipio.length > 0) {
                 const nome = imovel.idmunicipio ? (municipioMap.get(imovel.idmunicipio) || '') : '';
-                if (nome !== filterMunicipio) return false;
+                if (!filterMunicipio.includes(nome)) return false;
             }
-            if (filterUnidadeGestora) {
+            if (filterUnidadeGestora.length > 0) {
                 const nome = imovel.idunidadegestora ? (unidadeGestoraMap.get(imovel.idunidadegestora) || '') : '';
-                if (nome !== filterUnidadeGestora) return false;
+                if (!filterUnidadeGestora.includes(nome)) return false;
             }
-            if (filterRegime) {
+            if (filterRegime.length > 0) {
                 const nome = imovel.idregimeutilizacao ? (regimeMap.get(imovel.idregimeutilizacao) || '') : '';
-                if (nome !== filterRegime) return false;
+                if (!filterRegime.includes(nome)) return false;
             }
             return true;
         });
     }, [imoveis, filterMunicipio, filterUnidadeGestora, filterRegime, municipioMap, unidadeGestoraMap, regimeMap]);
 
-    const hasActiveFilters = !!(filterMunicipio || filterUnidadeGestora || filterRegime);
+    const hasActiveFilters = !!(filterMunicipio.length || filterUnidadeGestora.length || filterRegime.length);
 
     function clearFilters() {
-        setFilterMunicipio("");
-        setFilterUnidadeGestora("");
-        setFilterRegime("");
+        setFilterMunicipio([]);
+        setFilterUnidadeGestora([]);
+        setFilterRegime([]);
     }
 
     // [INÍCIO DAS FUNÇÕES RESTAURADAS]
@@ -448,50 +497,45 @@ export default function ShadcnDashboard() {
                         <span>Filtros:</span>
                     </div>
 
-                    <Select
-                        value={filterMunicipio || "__todos__"}
-                        onValueChange={v => setFilterMunicipio(v === "__todos__" ? "" : v)}
-                    >
-                        <SelectTrigger className="h-8 w-[160px] rounded-lg text-sm">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__todos__">Município: Todos</SelectItem>
-                            {municipiosDisponiveis.map(nome => (
-                                <SelectItem key={nome} value={nome}>{nome}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Autocomplete
+                        size="small"
+                        multiple
+                        options={municipiosDisponiveis}
+                        value={filterMunicipio}
+                        onChange={(_, v) => setFilterMunicipio(v)}
+                        noOptionsText="Nenhum resultado"
+                        renderTags={renderFilterTags<string>(o => o)}
+                        renderInput={(params) => <TextField {...params} placeholder={filterMunicipio.length === 0 ? "Município: Todos" : ""} />}
+                        sx={filterAutocompleteSx(220)}
+                    />
 
-                    <Select
-                        value={filterUnidadeGestora || "__todos__"}
-                        onValueChange={v => setFilterUnidadeGestora(v === "__todos__" ? "" : v)}
-                    >
-                        <SelectTrigger className="h-8 w-[180px] rounded-lg text-sm">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__todos__">Unid. Gestora: Todos</SelectItem>
-                            {ugDisponiveis.map(ug => (
-                                <SelectItem key={ug.id} value={ug.nome}>{ug.nome}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Autocomplete
+                        size="small"
+                        multiple
+                        options={ugDisponiveis}
+                        value={ugDisponiveis.filter(u => filterUnidadeGestora.includes(u.nome))}
+                        getOptionLabel={(o) => o.codigo ? `${o.codigo} - ${o.nome}` : o.nome}
+                        isOptionEqualToValue={(opt, val) => opt.nome === val.nome}
+                        onChange={(_, v) => setFilterUnidadeGestora(v.map(u => u.nome))}
+                        noOptionsText="Nenhum resultado"
+                        renderTags={renderFilterTags<{id:number;nome:string;codigo?:string}>(o => o.codigo ? `${o.codigo} - ${o.nome}` : o.nome)}
+                        renderInput={(params) => <TextField {...params} placeholder={filterUnidadeGestora.length === 0 ? "Unid. Gestora: Todos" : ""} />}
+                        sx={filterAutocompleteSx(300)}
+                    />
 
-                    <Select
-                        value={filterRegime || "__todos__"}
-                        onValueChange={v => setFilterRegime(v === "__todos__" ? "" : v)}
-                    >
-                        <SelectTrigger className="h-8 w-[180px] rounded-lg text-sm">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__todos__">Regime: Todos</SelectItem>
-                            {regimesDisponiveis.map(r => (
-                                <SelectItem key={r.id} value={r.nome}>{r.nome}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <Autocomplete
+                        size="small"
+                        multiple
+                        options={regimesDisponiveis}
+                        value={regimesDisponiveis.filter(r => filterRegime.includes(r.nome))}
+                        getOptionLabel={(o) => o.nome}
+                        isOptionEqualToValue={(opt, val) => opt.nome === val.nome}
+                        onChange={(_, v) => setFilterRegime(v.map(r => r.nome))}
+                        noOptionsText="Nenhum resultado"
+                        renderTags={renderFilterTags<{id:number;nome:string}>(o => o.nome)}
+                        renderInput={(params) => <TextField {...params} placeholder={filterRegime.length === 0 ? "Regime: Todos" : ""} />}
+                        sx={filterAutocompleteSx(260)}
+                    />
 
                     <Tooltip>
                         <TooltipTrigger asChild>
