@@ -57,9 +57,12 @@ export default function UnidadeGestoraManagement() {
   };
 
   const handleSave = async (item: EditableUnidade) => {
-    // Validação simples para não salvar nomes vazios
     if (!item.nome || item.nome.trim() === '') {
         toast.warn('O nome da unidade não pode estar vazio.');
+        return;
+    }
+    if (!item.codigo || item.codigo.trim() === '') {
+        toast.warn('O código da unidade não pode estar vazio.');
         return;
     }
 
@@ -71,9 +74,14 @@ export default function UnidadeGestoraManagement() {
       await axios[method](url, { nome: item.nome, codigo: item.codigo });
       toast.success(`Unidade ${isEditing ? 'atualizada' : 'salva'} com sucesso!`);
       handleCloseDialog();
-      fetchData(); // Recarrega os dados
-    } catch (error) {
-      toast.error("Falha ao salvar unidade.");
+      fetchData();
+    } catch (error: any) {
+      const msg: string = error?.response?.data?.error || error?.response?.data?.message || '';
+      if (msg.toLowerCase().includes('unique') || msg.toLowerCase().includes('duplicate') || error?.response?.status === 409) {
+        toast.error('Já existe uma unidade gestora com este código. Informe um código diferente.');
+      } else {
+        toast.error("Falha ao salvar unidade.");
+      }
       console.error(error);
     }
   };
@@ -139,10 +147,10 @@ export default function UnidadeGestoraManagement() {
           onSave={handleSave}
           item={currentItem}
           title={currentItem.id ? 'Editar Unidade Gestora' : 'Nova Unidade Gestora'}
-          label="Nome da Unidade"
-          fieldName="nome"
+          label="Código"
+          fieldName="codigo"
           extraFields={[
-            { type: 'text', name: 'codigo', label: 'Código', defaultValue: '' }
+            { type: 'text', name: 'nome', label: 'Nome da Unidade', defaultValue: '' }
           ]}
         />
       )}
