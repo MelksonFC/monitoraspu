@@ -3,7 +3,7 @@ import {
   TextField, Button, DialogActions, MenuItem, Select, InputLabel,
   FormControl, Typography, IconButton, Box, Tooltip, Paper, FormControlLabel, Checkbox, Dialog, DialogContent, DialogTitle,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Accordion, AccordionSummary, AccordionDetails
+  Accordion, AccordionSummary, AccordionDetails, Autocomplete
 } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -309,7 +309,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
 
     const fetchLookups = () => {
         axios.get(`${API_URL}/api/paises`).then(res => setPaises(Array.isArray(res.data) ? res.data.map((p: any) => ({ id: p.idpais ?? p.id, nome: p.nome })) : []));
-        axios.get(`${API_URL}/api/unidadegestora`).then(res => setUnidades(Array.isArray(res.data) ? res.data.map((u: any) => ({ id: u.idunidadegestora ?? u.id, nome: u.nome })) : []));
+        axios.get(`${API_URL}/api/unidadegestora`).then(res => setUnidades(Array.isArray(res.data) ? res.data.map((u: any) => ({ id: u.idunidadegestora ?? u.id, nome: u.nome, codigo: u.codigo })) : []));
         axios.get(`${API_URL}/api/regimeutilizacao`).then(res => setRegimes(Array.isArray(res.data) ? res.data.map((r: any) => ({ id: r.idregimeutilizacao ?? r.id, nome: r.nome, descricao: r.descricao })) : []));
     };
 
@@ -372,6 +372,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
     useEffect(() => { if (form.idestado) { fetchDependentLookups(form.idpais, form.idestado); } }, [form.idestado]);
     
     const getUnidadeNome = (id: number) => unidades.find(u => u.id === id)?.nome || id;
+    const getUnidadeCodigo = (id: number) => unidades.find(u => u.id === id)?.codigo || '';
     const getRegimeNome = (id: number) => regimes.find(r => r.id === id)?.descricao || regimes.find(r => r.id === id)?.nome || id;
 
     // NOVO HANDLE SUBMIT COM VALIDAÇÃO DINÂMICA
@@ -833,22 +834,72 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
             <Paper variant={isPdfMode ? "elevation" : "outlined"} square={isPdfMode} elevation={isPdfMode ? 0 : 1} className="bg-card text-foreground" sx={{ p: 2, boxShadow: isPdfMode ? 'none' : 'default', bgcolor: paperBg, color: 'hsl(var(--foreground))', borderColor: 'hsl(var(--border))' }}>
               <Typography variant="h6" gutterBottom sx={{ color: 'hsl(var(--foreground))' }}>Gestão e Áreas</Typography>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <FormControl variant="outlined" sx={{ flex: 1 }} error={!!validationErrors.idunidadegestora} required>
-                  <InputLabel id="unidade-label">Unidade Gestora</InputLabel>
-                  <Select labelId="unidade-label" name="idunidadegestora" value={safeSelectValue(form.idunidadegestora, unidades)} label="Unidade Gestora" onChange={handleSelectChange} readOnly={isPdfMode}>
-                    <MenuItem value="">Selecione...</MenuItem>
-                    {unidades.map(u => (<MenuItem key={u.id} value={String(u.id)}>{u.nome}</MenuItem>))}
-                  </Select>
-                  {validationErrors.idunidadegestora && <Typography color="error" variant="caption">{validationErrors.idunidadegestora}</Typography>}
-                </FormControl>
-                <FormControl fullWidth variant="outlined" sx={{ flex: 1 }} error={!!validationErrors.idregimeutilizacao} required>
-                  <InputLabel id="regime-label">Regime Utilização</InputLabel>
-                  <Select labelId="regime-label" name="idregimeutilizacao" value={safeSelectValue(form.idregimeutilizacao, regimes)} label="Regime Utilização" onChange={handleSelectChange} readOnly={isPdfMode}>
-                    <MenuItem value="">Selecione...</MenuItem>
-                    {regimes.map(r => (<MenuItem key={r.id} value={String(r.id)}>{r.descricao || r.nome}</MenuItem>))}
-                  </Select>
-                  {validationErrors.idregimeutilizacao && <Typography color="error" variant="caption">{validationErrors.idregimeutilizacao}</Typography>}
-                </FormControl>
+                <Autocomplete
+                  sx={{ flex: 1, minWidth: 140 }}
+                  options={unidades}
+                  value={unidades.find(u => u.id === form.idunidadegestora) ?? null}
+                  getOptionLabel={(u) => u.codigo || ''}
+                  filterOptions={(options, state) =>
+                    options.filter(u =>
+                      (u.codigo || '').toLowerCase().includes(state.inputValue.toLowerCase())
+                    )
+                  }
+                  renderOption={(props, u) => (
+                    <li {...props} key={u.id}>{u.codigo} — {u.nome}</li>
+                  )}
+                  onChange={(_, newValue) => {
+                    setForm(f => ({ ...f, idunidadegestora: newValue?.id }));
+                    if (validationErrors.idunidadegestora) setValidationErrors(prev => ({ ...prev, idunidadegestora: '' }));
+                  }}
+                  disabled={isPdfMode}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Código UG" required error={!!validationErrors.idunidadegestora} variant="outlined" />
+                  )}
+                />
+                <Autocomplete
+                  sx={{ flex: 2, minWidth: 200 }}
+                  options={unidades}
+                  value={unidades.find(u => u.id === form.idunidadegestora) ?? null}
+                  getOptionLabel={(u) => u.nome}
+                  filterOptions={(options, state) =>
+                    options.filter(u =>
+                      u.nome.toLowerCase().includes(state.inputValue.toLowerCase())
+                    )
+                  }
+                  renderOption={(props, u) => (
+                    <li {...props} key={u.id}>{u.codigo} — {u.nome}</li>
+                  )}
+                  onChange={(_, newValue) => {
+                    setForm(f => ({ ...f, idunidadegestora: newValue?.id }));
+                    if (validationErrors.idunidadegestora) setValidationErrors(prev => ({ ...prev, idunidadegestora: '' }));
+                  }}
+                  disabled={isPdfMode}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Unidade Gestora" required error={!!validationErrors.idunidadegestora} helperText={validationErrors.idunidadegestora} variant="outlined" />
+                  )}
+                />
+                <Autocomplete
+                  sx={{ flex: 1 }}
+                  options={regimes}
+                  value={regimes.find(r => r.id === form.idregimeutilizacao) ?? null}
+                  getOptionLabel={(r) => r.descricao || r.nome}
+                  filterOptions={(options, state) =>
+                    options.filter(r =>
+                      (r.descricao || r.nome).toLowerCase().includes(state.inputValue.toLowerCase())
+                    )
+                  }
+                  renderOption={(props, r) => (
+                    <li {...props} key={r.id}>{r.descricao || r.nome}</li>
+                  )}
+                  onChange={(_, newValue) => {
+                    setForm(f => ({ ...f, idregimeutilizacao: newValue?.id }));
+                    if (validationErrors.idregimeutilizacao) setValidationErrors(prev => ({ ...prev, idregimeutilizacao: '' }));
+                  }}
+                  disabled={isPdfMode}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Regime Utilização" required error={!!validationErrors.idregimeutilizacao} helperText={validationErrors.idregimeutilizacao} variant="outlined" />
+                  )}
+                />
               </Box>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
                 <SafeNumberField
@@ -1000,6 +1051,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                   <Table size="small">
                     <TableHead sx={{ bgcolor: isDark ? 'hsl(0 0% 15%)' : 'hsl(210 15% 92%)' }}>
                       <TableRow>
+                        <TableCell sx={{ fontWeight: 600 }}>Código</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Unidade Gestora</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Data Início</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Data Fim</TableCell>
@@ -1009,6 +1061,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                     </TableHead>
                     <TableBody>{hstUnidades.map(h => (
                       <TableRow key={h.id}>
+                        <TableCell>{getUnidadeCodigo(h.idunidadegestora)}</TableCell>
                         <TableCell>{getUnidadeNome(h.idunidadegestora)}</TableCell>
                         <TableCell>{formatDateBR(h.dtinicio)}</TableCell>
                         <TableCell>{h.dtfim ? formatDateBR(h.dtfim) : 'Atual'}</TableCell>
@@ -1019,7 +1072,7 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
                         </TableCell>}
                       </TableRow>))}{hstUnidades.length === 0 && 
                       <TableRow>
-                        <TableCell colSpan={isPdfMode ? 3 : 4} align="center">Nenhum histórico encontrado.</TableCell>
+                        <TableCell colSpan={isPdfMode ? 4 : 5} align="center">Nenhum histórico encontrado.</TableCell>
                       </TableRow>}
                     </TableBody>
                   </Table>
@@ -1339,22 +1392,48 @@ const handleConfirmSave = () => {
       case "hstunidadegestora":
         return (
           <>
-            <FormControl fullWidth required>
-              <InputLabel>Unidade Gestora</InputLabel>
-                <Select
-                  name="idunidadegestora"
-                  value={formData.idunidadegestora || ""}
-                  label="Unidade Gestora"
-                  onChange={handleChange}
-                >
-                  <MenuItem value="">Selecione...</MenuItem>
-                  {lookups.unidades.map((u: LookupItem) => (
-                    <MenuItem key={u.id} value={String(u.id)}>
-                      {u.nome}
-                    </MenuItem>
-                  ))}
-                </Select>
-            </FormControl>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Autocomplete
+                sx={{ flex: '0 0 160px' }}
+                options={lookups.unidades}
+                value={lookups.unidades.find(u => String(u.id) === formData.idunidadegestora) ?? null}
+                getOptionLabel={(u) => u.codigo || ''}
+                filterOptions={(options, state) =>
+                  options.filter(u =>
+                    (u.codigo || '').toLowerCase().includes(state.inputValue.toLowerCase())
+                  )
+                }
+                renderOption={(props, u) => (
+                  <li {...props} key={u.id}>{u.codigo} — {u.nome}</li>
+                )}
+                onChange={(_, newValue) =>
+                  setFormData(prev => ({ ...prev, idunidadegestora: newValue ? String(newValue.id) : '' }))
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Código UG" required variant="outlined" />
+                )}
+              />
+              <Autocomplete
+                sx={{ flex: 1 }}
+                options={lookups.unidades}
+                value={lookups.unidades.find(u => String(u.id) === formData.idunidadegestora) ?? null}
+                getOptionLabel={(u) => u.nome}
+                filterOptions={(options, state) =>
+                  options.filter(u =>
+                    u.nome.toLowerCase().includes(state.inputValue.toLowerCase())
+                  )
+                }
+                renderOption={(props, u) => (
+                  <li {...props} key={u.id}>{u.codigo} — {u.nome}</li>
+                )}
+                onChange={(_, newValue) =>
+                  setFormData(prev => ({ ...prev, idunidadegestora: newValue ? String(newValue.id) : '' }))
+                }
+                renderInput={(params) => (
+                  <TextField {...params} label="Unidade Gestora" required variant="outlined" />
+                )}
+              />
+            </Box>
             <TextField
               name="dtinicio"
               label="Data Início"
@@ -1377,22 +1456,25 @@ const handleConfirmSave = () => {
       case "hstregimeutilizacao":
         return (
           <>
-            <FormControl fullWidth required>
-              <InputLabel>Regime de Utilização</InputLabel>
-                <Select
-                  name="idregimeutilizacao"
-                  value={formData.idregimeutilizacao || ""}
-                  label="Regime de Utilização"
-                  onChange={handleChange}
-                >
-                  <MenuItem value="">Selecione...</MenuItem>
-                  {lookups.regimes.map((r: LookupItem) => (
-                    <MenuItem key={r.id} value={String(r.id)}>
-                      {r.descricao || r.nome}
-                    </MenuItem>
-                  ))}
-                </Select>
-            </FormControl>
+            <Autocomplete
+              options={lookups.regimes}
+              value={lookups.regimes.find(r => String(r.id) === formData.idregimeutilizacao) ?? null}
+              getOptionLabel={(r) => r.descricao || r.nome}
+              filterOptions={(options, state) =>
+                options.filter(r =>
+                  (r.descricao || r.nome).toLowerCase().includes(state.inputValue.toLowerCase())
+                )
+              }
+              renderOption={(props, r) => (
+                <li {...props} key={r.id}>{r.descricao || r.nome}</li>
+              )}
+              onChange={(_, newValue) =>
+                setFormData(prev => ({ ...prev, idregimeutilizacao: newValue ? String(newValue.id) : '' }))
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Regime de Utilização" required variant="outlined" />
+              )}
+            />
             <TextField
               name="dtinicio"
               label="Data Início"
