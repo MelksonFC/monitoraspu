@@ -137,7 +137,7 @@ function formatCEP(cep: string | undefined): string {
   return cep;
 }
 
-type LookupItem = { id: number; nome: string; descricao?: string };
+type LookupItem = { id: number; nome: string; descricao?: string; codigo?: string };
 type ColumnDef = {
   id: string;
   label: string;
@@ -171,6 +171,7 @@ const columnsAll: ColumnDef[] = [
   { id: "nprocesso", label: "Nº Processo", type: "string" },
   { id: "ocupante", label: "Ocupante", type: "string" },
   { id: "idregimeutilizacao", label: "Regime Utilização", type: "lookup" },
+  { id: "codigounidadegestora", label: "Código UG", type: "string" },
   { id: "idunidadegestora", label: "Unidade Gestora", type: "lookup" },
   { id: "areaconstruida", label: "Área Construída m²", numeric: true, type: "number" },
   { id: "areaterreno", label: "Área Terreno m²", numeric: true, type: "number" },
@@ -303,7 +304,7 @@ export default function ImoveisTable() {
       setMunicipios(Array.isArray(arr) ? arr.map((m: any) => ({ id: m.idmunicipio ?? m.id, nome: m.nome })) : []);
     });
     fetch(`${apiUrl}/api/unidadegestora`).then(res => res.json()).then(arr => {
-      setUnidadesGestoras(Array.isArray(arr) ? arr.map((u: any) => ({ id: u.idunidadegestora ?? u.id, nome: u.nome })) : []);
+      setUnidadesGestoras(Array.isArray(arr) ? arr.map((u: any) => ({ id: u.idunidadegestora ?? u.id, nome: u.nome, codigo: u.codigo })) : []);
     });
     fetch(`${apiUrl}/api/regimeutilizacao`).then(res => res.json()).then(arr => {
       setRegimes(Array.isArray(arr) ? arr.map((r: any) => ({ id: r.idregimeutilizacao ?? r.id, nome: r.nome, descricao: r.descricao })) : []);
@@ -345,6 +346,7 @@ export default function ImoveisTable() {
     if (colId === "idpais") return getLookupNome(paises, value);
     if (colId === "idestado") return getLookupNome(estados, value);
     if (colId === "idmunicipio") return getLookupNome(municipios, value);
+    if (colId === "codigounidadegestora") return unidadesGestoras.find(u => u.id === Number(value))?.codigo || '';
     if (colId === "idunidadegestora") return getLookupNome(unidadesGestoras, value);
     if (colId === "idregimeutilizacao") return getLookupNome(regimes, value);
     if (colId === "usercreated") return getLookupNome(usuarios, value);
@@ -362,7 +364,9 @@ export default function ImoveisTable() {
         const op = filterOps[col] || ((coldef.type === "number" || coldef.numeric) ? "equals" : "contains");
         const val = filters[col];
         const valRange = filterRange[col] || ["", ""];
-        let field = item[col];
+        let field = col === "codigounidadegestora"
+          ? (unidadesGestoras.find(u => u.id === item["idunidadegestora"])?.codigo || "")
+          : item[col];
 
         if (coldef.type === 'boolean') {
           if (val === "" || val === undefined) return true;
@@ -445,8 +449,12 @@ export default function ImoveisTable() {
 
     return [...filtered].sort((a, b) => {
       const col = orderBy;
-      const aVal = a[col];
-      const bVal = b[col];
+      const aVal = col === "codigounidadegestora"
+        ? (unidadesGestoras.find(u => u.id === a["idunidadegestora"])?.codigo || "")
+        : a[col];
+      const bVal = col === "codigounidadegestora"
+        ? (unidadesGestoras.find(u => u.id === b["idunidadegestora"])?.codigo || "")
+        : b[col];
       if (aVal === null || aVal === undefined) return 1;
       if (bVal === null || bVal === undefined) return -1;
       if (typeof aVal === "number" && typeof bVal === "number") {
@@ -540,7 +548,8 @@ export default function ImoveisTable() {
     const exportData = (selectedRows.length > 0 ? selectedRows : sorted).map(item => {
       const obj: { [key: string]: any } = {};
       columns.forEach(colId => {
-        obj[getColumnLabel(colId)] = formatTableCell(colId, item[colId]);
+        const rawValue = colId === "codigounidadegestora" ? item["idunidadegestora"] : item[colId];
+        obj[getColumnLabel(colId)] = formatTableCell(colId, rawValue);
       });
       return obj;
     });
@@ -998,7 +1007,8 @@ export default function ImoveisTable() {
                 {/* --- FIM DA CORREÇÃO 2: Checkbox --- */}
                 {columns.map(colId => {
                   const col = columnsAll.find(c => c.id === colId)!;
-                  const cellValue = formatTableCell(col.id, item[col.id]);
+                  const rawCellValue = col.id === "codigounidadegestora" ? item["idunidadegestora"] : item[col.id];
+                  const cellValue = formatTableCell(col.id, rawCellValue);
                   const cellText = typeof cellValue === 'string' || typeof cellValue === 'number' ? String(cellValue) : '';
                   
                   return (

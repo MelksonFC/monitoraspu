@@ -69,6 +69,11 @@ function getLookupName(id: number | undefined, list: any[]): string {
 function getRegimeDesc(id: number | undefined, regimes: any[]): string {
   return regimes.find(r => r.id === id)?.descricao || getLookupName(id, regimes);
 }
+function getUnidadeFormatted(id: number | undefined, unidades: any[]): string {
+  const u = unidades?.find(item => item.id === id);
+  if (!u) return '';
+  return u.codigo ? `${u.codigo} - ${u.nome}` : u.nome;
+}
 
 const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   imovel,
@@ -323,7 +328,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
           ],
         body: [
           [
-            { content: 'Unidade Gestora:', styles: { fontStyle: 'bold' } }, getLookupName(imovel.idunidadegestora, lookups.unidades),
+            { content: 'Unidade Gestora:', styles: { fontStyle: 'bold' } }, getUnidadeFormatted(imovel.idunidadegestora, lookups.unidades),
             { content: '', colSpan: 2 },
           ],
           [
@@ -416,7 +421,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         ],
         body: (imovel.hstUnidades?.length
           ? imovel.hstUnidades.map(h => [
-            getLookupName(h.idunidadegestora, lookups.unidades),
+            getUnidadeFormatted(h.idunidadegestora, lookups.unidades),
             formatDateBR(h.dtinicio),
             h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
           ])

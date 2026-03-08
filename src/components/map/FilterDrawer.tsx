@@ -25,7 +25,7 @@ export interface FiltrosState {
 interface Pais { idpais: number; nome: string; }
 interface Estado { idestado: number; nome: string; }
 interface Municipio { idmunicipio: number; nome: string; }
-interface UnidadeGestora { id: number; nome: string; }
+interface UnidadeGestora { id: number; nome: string; codigo?: string; }
 interface Regime { id: number; descricao: string; }
 
 interface FilterDrawerProps {
@@ -133,7 +133,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
               size="small" 
               multiple 
               options={unidades} 
-              getOptionLabel={(o) => o.nome} 
+              getOptionLabel={(o) => o.codigo ? `${o.codigo} - ${o.nome}` : o.nome} 
               value={filtros.selectedUnidades} 
               onChange={(_, v) => handleFiltroChange('selectedUnidades', v)} 
               renderInput={(params) => <TextField {...params} label="Unidades Gestoras" />}

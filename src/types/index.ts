@@ -81,4 +81,5 @@ export type LookupItem = {
   nome: string; 
   descricao?: string; 
   uf?: string; 
+  codigo?: string;
 };

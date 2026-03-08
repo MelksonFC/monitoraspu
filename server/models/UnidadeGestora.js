@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   UnidadeGestora.init({
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    nome: { type: DataTypes.STRING(255), allowNull: false, unique: true },
+    nome: { type: DataTypes.STRING(255), allowNull: false },
+    codigo: { type: DataTypes.STRING(150), allowNull: false, unique: true },
   }, {
     sequelize,
     modelName: 'UnidadeGestora',
