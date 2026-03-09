@@ -1,0 +1,150 @@
+<mxfile host="65bd71144e">
+    <diagram id="crud-ru" name="CRUD Regime de Utilizacao">
+        <mxGraphModel dx="1032" dy="688" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="900" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="pool" value="CRUD de Regime de Utilização" style="shape=pool;startSize=20;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="1460" height="790" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_user" value="Usuário" style="swimlane;startSize=30;horizontal=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry width="1460" height="380" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_start" value="" style="ellipse;aspect=fixed;fillColor=#00CC00;strokeColor=#007700;" parent="lane_user" vertex="1">
+                    <mxGeometry x="50" y="170" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_lista" value="Lista de Regimes&#xa;de Utilização" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="140" y="160" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_acao" value="Ação?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="350" y="150" width="100" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_preenche" value="Preenche Descrição&#xa;e marca Destinado?" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="318.5" y="50" width="165" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_salvar_c" value="Confirmar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="827" y="40" width="100" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_edita" value="Edita Descrição&#xa;e/ou Destinado" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="637.5" y="160" width="165" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_salvar_e" value="Confirmar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="827" y="240" width="100" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_del_conf" value="Confirmar&#xa;exclusão?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="344" y="295" width="110" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="ev_start" target="act_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_lista" target="gw_acao" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" value="Novo" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="act_preenche" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" value="Editar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="act_edita" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="Excluir" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="gw_del_conf" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_preenche" target="gw_salvar_c" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_edita" target="gw_salvar_e" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cancel_c" value="Cancelar" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="lane_user" source="gw_salvar_c" target="act_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="877" y="20"/>
+                            <mxPoint x="210" y="20"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_cancel_e" value="Cancelar" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="lane_user" source="gw_salvar_e" target="act_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="245" y="280"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_nao" value="Não" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_user" source="gw_del_conf" target="act_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="210" y="335"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="note_dest" value="Destinado: indica se o regime&#xa;é destinado (checkbox boolean)" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_user" vertex="1">
+                    <mxGeometry x="620" y="90" width="200" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_frontend" value="Sistema (Frontend)" style="swimlane;startSize=30;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="380" width="1460" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_envia" value="Envia requisição&#xa;para API" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="980" y="60" width="150" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_toast_ok" value="Toast: Sucesso" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1205" y="10" width="140" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_toast_err" value="Toast: Erro&#xa;ao salvar/excluir" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="640" y="140" width="160" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_backend" value="Backend / API" style="swimlane;startSize=30;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="600" width="1460" height="190" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_recv" value="Recebe requisição&#xa;(POST / PUT / DELETE)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="970" y="35" width="170" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_db" value="Persiste no&#xa;Banco de Dados" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1200" y="35" width="150" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_err" value="Retorna 500&#xa;Erro interno" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1200" y="120" width="150" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_end" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1400" y="87" width="36" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_recv" target="act_db" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_backend" source="act_db" target="ev_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="lane_backend" source="act_err" target="ev_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx1" value="Salvar" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="gw_salvar_c" target="act_envia" edge="1">
+                    <mxGeometry x="-0.6599" relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx2" value="Salvar" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;" parent="1" source="gw_salvar_e" target="act_envia" edge="1">
+                    <mxGeometry x="-0.509" relative="1" as="geometry">
+                        <mxPoint x="-1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx3" value="Sim" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="1" source="gw_del_conf" target="act_envia" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx4" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_envia" target="act_api_recv" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx5" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_db" target="act_toast_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx6" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="1" source="act_err" target="act_toast_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx7" value="Volta lista" style="edgeStyle=orthogonalEdgeStyle;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="act_toast_ok" target="act_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx8" value="Corrigir" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_toast_err" target="act_edita" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

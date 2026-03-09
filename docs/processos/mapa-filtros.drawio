@@ -1,0 +1,251 @@
+﻿<mxfile host="65bd71144e">
+    <diagram id="mapa-filtros" name="Mapa e Filtros">
+        <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+
+                <mxCell id="pool" value="Mapa e Filtros de Im&#xF3;veis" style="shape=pool;startSize=20;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="1800" height="1070" as="geometry"/>
+                </mxCell>
+
+                <!-- ===== LANE: Usu&#xE1;rio ===== -->
+                <mxCell id="lane_user" value="Usu&#xE1;rio" style="swimlane;startSize=30;horizontal=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry x="0" y="0" width="1800" height="430" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="ev_start" value="" style="ellipse;aspect=fixed;fillColor=#00CC00;strokeColor=#007700;" parent="lane_user" vertex="1">
+                    <mxGeometry x="40" y="190" width="40" height="40" as="geometry"/>
+                </mxCell>
+
+                <!-- Acessa o mapa -->
+                <mxCell id="act_acessa_mapa" value="Acessa a&#xa;p&#xE1;gina Mapa" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="130" y="180" width="130" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Ver lista de im&#xF3;veis na sidebar -->
+                <mxCell id="act_ver_lista" value="Visualiza lista&#xa;de im&#xF3;veis (sidebar)" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="430" y="180" width="145" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Ordenar -->
+                <mxCell id="act_ordenar" value="Ordena lista&#xa;(Nome/Valor/RIP)" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="430" y="290" width="145" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Gateway: a&#xE7;&#xE3;o do usu&#xE1;rio -->
+                <mxCell id="gw_acao" value="A&#xE7;&#xE3;o?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="660" y="177" width="100" height="80" as="geometry"/>
+                </mxCell>
+
+                <!-- Abrir filtros -->
+                <mxCell id="act_click_filtro" value="Clica no bot&#xE3;o&#xa;&#x22;Filtros&#x22;" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="840" y="60" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_preenche_filtros" value="Preenche campos&#xa;dos filtros&#xa;(Pa&#xED;s/Estado/Munic.&#xa;UG/Regime/Matr./&#xa;RIP/Per&#xED;odo)" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1030" y="40" width="155" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_aplicar" value="Aplicar ou&#xa;Limpar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1260" y="55" width="110" height="80" as="geometry"/>
+                </mxCell>
+
+                <!-- Selecionar im&#xF3;vel na lista -->
+                <mxCell id="act_sel_lista" value="Seleciona im&#xF3;vel&#xa;na sidebar" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="840" y="177" width="130" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Clicar no marcador do mapa -->
+                <mxCell id="act_click_marker" value="Clica no marcador&#xa;no mapa" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="840" y="290" width="145" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Editar im&#xF3;vel -->
+                <mxCell id="act_editar" value="Clica em&#xa;&#x22;Editar&#x22;" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="840" y="360" width="130" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Resultado ap&#xF3;s sele&#xE7;&#xE3;o -->
+                <mxCell id="act_ver_imovel" value="Visualiza im&#xF3;vel&#xa;destacado no mapa&#xa;+ pol&#xED;gono do terreno" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1260" y="177" width="160" height="70" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="act_navega_edit" value="Navega para&#xa;p&#xE1;gina de edi&#xE7;&#xE3;o&#xa;do im&#xF3;vel" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1260" y="360" width="155" height="65" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="ev_end_edit" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1488" y="377" width="36" height="36" as="geometry"/>
+                </mxCell>
+
+                <!-- Edges lane_user -->
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="ev_start" target="act_acessa_mapa" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_acessa_mapa" target="act_ver_lista" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_ver_lista" target="gw_acao" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e3b" value="Ordenar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_ver_lista" target="act_ordenar" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e3c" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_ordenar" target="gw_acao" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e4" value="Abrir Filtros" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="act_click_filtro" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e5" value="Selecionar Im&#xF3;vel" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="act_sel_lista" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e6" value="Clicar Marcador" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="act_click_marker" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e7" value="Editar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao" target="act_editar" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_click_filtro" target="act_preenche_filtros" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_preenche_filtros" target="gw_aplicar" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e_sel_ok" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_sel_lista" target="act_ver_imovel" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e_click_ok" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_click_marker" target="act_ver_imovel" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e_editar_ok" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_editar" target="act_navega_edit" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="e_navega_end" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_navega_edit" target="ev_end_edit" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+                <!-- ===== LANE: Sistema (Frontend) ===== -->
+                <mxCell id="lane_frontend" value="Sistema (Frontend)" style="swimlane;startSize=30;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry x="0" y="430" width="1800" height="300" as="geometry"/>
+                </mxCell>
+
+                <!-- Carrega lookups para filtros -->
+                <mxCell id="act_carrega_lookups" value="Carrega lookups&#xa;(Pa&#xED;ses com im&#xF3;veis,&#xa;UGs, Regimes)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="840" y="55" width="160" height="70" as="geometry"/>
+                </mxCell>
+
+                <!-- Cascade pai-->
+                <mxCell id="act_cascade_estado" value="Seleciona Pa&#xED;s&#xa;&#x2192; carrega Estados" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1055" y="40" width="155" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_cascade_mun" value="Seleciona Estado&#xa;&#x2192; carrega Munic&#xED;pios" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1055" y="120" width="165" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Aplica filtros -->
+                <mxCell id="act_aplica_filtros" value="Aplica filtros&#xa;(atualiza estado&#xa;appliedFiltros)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1290" y="65" width="155" height="70" as="geometry"/>
+                </mxCell>
+
+                <!-- Limpa filtros -->
+                <mxCell id="act_limpa_filtros" value="Limpa filtros&#xa;(estado inicial)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1290" y="165" width="155" height="55" as="geometry"/>
+                </mxCell>
+
+                <!-- Requisita im&#xF3;veis -->
+                <mxCell id="act_req_imoveis" value="Envia requisi&#xE7;&#xE3;o&#xa;GET /api/imoveis/com-relacoes&#xa;(com par&#xE2;metros de filtro)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="390" y="115" width="215" height="65" as="geometry"/>
+                </mxCell>
+
+                <!-- Renderiza mapa + cluster -->
+                <mxCell id="act_render_mapa" value="Renderiza mapa&#xa;Leaflet + clusters&#xa;de marcadores" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="130" y="115" width="175" height="65" as="geometry"/>
+                </mxCell>
+
+                <!-- Busca pol&#xED;gono (lazy) -->
+                <mxCell id="act_req_poligono" value="GET /api/poligonosterreno/&#xa;imovel/:id&#xa;(Lazy Loading)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1055" y="200" width="175" height="65" as="geometry"/>
+                </mxCell>
+
+                <!-- Renderiza pol&#xED;gono + flyTo -->
+                <mxCell id="act_render_poligono" value="Renderiza pol&#xED;gono&#xa;GeoJSON + flyTo&#xa;no mapa" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1290" y="240" width="160" height="65" as="geometry"/>
+                </mxCell>
+
+                <!-- Badge contador -->
+                <mxCell id="note_badge" value="Badge no bot&#xE3;o mostra&#xa;n&#xFA;mero de filtros ativos" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="660" y="205" width="170" height="45" as="geometry"/>
+                </mxCell>
+
+                <!-- Edges lane_frontend -->
+                <mxCell id="ef1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_frontend" source="act_carrega_lookups" target="act_cascade_estado" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="ef2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_frontend" source="act_cascade_estado" target="act_cascade_mun" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="ef3" value="Aplicar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_frontend" source="act_aplica_filtros" target="act_req_imoveis" edge="1">
+                    <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1368" y="240"/><mxPoint x="498" y="240"/></Array></mxGeometry>
+                </mxCell>
+                <mxCell id="ef4" value="Limpar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_frontend" source="act_limpa_filtros" target="act_req_imoveis" edge="1">
+                    <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1368" y="260"/><mxPoint x="498" y="260"/></Array></mxGeometry>
+                </mxCell>
+
+                <!-- ===== LANE: Backend / API ===== -->
+                <mxCell id="lane_backend" value="Backend / API" style="swimlane;startSize=30;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry x="0" y="730" width="1800" height="340" as="geometry"/>
+                </mxCell>
+
+                <!-- Lookups -->
+                <mxCell id="act_api_lookups" value="GET /api/lookups/&#xa;paises-com-imoveis&#xa;unidades-gestoras&#xa;regimes-utilizacao" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="840" y="55" width="185" height="80" as="geometry"/>
+                </mxCell>
+
+                <!-- Lookups cascata -->
+                <mxCell id="act_api_estados" value="GET /api/lookups/&#xa;estados-com-imoveis&#xa;?paisId=N" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1060" y="40" width="155" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_muns" value="GET /api/lookups/&#xa;municipios-com-imoveis&#xa;?estadoId=N" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1060" y="130" width="165" height="65" as="geometry"/>
+                </mxCell>
+
+                <!-- Im&#xF3;veis filtrados -->
+                <mxCell id="act_api_imoveis" value="GET /api/imoveis/com-relacoes&#xa;(filtra por pa&#xED;s, estado,&#xa;munic., UG, regime,&#xa;matr., RIP, per&#xED;odo)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="390" y="75" width="210" height="85" as="geometry"/>
+                </mxCell>
+
+                <!-- Retorna im&#xF3;veis com coordenadas -->
+                <mxCell id="act_api_imoveis_ret" value="Retorna im&#xF3;veis&#xa;com coordenadas&#xa;e imagens (JSON)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="130" y="80" width="170" height="65" as="geometry"/>
+                </mxCell>
+
+                <!-- Pol&#xED;gono -->
+                <mxCell id="act_api_poligono" value="GET /api/poligonosterreno/&#xa;imovel/:id&#xa;Retorna geometria GeoJSON" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1060" y="230" width="200" height="70" as="geometry"/>
+                </mxCell>
+
+                <!-- Sem pol&#xED;gono -->
+                <mxCell id="act_api_no_poligono" value="(sem pol&#xED;gono cadastrado)&#xa;Retorna array vazio" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1060" y="165" width="195" height="50" as="geometry"/>
+                </mxCell>
+
+                <mxCell id="ev_end_api" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1310" y="90" width="36" height="36" as="geometry"/>
+                </mxCell>
+
+                <!-- Edges lane_backend -->
+                <mxCell id="eb1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_imoveis" target="act_api_imoveis_ret" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="eb2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_lookups" target="act_api_estados" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="eb3" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_estados" target="act_api_muns" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="eb4" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_muns" target="ev_end_api" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="eb5" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_imoveis_ret" target="ev_end_api" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="eb6" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_poligono" target="ev_end_api" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+                <!-- ===== CROSS-LANE EDGES ===== -->
+
+                <!-- Acessa mapa -> carrega im&#xF3;veis -->
+                <mxCell id="cx1" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_acessa_mapa" target="act_req_imoveis" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Frontend req -> Backend im&#xF3;veis -->
+                <mxCell id="cx2" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_req_imoveis" target="act_api_imoveis" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Backend ret -> Frontend render -->
+                <mxCell id="cx3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_api_imoveis_ret" target="act_render_mapa" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Render mapa -> ver lista (Usu&#xE1;rio) -->
+                <mxCell id="cx4" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_render_mapa" target="act_ver_lista" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+                <!-- Clica filtro -> Frontend carrega lookups -->
+                <mxCell id="cx5" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_click_filtro" target="act_carrega_lookups" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Lookups -> backend -->
+                <mxCell id="cx6" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_carrega_lookups" target="act_api_lookups" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Cascade frontend -> backend estados -->
+                <mxCell id="cx7" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_cascade_estado" target="act_api_estados" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Cascade frontend -> backend munic -->
+                <mxCell id="cx8" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_cascade_mun" target="act_api_muns" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+                <!-- Aplicar filtros (Usu&#xE1;rio) -> Frontend aplica -->
+                <mxCell id="cx9" value="Aplicar" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;" parent="1" source="gw_aplicar" target="act_aplica_filtros" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Limpar filtros (Usu&#xE1;rio) -> Frontend limpa -->
+                <mxCell id="cx10" value="Limpar" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;fontStyle=1;" parent="1" source="gw_aplicar" target="act_limpa_filtros" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+                <!-- Seleciona im&#xF3;vel -> Frontend req pol&#xED;gono -->
+                <mxCell id="cx11" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_sel_lista" target="act_req_poligono" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Click marker -> Frontend req pol&#xED;gono -->
+                <mxCell id="cx12" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_click_marker" target="act_req_poligono" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Frontend req pol&#xED;gono -> Backend -->
+                <mxCell id="cx13" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_req_poligono" target="act_api_poligono" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Backend pol&#xED;gono -> Frontend render pol&#xED;gono -->
+                <mxCell id="cx14" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_api_poligono" target="act_render_poligono" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Sem pol&#xED;gono -> sem render (ignorado) -->
+                <mxCell id="cx14b" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;dashed=1;" parent="1" source="act_api_no_poligono" target="act_ver_imovel" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <!-- Render pol&#xED;gono -> Usu&#xE1;rio v&#xEA; -->
+                <mxCell id="cx15" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_render_poligono" target="act_ver_imovel" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
