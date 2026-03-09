@@ -20,7 +20,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const filterAutocompleteSx = (width: number) => ({
   width,
   '& .MuiInputBase-root': {
-    height: '32px', overflow: 'hidden',
+    height: '36px', overflow: 'hidden',
     fontSize: '0.875rem', borderRadius: '0.5rem',
     color: 'hsl(var(--foreground))', bgcolor: 'transparent', flexWrap: 'nowrap',
     // Reserve space for the absolutely-positioned clear + popup buttons (MUI default ~65px)
@@ -34,7 +34,7 @@ const filterAutocompleteSx = (width: number) => ({
 });
 
 const filterChipSx = {
-  height: '20px', fontSize: '0.7rem',
+  height: '28px', fontSize: '0.75rem',
   flex: '1 1 0', minWidth: 0, // shrinks within flex wrapper
   backgroundColor: 'hsl(var(--accent))',
   color: 'hsl(var(--foreground))',
@@ -44,7 +44,7 @@ const filterChipSx = {
 
 const filterPlusStyle: React.CSSProperties = {
   fontSize: '0.75rem', color: 'hsl(var(--foreground))',
-  whiteSpace: 'nowrap', paddingLeft: '2px', lineHeight: '20px',
+  whiteSpace: 'nowrap', paddingLeft: '2px', lineHeight: '24px',
   flexShrink: 0, // never squished
 };
 
@@ -720,7 +720,7 @@ export default function ShadcnDashboard() {
                     <CardHeader><CardTitle>Imóveis por Município</CardTitle></CardHeader>
                     <CardContent>
                         <ChartContainer config={chartConfigMunicipio} className="w-full" style={{ maxHeight: "460px", overflowY: "auto" }}>
-                        <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 0.5 }} height={Math.max(260, dataMunicipio.length * 45)}>
+                        <BarChart accessibilityLayer data={dataMunicipio} layout="vertical" margin={{ left: 1, right: 48 }} height={Math.max(260, dataMunicipio.length * 45)}>
                             <CartesianGrid horizontal={false} />
                             <YAxis dataKey="name" type="category" tickLine={false} tickMargin={10} axisLine={false} hide />
                             <XAxis dataKey="value" type="number" hide />
