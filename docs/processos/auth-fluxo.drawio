@@ -278,7 +278,7 @@
                     <mxGeometry x="1960" y="255" width="135" height="55" as="geometry"/>
                 </mxCell>
                 <mxCell id="be_ativar_err" value="Retorna 400&#xa;&#x22;Token inv&#xE1;lido&#xa;ou expirado&#x22;" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
-                    <mxGeometry x="2080" y="160" width="0" height="0" as="geometry"/>
+                    <mxGeometry x="1820" y="160" width="130" height="65" as="geometry"/>
                 </mxCell>
 
                 <mxCell id="ev_end_be1" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_backend" vertex="1">
@@ -308,6 +308,7 @@
                 <mxCell id="ebe20" value="Sim" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="lane_backend" source="gw_be_criar" target="be_criar_409" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
                 <mxCell id="ebe21" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="be_ativar_query" target="gw_be_ativar" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
                 <mxCell id="ebe22" value="Sim" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="lane_backend" source="gw_be_ativar" target="be_ativar_update" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+                <mxCell id="ebe23" value="N&#xE3;o" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="lane_backend" source="gw_be_ativar" target="be_ativar_err" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
 
                 <!-- ===== CROSS-LANE EDGES ===== -->
 
@@ -320,7 +321,7 @@
                 <!-- Backend login err -> Frontend err -->
                 <mxCell id="cx4" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="1" source="be_login_404" target="fe_login_err" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
 
-                <!-- Reset solicitar: usuario clicar esqueci --> frontend abre dialog -->
+                <!-- Reset solicitar: usuario clica esqueci - frontend abre dialog -->
                 <mxCell id="cx5" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_clica_esqueci" target="fe_abre_dialog" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
                 <!-- Clicar enviar -> Frontend req -->
                 <mxCell id="cx6" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_clica_enviar" target="fe_req_reset_sol" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
