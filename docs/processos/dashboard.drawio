@@ -1,0 +1,365 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio">
+  <diagram name="Dashboard" id="dashboard-flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== SWIM LANE CONTAINER ===== -->
+        <mxCell id="swimlane" value="Fluxo da Tela de Dashboard" style="shape=pool;startSize=30;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;collapsible=0;marginBottom=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="1520" height="960" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 1: UsuÃ¡rio -->
+        <mxCell id="lane_user" value="Usu&#xE1;rio" style="swimlane;startSize=30;horizontal=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;" vertex="1" parent="swimlane">
+          <mxGeometry x="0" y="30" width="1520" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 2: Sistema Frontend -->
+        <mxCell id="lane_fe" value="Sistema Frontend (React)" style="swimlane;startSize=30;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;" vertex="1" parent="swimlane">
+          <mxGeometry x="0" y="230" width="1520" height="400" as="geometry" />
+        </mxCell>
+
+        <!-- Lane 3: Backend API -->
+        <mxCell id="lane_be" value="Backend API (Node/Express)" style="swimlane;startSize=30;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;" vertex="1" parent="swimlane">
+          <mxGeometry x="0" y="630" width="1520" height="300" as="geometry" />
+        </mxCell>
+
+        <!-- ===== USUÃRIO LANE NODES ===== -->
+        <!-- Start -->
+        <mxCell id="u_start" value="Acessa&#xA;/dashboard" style="ellipse;fillColor=#00BCD4;strokeColor=#006EAF;fontColor=#ffffff;fontStyle=1;" vertex="1" parent="lane_user">
+          <mxGeometry x="50" y="80" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- VÃª loading -->
+        <mxCell id="u_loading" value="V&#xEA; spinner&#xA;de carregamento" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="210" y="80" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Aplica filtros -->
+        <mxCell id="u_filter" value="Aplica filtros&#xA;(Munic&#xED;pio / UG / Regime)" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="420" y="80" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Limpa filtros -->
+        <mxCell id="u_clearfilter" value="Limpa filtros&#xA;(bot&#xE3;o X)" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="420" y="10" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Seleciona timeRange -->
+        <mxCell id="u_timerange" value="Seleciona per&#xED;odo&#xA;(5a / 1a / 6m / 30d)" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="660" y="80" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Clica BarChart -->
+        <mxCell id="u_bar_click" value="Clica barra&#xA;(Munic&#xED;pio)" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="900" y="30" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Clica PieChart -->
+        <mxCell id="u_pie_click" value="Clica setor&#xA;(Regime)" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="900" y="120" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Modo ApresentaÃ§Ã£o -->
+        <mxCell id="u_present" value="Ativa Modo&#xA;Apresenta&#xE7;&#xE3;o" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="1110" y="30" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Abre Tema -->
+        <mxCell id="u_theme" value="Abre painel&#xA;de Tema/Cores" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;" vertex="1" parent="lane_user">
+          <mxGeometry x="1110" y="120" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== FRONTEND LANE NODES ===== -->
+        <!-- Check auth -->
+        <mxCell id="fe_auth_check" value="Verifica&#xA;usu&#xE1;rio?.id" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="50" y="150" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Redirect sem login -->
+        <mxCell id="fe_no_auth" value="Exibe msg:&#xA;'fa&#xE7;a login'" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="50" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Promise.all 6 APIs -->
+        <mxCell id="fe_fetch" value="Promise.all(&#xA;6 requisi&#xE7;&#xF5;es)" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;fontStyle=1;" vertex="1" parent="lane_fe">
+          <mxGeometry x="230" y="150" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Loading state -->
+        <mxCell id="fe_loading" value="setLoading(true)&#xA;exibe spinner" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="230" y="50" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Error check -->
+        <mxCell id="fe_err_check" value="Erro na&#xA;requisi&#xE7;&#xE3;o?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="430" y="140" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Error card -->
+        <mxCell id="fe_err_card" value="Exibe Card&#xA;de Erro" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="430" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Popula estados -->
+        <mxCell id="fe_set_states" value="Popula estados:&#xA;im&#xF3;veis, munic.,&#xA;regimes, UGs,&#xA;fiscaliz., aval." style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="610" y="130" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- imoveisFiltrados memo -->
+        <mxCell id="fe_filtered" value="useMemo:&#xA;imoveisFiltrados&#xA;(3 filtros)" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="820" y="50" width="140" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- KPIs -->
+        <mxCell id="fe_kpis" value="Calcula KPIs:&#xA;RIP Im., RIP Util.,&#xA;&#xC1;rea Terreno,&#xA;&#xC1;rea Constr., Valor" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="820" y="160" width="150" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Computa Charts data -->
+        <mxCell id="fe_charts" value="Computa dados:&#xA;dataMunicipio,&#xA;dataRegime,&#xA;monthlyTimeline,&#xA;dataStatusFiscaliz." style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="1030" y="50" width="150" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- generateChartConfig -->
+        <mxCell id="fe_chart_config" value="generateChartConfig&#xA;(esquema de cores)" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="1030" y="210" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Drill-down -->
+        <mxCell id="fe_drill" value="Drill-down:&#xA;setDrillIm&#xF3;veis()&#xA;exibe tabela" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="1250" y="50" width="140" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Modo ApresentaÃ§Ã£o FE -->
+        <mxCell id="fe_present" value="togglePresentation&#xA;Mode()&#xA;oculta Header+Sidebar" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="1250" y="180" width="150" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- setTheme -->
+        <mxCell id="fe_theme" value="setTheme()&#xA;setChartColor&#xA;Scheme()&#xA;aplica tema/paleta" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;" vertex="1" parent="lane_fe">
+          <mxGeometry x="1250" y="300" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ===== BACKEND LANE NODES ===== -->
+        <!-- GET imoveis -->
+        <mxCell id="be_imoveis" value="GET /api/imoveis&#xA;?situacao=true&#xA;&#x2192; lista de im&#xF3;veis" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;" vertex="1" parent="lane_be">
+          <mxGeometry x="200" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- GET municipios -->
+        <mxCell id="be_municipios" value="GET /api/municipios&#xA;&#x2192; lookup munic&#xED;pios" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;" vertex="1" parent="lane_be">
+          <mxGeometry x="390" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- GET regimeutilizacao -->
+        <mxCell id="be_regimes" value="GET /api/regime&#xA;utilizacao&#xA;&#x2192; lookup regimes" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;" vertex="1" parent="lane_be">
+          <mxGeometry x="580" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- GET unidadegestora -->
+        <mxCell id="be_ug" value="GET /api/unidade&#xA;gestora&#xA;&#x2192; lookup UGs" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;" vertex="1" parent="lane_be">
+          <mxGeometry x="770" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- GET fiscalizacoes -->
+        <mxCell id="be_fiscaliz" value="GET /api/fiscaliz&#xE7;oes&#xA;&#x2192; dados timeline&#xA;+ status fiscaliz." style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;" vertex="1" parent="lane_be">
+          <mxGeometry x="960" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- GET avaliacoes -->
+        <mxCell id="be_aval" value="GET /api/avaliacoes&#xA;&#x2192; dados timeline" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;" vertex="1" parent="lane_be">
+          <mxGeometry x="1150" y="80" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Resposta 200 note -->
+        <mxCell id="be_note" value="Todas as APIs retornam HTTP 200&#xA;com array JSON (ou [] em caso de erro)" style="shape=note;fillColor=#ffffc0;strokeColor=#999900;fontColor=#333333;fontSize=11;" vertex="1" parent="lane_be">
+          <mxGeometry x="200" y="190" width="320" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Nota filtros locais -->
+        <mxCell id="fe_note_filter" value="Filtragem ocorre no frontend (client-side).&#xA;N&#xE3;o h&#xE1; nova requisi&#xE7;&#xE3;o ao backend ao filtrar." style="shape=note;fillColor=#ffffc0;strokeColor=#999900;fontColor=#333333;fontSize=11;" vertex="1" parent="lane_fe">
+          <mxGeometry x="610" y="260" width="340" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ===== EDGES ===== -->
+        <!-- User: start -> loading -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_start" target="u_loading" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: loading -> filter -->
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_loading" target="u_filter" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: filter -> timerange -->
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_filter" target="u_timerange" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: timerange -> bar_click -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_timerange" target="u_bar_click" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: timerange -> pie_click -->
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_timerange" target="u_pie_click" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: bar_click -> present -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_bar_click" target="u_present" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: pie_click -> theme -->
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_pie_click" target="u_theme" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User: filter -> clearfilter (loop) -->
+        <mxCell id="e_clear" value="limpa sele&#xE7;&#xE3;o" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="u_clearfilter" target="u_filter" parent="lane_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: auth_check -> no? -> no_auth -->
+        <mxCell id="e10" value="N&#xE3;o" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_auth_check" target="fe_no_auth" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: auth_check -> yes -> fetch -->
+        <mxCell id="e11" value="Sim" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_auth_check" target="fe_fetch" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: fetch -> err_check -->
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="fe_err_check" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: err_check -> yes -> err_card -->
+        <mxCell id="e13" value="Sim" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_err_check" target="fe_err_card" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: err_check -> no -> set_states -->
+        <mxCell id="e14" value="N&#xE3;o" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_err_check" target="fe_set_states" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: set_states -> filtered -->
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_set_states" target="fe_filtered" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: filtered -> kpis -->
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_filtered" target="fe_kpis" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: filtered -> charts -->
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_filtered" target="fe_charts" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: charts -> chart_config -->
+        <mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_charts" target="fe_chart_config" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: charts -> drill -->
+        <mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_charts" target="fe_drill" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: loading state -->
+        <mxCell id="e20" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_loading" target="fe_fetch" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: User acessa -> FE auth_check -->
+        <mxCell id="ex1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_start" target="fe_auth_check" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE loading -> User vÃª loading -->
+        <mxCell id="ex2" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="fe_loading" target="u_loading" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE fetch -> BE imoveis -->
+        <mxCell id="ex3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="be_imoveis" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE fetch -> BE municipios -->
+        <mxCell id="ex4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="be_municipios" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE fetch -> BE regimes -->
+        <mxCell id="ex5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="be_regimes" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE fetch -> BE ug -->
+        <mxCell id="ex6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="be_ug" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE fetch -> BE fiscaliz -->
+        <mxCell id="ex7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="be_fiscaliz" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: FE fetch -> BE aval -->
+        <mxCell id="ex8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="fe_fetch" target="be_aval" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: BE imoveis -> FE err_check (responses back) -->
+        <mxCell id="ex9" value="HTTP 200 / erro" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="be_imoveis" target="fe_err_check" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: User filter -> FE filtered -->
+        <mxCell id="ex10" value="atualiza filtro" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_filter" target="fe_filtered" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: User timerange -> FE charts (groupActivitiesByMonth) -->
+        <mxCell id="ex11" value="timeRange" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_timerange" target="fe_charts" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: User bar_click / pie_click -> FE drill -->
+        <mxCell id="ex12" value="drill-down" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_bar_click" target="fe_drill" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ex13" value="drill-down" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_pie_click" target="fe_drill" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: User present -> FE present -->
+        <mxCell id="ex14" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_present" target="fe_present" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-lane: User theme -> FE theme -->
+        <mxCell id="ex15" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="u_theme" target="fe_theme" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- FE: auth_check -> fe_loading -->
+        <mxCell id="e21" value="Sim (primeiro load)" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="fe_auth_check" target="fe_loading" parent="lane_fe">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
