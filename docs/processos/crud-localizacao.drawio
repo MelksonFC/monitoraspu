@@ -1,0 +1,313 @@
+﻿<mxfile host="65bd71144e">
+    <diagram id="crud-loc" name="CRUD Localização">
+        <mxGraphModel dx="3607" dy="1014" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="pool" value="CRUD de Localização (País / Estado / Município)" style="shape=pool;startSize=20;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="-40" y="40" width="2100" height="1160" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_user" value="Usuário" style="swimlane;startSize=30;horizontal=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry width="2100" height="620" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_pais" value="Coluna Países" style="text;html=1;fontStyle=1;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="120" y="15" width="140" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_start" value="" style="ellipse;aspect=fixed;fillColor=#00CC00;strokeColor=#007700;" parent="lane_user" vertex="1">
+                    <mxGeometry x="35" y="276" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_lista_pais" value="Lista de Países" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="130" y="268" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_acao_pais" value="Ação País?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="330" y="260.5" width="90" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_form_pais" value="Preenche Nome do País" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="540" y="140" width="140" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_conf_pais" value="Confirmar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="565" y="40" width="90" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_del_pais_conf" value="Confirmar excluir &#xa;País?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="315" y="435" width="125" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_sel_pais" value="Seleciona País&#xa;(carrega Estados)" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="540" y="265" width="140" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_estado" value="Coluna Estados" style="text;html=1;fontStyle=1;fontSize=11;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_user" vertex="1">
+                    <mxGeometry x="840" y="15" width="155" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_lista_estado" value="Lista de Estados&#xa; (País selecionado)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_user" vertex="1">
+                    <mxGeometry x="810" y="265" width="150" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_acao_estado" value="Ação Estado?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="832.5" y="360" width="105" height="75" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_form_estado" value="Preenche Nome, UF, País &#xa;e IBGE (Estado)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_user" vertex="1">
+                    <mxGeometry x="990" y="195" width="170" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_conf_estado" value="Confirmar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1030" y="85" width="90" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_del_estado_conf" value="Confirmar excluir&#xa; Estado?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1180" y="409" width="130" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_sel_estado" value="Seleciona Estado&#xa; (carrega Municípios)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1030" y="496" width="170" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_estado" value="UF: obrigatório (2 chars, único)&#xa;IBGE: opcional (único se informado)&#xa;Excluir: bloqueado se tem municípios" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1199" y="180" width="220" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_mun" value="Coluna Municípios" style="text;html=1;fontStyle=1;fontSize=11;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1570" y="15" width="165" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_lista_mun" value="Lista de Municípios &#xa;(Estado selecionado)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1570" y="300" width="175" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_acao_mun" value="Ação Munic.?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1910" y="430" width="105" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_form_mun" value="Preenche Nome, Estado&#xa; e IBGE (Município)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1897.5" y="205" width="175" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_conf_mun" value="Confirmar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1820" y="85" width="90" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_del_mun_conf" value="Confirmar excluir Munic.?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1593" y="520" width="130" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_mun" value="IBGE: opcional (único se informado)&#xa;Excluir: bloqueado se imóvel associado" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1880" y="30" width="210" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="ev_start" target="act_lista_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_lista_pais" target="gw_acao_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" value="Novo/Editar" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="gw_acao_pais" target="act_form_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" value="Excluir" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao_pais" target="gw_del_pais_conf" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="Selecionar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao_pais" target="act_sel_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_form_pais" target="gw_conf_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cancel_pais" value="Cancelar" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_user" source="gw_conf_pais" target="act_lista_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="195" y="68"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_pais_nao" value="Não" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="lane_user" source="gw_del_pais_conf" target="act_lista_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="227" y="478"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_sel_pais" value="Exibe Estados" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_user" source="act_sel_pais" target="act_lista_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="750" y="292"/>
+                            <mxPoint x="750" y="292"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_lista_estado" target="gw_acao_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e8" value="Novo/Editar" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="gw_acao_estado" target="act_form_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e9" value="Excluir" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="lane_user" source="gw_acao_estado" target="gw_del_estado_conf" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e10" value="Selecionar" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_user" source="gw_acao_estado" target="act_sel_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_form_estado" target="gw_conf_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cancel_estado" value="Cancelar" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_user" source="gw_conf_estado" target="act_lista_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="885" y="120"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_estado_nao" value="Não" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="gw_del_estado_conf" target="act_lista_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1245" y="293"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_sel_estado" value="Exibe Municípios" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="act_sel_estado" target="act_lista_mun" edge="1">
+                    <mxGeometry x="-0.5926" relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1530" y="524"/>
+                            <mxPoint x="1530" y="328"/>
+                        </Array>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_lista_mun" target="gw_acao_mun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e13" value="Novo/Editar" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="lane_user" source="gw_acao_mun" target="act_form_mun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e14" value="Excluir" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="gw_acao_mun" target="gw_del_mun_conf" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="act_form_mun" target="gw_conf_mun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cancel_mun" value="Cancelar" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="lane_user" source="gw_conf_mun" target="act_lista_mun" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1865" y="210"/>
+                            <mxPoint x="1658" y="210"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_mun_nao" value="Não" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="lane_user" source="gw_del_mun_conf" target="act_lista_mun" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1658" y="460"/>
+                            <mxPoint x="1658" y="460"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="lane_frontend" value="Sistema (Frontend)" style="swimlane;startSize=30;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="620" width="2100" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_envia" value="Envia requisição para API" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1370" y="38" width="165" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_toast_ok" value="Toast: Sucesso &#xa;(Atualiza lista)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1662.5" y="127" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_toast_dep_err" value="Toast: Erro &#xa;(dependências existem)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1832.75" y="47" width="160" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_del_pais" value="Sim, excluir" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="pool" source="gw_del_pais_conf" target="act_envia" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1410" y="690" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="377" y="686"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx_del_estado" value="Sim, excluir" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="pool" source="gw_del_estado_conf" target="act_envia" edge="1">
+                    <mxGeometry x="-0.6828" y="4" relative="1" as="geometry">
+                        <mxPoint x="1430" y="660" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx_mun_save" value="Salvar Munic." style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;entryX=0.676;entryY=-0.036;entryDx=0;entryDy=0;entryPerimeter=0;" parent="pool" source="gw_conf_mun" target="act_envia" edge="1">
+                    <mxGeometry x="-0.3474" relative="1" as="geometry">
+                        <mxPoint x="1490" y="660" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx_estado_save" value="Salvar Estado" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;entryX=0.365;entryY=-0.01;entryDx=0;entryDy=0;entryPerimeter=0;" parent="pool" source="gw_conf_estado" target="act_envia" edge="1">
+                    <mxGeometry x="-0.4867" relative="1" as="geometry">
+                        <mxPoint x="1450" y="690" as="targetPoint"/>
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="lane_backend" value="Backend / API" style="swimlane;startSize=30;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="820" width="2100" height="340" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_back" value="Estado: valida UF única e IBGE único (409)&#xa;Município: valida IBGE único (409)&#xa;Exclusão: bloqueada se dependências (400)" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="55" y="65" width="265" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_recv" value="Recebe requisição" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1375" y="60" width="155" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_tipo" value="Tipo de Operação?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1397.5" y="180" width="110" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_db_save" value="Persiste País/Est./Munic.&#xa; (POST/PUT)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1580" y="14.5" width="145" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_dep_check" value="Tem dependências?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1500" y="260" width="120" height="72" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_400_dep" value="Retorna 400 &#xa;(dependências existem)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1840" y="60" width="145.5" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_db_del" value="Exclui registro (204)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1670" y="271" width="155" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_end" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="2025" y="69" width="36" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_api_tipo" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_recv" target="gw_tipo" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tipo_save" value="POST/PUT" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="gw_tipo" target="act_db_save" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_tipo_del" value="DELETE" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="lane_backend" source="gw_tipo" target="gw_dep_check" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_dep_sim" value="Sim" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="lane_backend" source="gw_dep_check" target="act_400_dep" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1560" y="240"/>
+                            <mxPoint x="1913" y="240"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_dep_nao" value="Não" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="gw_dep_check" target="act_db_del" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_save_end" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_backend" source="act_db_save" target="ev_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_del_end" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_db_del" target="ev_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_400_end" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_backend" source="act_400_dep" target="ev_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_pais_save" value="Salvar País" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;" parent="1" source="gw_conf_pais" target="act_envia" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_del_mun" value="Sim, excluir" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;" parent="1" source="gw_del_mun_conf" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1480" y="700" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx_envia_api" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_envia" target="act_api_recv" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_save_ok" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="act_db_save" target="act_toast_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_del_ok" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_db_del" target="act_toast_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_dep_err" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="1" source="act_400_dep" target="act_toast_dep_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx_toast_ok_volta" value="Volta lista" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="act_toast_ok" target="act_lista_pais" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1698" y="770"/>
+                            <mxPoint x="155" y="770"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

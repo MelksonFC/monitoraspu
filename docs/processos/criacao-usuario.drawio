@@ -1,0 +1,231 @@
+﻿<mxfile host="65bd71144e">
+    <diagram id="criacao-usuario" name="Criação e Ativação de Usuário">
+        <mxGraphModel dx="1337" dy="1092" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="pool" value="Criação e Ativação de Usuário" style="shape=pool;startSize=20;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="30" width="1000" height="1140" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_user" value="Usuário" style="swimlane;startSize=30;horizontal=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry width="1000" height="380" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_admin" value="FLUXO 1: ADMIN CRIA USUÁRIO" style="text;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#C62828;" parent="lane_user" vertex="1">
+                    <mxGeometry x="30" y="30" width="310" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_novo" value="FLUXO 2: ATIVAÇÃO PELO NOVO USUÁRIO" style="text;fontStyle=1;fontSize=11;fillColor=none;strokeColor=none;fontColor=#1565C0;" parent="lane_user" vertex="1">
+                    <mxGeometry x="610" y="30" width="331" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_start" value="" style="ellipse;aspect=fixed;fillColor=#00CC00;strokeColor=#007700;" parent="lane_user" vertex="1">
+                    <mxGeometry x="142" y="75" width="36" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_admin_cria" value="Administrador preenche&#xa;dados do novo usuário&#xa;(nome, e-mail, senha,&#xa;permissão)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_user" vertex="1">
+                    <mxGeometry x="70" y="162" width="180" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_admin_salvar" value="Clica em &quot;Salvar&quot;" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_user" vertex="1">
+                    <mxGeometry x="82.5" y="290" width="155" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_admin_ok" value="Usuário criado&#xa;com sucesso" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="437" y="215" width="110" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_admin_err" value="Erro: e-mail já&#xa;cadastrado" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_user" vertex="1">
+                    <mxGeometry x="262.5" y="111" width="145" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_novo_abre_email" value="Novo usuário&#xa;recebe e-mail&#xa;de ativação" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="610" y="75" width="127" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_novo_clica_link" value="Clica no link&#xa;de ativação" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="610" y="200" width="127" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_conta_ativada" value="Conta ativada!&#xa;Clica &quot;Ir para Login&quot;" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="754" y="200" width="125" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_end" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_user" vertex="1">
+                    <mxGeometry x="941" y="211.5" width="32" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="eu1" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_user" source="ev_start" target="act_admin_cria" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="160" y="162"/>
+                            <mxPoint x="160" y="162"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eu2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_admin_cria" target="act_admin_salvar" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eu3" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_novo_abre_email" target="act_novo_clica_link" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eu4" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_novo_clica_link" target="act_conta_ativada" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eu5" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_conta_ativada" target="ev_end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_frontend" value="Sistema (Frontend)" style="swimlane;startSize=30;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="380" width="1000" height="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="fe_req_criar_user" value="POST /api/usuarios&#xa;{ nome, email, senha,&#xa;idpermissao, ativo }" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="70" y="125" width="180" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_criar_resp" value="Resposta?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="280" y="125" width="110" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="fe_criar_ok" value="Exibe sucesso&#xa;(usuário criado)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="433" y="240" width="120" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="fe_criar_err" value="Exibe erro&#xa;(409: e-mail&#xa;já existe)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="270" y="20" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="fe_req_ativar" value="GET /api/ativar&#xa;?token=..." style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="610" y="108" width="125" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_ativar_resp" value="Resposta?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="760" y="100.5" width="110" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="fe_ativar_ok" value="Exibe sucesso +&#xa;botão &quot;Ir para Login&quot;" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="758" y="10" width="115" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="fe_ativar_err" value="Exibe erro&#xa;(token expirado&#xa;ou inválido)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="838" y="230" width="145" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="efe1" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_frontend" source="fe_req_criar_user" target="gw_criar_resp" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="efe2" value="201 OK" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="lane_frontend" source="gw_criar_resp" target="fe_criar_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="efe3" value="409 Erro" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="lane_frontend" source="gw_criar_resp" target="fe_criar_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="efe4" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_frontend" source="fe_req_ativar" target="gw_ativar_resp" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="efe5" value="200 OK" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_frontend" source="gw_ativar_resp" target="fe_ativar_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="920" y="136"/>
+                            <mxPoint x="920" y="40"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="efe6" value="400 Erro" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_frontend" source="gw_ativar_resp" target="fe_ativar_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_backend" value="Backend / API" style="swimlane;startSize=30;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="700" width="1000" height="440" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_criar_check_email" value="Verifica e-mail&#xa;duplicado (SELECT)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="77.5" y="50" width="165" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_be_criar" value="Já existe?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="110" y="135" width="100" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_criar_hash" value="bcrypt.hash(senha)&#xa;Gera ativacao_token&#xa;expira em 1h" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="287" y="132.5" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_criar_insert" value="INSERT INTO usuarios&#xa;(ativado=false)&#xa;Retorna 201" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="290" y="270" width="165" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_criar_email" value="Envia e-mail&#xa;de ativação&#xa;(Nodemailer)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="490" y="310" width="155" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_criar_409" value="Retorna 409&#xa;&quot;E-mail já&#xa;cadastrado&quot;" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="90" y="270" width="140" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_ativar_query" value="SELECT WHERE&#xa;token=$1 AND&#xa;expira &gt; NOW()" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="595" y="26" width="155" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_be_ativar" value="Token&#xa;válido?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="622.5" y="126" width="100" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_ativar_update" value="UPDATE ativado=true&#xa;token=NULL (200)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="602" y="244" width="140" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="be_ativar_err" value="Retorna 400&#xa;&quot;Token inválido&#xa;ou expirado&quot;" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="856" y="126" width="110" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe1" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_backend" source="be_criar_check_email" target="gw_be_criar" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="160" y="135"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ebe2" value="Não" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="lane_backend" source="gw_be_criar" target="be_criar_hash" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe3" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="be_criar_hash" target="be_criar_insert" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe4" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="lane_backend" source="be_criar_insert" target="be_criar_email" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe5" value="Sim" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="lane_backend" source="gw_be_criar" target="be_criar_409" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe6" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="be_ativar_query" target="gw_be_ativar" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe7" value="Sim" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="lane_backend" source="gw_be_ativar" target="be_ativar_update" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ebe8" value="Não" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="lane_backend" source="gw_be_ativar" target="be_ativar_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_sec1" value="Token de ativação&#xa;expira em 1 hora" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="550" y="388" width="190" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_sec2" value="Senha: mín. 6 chars,&#xa;maiúsc., minúsc.,&#xa;número e símbolo (@#$!%&amp;*)" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="770" y="379" width="215" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx1" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_admin_salvar" target="fe_req_criar_user" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx2" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="fe_req_criar_user" target="be_criar_check_email" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx3" value="201 OK" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="be_criar_insert" target="fe_criar_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="533" y="1032"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx4" value="409" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="be_criar_409" target="fe_criar_err" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="100" y="1002"/>
+                            <mxPoint x="100" y="460"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx5" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="fe_criar_ok" target="act_admin_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx6" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="1" source="fe_criar_err" target="act_admin_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx7" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="be_criar_email" target="act_novo_abre_email" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx8" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_novo_clica_link" target="fe_req_ativar" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx9" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="fe_req_ativar" target="be_ativar_query" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx10" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="be_ativar_update" target="fe_ativar_ok" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx11" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;" parent="1" source="be_ativar_err" target="fe_ativar_err" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx12" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="fe_ativar_ok" target="act_conta_ativada" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

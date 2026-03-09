@@ -1,0 +1,293 @@
+﻿<mxfile host="65bd71144e">
+    <diagram id="mapa-filtros" name="Mapa e Filtros">
+        <mxGraphModel dx="1287" dy="1014" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="pool" value="Mapa e Filtros de Imóveis" style="shape=pool;startSize=20;horizontal=1;childLayout=stackLayout;horizontalStack=0;resizeParent=1;resizeParentMax=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="32" y="40" width="1800" height="1100" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_user" value="Usuário" style="swimlane;startSize=30;horizontal=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry width="1800" height="430" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_start" value="" style="ellipse;aspect=fixed;fillColor=#00CC00;strokeColor=#007700;" parent="lane_user" vertex="1">
+                    <mxGeometry x="40" y="107" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_acessa_mapa" value="Acessa a&#xa;página Mapa" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="255" y="100" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_ver_lista" value="Visualiza lista&#xa;de imóveis (sidebar)" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="430" y="100" width="145" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_ordenar" value="Ordena lista&#xa;(Nome/Valor/RIP)" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="503" y="360" width="145" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_acao" value="Ação?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="596" y="27" width="100" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_click_filtro" value="Clica no botão&#xa;&quot;Filtros&quot;" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="866.5" y="38" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_preenche_filtros" value="Preenche campos&#xa;dos filtros&#xa;(País/Estado/Munic.&#xa;UG/Regime/Matr./&#xa;RIP/Período)" style="rounded=1;arcSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1084" y="20.5" width="155" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="gw_aplicar" value="Aplicar ou&#xa;Limpar?" style="rhombus;fillColor=#FFD700;strokeColor=#c47d0e;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1316" y="25.5" width="110" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_sel_lista" value="Seleciona imóvel&#xa;na sidebar" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="989" y="132.5" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_click_marker" value="Clica no marcador&#xa;no mapa" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="770" y="239.5" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_editar" value="Clica em&#xa;&quot;Editar&quot;" style="rounded=1;arcSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="lane_user" vertex="1">
+                    <mxGeometry x="774" y="360" width="130" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_ver_imovel" value="Visualiza imóvel&#xa;destacado no mapa&#xa;+ polígono do terreno" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1425" y="169.5" width="160" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_navega_edit" value="Navega para&#xa;página de edição&#xa;do imóvel" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1123" y="355" width="155" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_end_edit" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_user" vertex="1">
+                    <mxGeometry x="1298" y="370" width="36" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="ev_start" target="act_acessa_mapa" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_acessa_mapa" target="act_ver_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="lane_user" source="act_ver_lista" target="gw_acao" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3b" value="Ordenar" style="edgeStyle=orthogonalEdgeStyle;entryX=0.25;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="lane_user" source="act_ver_lista" target="act_ordenar" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3c" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="lane_user" source="act_ordenar" target="gw_acao" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="576" y="170"/>
+                            <mxPoint x="646" y="170"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e4" value="Abrir Filtros" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_user" source="gw_acao" target="act_click_filtro" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" value="Selecionar Imóvel" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="gw_acao" target="act_sel_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="828" y="67"/>
+                            <mxPoint x="828" y="160"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e6" value="Clicar Marcador" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_user" target="act_click_marker" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="718" y="67" as="sourcePoint"/>
+                        <mxPoint x="792" y="267" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="748" y="67"/>
+                            <mxPoint x="748" y="267"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e7" value="Editar" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_user" source="gw_acao" target="act_editar" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="698" y="67"/>
+                            <mxPoint x="698" y="387"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_click_filtro" target="act_preenche_filtros" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_preenche_filtros" target="gw_aplicar" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_sel_ok" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="lane_user" source="act_sel_lista" target="act_ver_imovel" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_click_ok" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="lane_user" source="act_click_marker" target="act_ver_imovel" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_editar_ok" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_editar" target="act_navega_edit" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_navega_end" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_user" source="act_navega_edit" target="ev_end_edit" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_frontend" value="Sistema (Frontend)" style="swimlane;startSize=30;horizontal=0;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="430" width="1800" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_cascade_estado" value="Seleciona País&#xa;→ carrega Estados" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1073" y="27.5" width="155" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_cascade_mun" value="Seleciona Estado&#xa;→ carrega Municípios" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1174" y="160" width="165" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_aplica_filtros" value="Aplica filtros&#xa;(atualiza estado&#xa;appliedFiltros)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1524" y="80" width="155" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_limpa_filtros" value="Limpa filtros&#xa;(estado inicial)" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1294" y="40" width="155" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_req_imoveis" value="Envia requisição&#xa;GET /api/imoveis/com-relacoes&#xa;(com parâmetros de filtro)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="364" y="110" width="185" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_render_mapa" value="Renderiza mapa&#xa;Leaflet + clusters&#xa;de marcadores" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="127" y="115" width="175" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_req_poligono" value="GET /api/poligonosterreno/&#xa;imovel/:id&#xa;(Lazy Loading)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="602.5" y="180" width="175" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_render_poligono" value="Renderiza polígono&#xa;GeoJSON + flyTo&#xa;no mapa" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="1384" y="167" width="160" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_badge" value="Badge no botão mostra&#xa;número de filtros ativos" style="shape=note;whiteSpace=wrap;fontSize=10;fillColor=#ffffc0;strokeColor=#999900;" parent="lane_frontend" vertex="1">
+                    <mxGeometry x="940" y="226" width="170" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="ef2" style="edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_frontend" source="act_cascade_estado" target="act_cascade_mun" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="ef3" value="Aplicar" style="edgeStyle=orthogonalEdgeStyle;entryX=0.75;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="lane_frontend" source="act_aplica_filtros" target="act_req_imoveis" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1602" y="290"/>
+                            <mxPoint x="503" y="290"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ef4" value="Limpar" style="edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="lane_frontend" source="act_limpa_filtros" target="act_req_imoveis" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="lane_backend" value="Backend / API" style="swimlane;startSize=30;horizontal=0;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#333333;fontSize=12;fontStyle=1;" parent="pool" vertex="1">
+                    <mxGeometry y="730" width="1800" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_lookups" value="GET /api/lookups/&#xa;paises-com-imoveis&#xa;unidades-gestoras&#xa;regimes-utilizacao" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="827.5" y="122.5" width="185" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_estados" value="GET /api/lookups/&#xa;estados-com-imoveis&#xa;?paisId=N" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1074" y="130" width="155" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_muns" value="GET /api/lookups/&#xa;municipios-com-imoveis&#xa;?estadoId=N" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1256" y="130" width="165" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_imoveis" value="GET /api/imoveis/com-relacoes&#xa;(filtra por país, estado,&#xa;munic., UG, regime,&#xa;matr., RIP, período)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="351.5" y="70" width="210" height="85" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_imoveis_ret" value="Retorna imóveis&#xa;com coordenadas&#xa;e imagens (JSON)" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="130" y="80" width="170" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_poligono" value="GET /api/poligonosterreno/&#xa;imovel/:id&#xa;Retorna geometria GeoJSON" style="rounded=1;arcSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="618" y="240" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_api_no_poligono" value="(sem polígono cadastrado)&#xa;Retorna array vazio" style="rounded=1;arcSize=30;fillColor=#f8cecc;strokeColor=#b85450;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1608" y="145" width="156" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="ev_end_api" value="" style="ellipse;aspect=fixed;fillColor=#CC0000;strokeColor=#6F0000;" parent="lane_backend" vertex="1">
+                    <mxGeometry x="1292" y="290" width="36" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="eb1" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_imoveis" target="act_api_imoveis_ret" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eb2" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_lookups" target="act_api_estados" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eb3" style="edgeStyle=orthogonalEdgeStyle;" parent="lane_backend" source="act_api_estados" target="act_api_muns" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eb4" style="edgeStyle=orthogonalEdgeStyle;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="lane_backend" source="act_api_muns" target="ev_end_api" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="eb6" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="lane_backend" source="act_api_poligono" target="ev_end_api" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="788" y="275" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="eb5" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="lane_backend" source="act_api_imoveis_ret" target="ev_end_api" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="215" y="350"/>
+                            <mxPoint x="1310" y="350"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx8" style="edgeStyle=orthogonalEdgeStyle;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" parent="pool" source="act_cascade_mun" target="act_api_muns" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1306.75" y="645" as="sourcePoint"/>
+                        <mxPoint x="1305.25" y="860" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx1" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="act_acessa_mapa" target="act_req_imoveis" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx2" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_req_imoveis" target="act_api_imoveis" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;" parent="1" source="act_api_imoveis_ret" target="act_render_mapa" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx4" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="act_render_mapa" target="act_ver_lista" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx5" style="edgeStyle=orthogonalEdgeStyle;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="1" source="act_click_filtro" target="act_carrega_lookups" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx6" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_carrega_lookups" target="act_api_lookups" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx7" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_cascade_estado" target="act_api_estados" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx9" value="Aplicar" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c47d0e;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="gw_aplicar" target="act_aplica_filtros" edge="1">
+                    <mxGeometry x="-0.4068" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx10" value="Limpar" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;fontStyle=1;" parent="1" source="gw_aplicar" target="act_limpa_filtros" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx11" style="edgeStyle=orthogonalEdgeStyle;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="act_sel_lista" target="act_req_poligono" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx12" style="edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="act_carrega_lookups" target="act_req_poligono" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx13" style="edgeStyle=orthogonalEdgeStyle;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="act_req_poligono" target="act_api_poligono" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx14" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="act_api_poligono" target="act_render_poligono" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="cx14b" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#c0392b;dashed=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="act_api_no_poligono" target="act_ver_imovel" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1720" y="915"/>
+                            <mxPoint x="1720" y="245"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="cx15" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27ae60;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" parent="1" source="act_render_poligono" target="act_ver_imovel" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_carrega_lookups" value="Carrega lookups&#xa;(Países com imóveis,&#xa;UGs, Regimes)" style="rounded=1;arcSize=30;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="860" y="490" width="182" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="ef1" style="edgeStyle=orthogonalEdgeStyle;" parent="1" source="act_carrega_lookups" target="act_cascade_estado" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="act_click_marker" target="act_carrega_lookups">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="948" y="385" as="sourcePoint"/>
+                        <mxPoint x="1090" y="655" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
