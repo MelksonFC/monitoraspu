@@ -24,3 +24,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# CODE REVIEW GRAPH
+.code-review-graph
+*.md
+!README.md
