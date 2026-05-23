@@ -47,7 +47,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
   const [loadingEstados, setLoadingEstados] = useState(false);
   const [loadingMunicipios, setLoadingMunicipios] = useState(false);
 
-  const handleFiltroChange = (field: keyof FiltrosState, value: any) => {
+  const handleFiltroChange = <K extends keyof FiltrosState>(field: K, value: FiltrosState[K]) => {
     setFiltros(prev => ({ ...prev, [field]: value }));
   };
 

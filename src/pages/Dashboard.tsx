@@ -152,6 +152,7 @@ function getDateRangeFromTimeRange(range: string) {
     return { start, end: now };
 }
 
+/*
 function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscalizacao[], timeRange: string) {
     const { start, end } = getDateRangeFromTimeRange(timeRange);
     const monthlyMap: Record<string, { avaliacoes: number, fiscalizacoes: number }> = {};
@@ -169,6 +170,7 @@ function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscaliz
     processItems(fiscalizacoes, 'fiscalizacoes', 'datafiscalizacao');
     return Object.entries(monthlyMap).map(([key, values]) => ({ month: key, ...values })).sort((a, b) => new Date(a.month + '-01').getTime() - new Date(b.month + '-01').getTime());
 }
+*/
 
 function groupActivitiesByMonthWithRelations(
     avaliacoes: Avaliacao[],
@@ -1034,7 +1036,7 @@ export default function ShadcnDashboard() {
                                     activeDot={{
                                         r: 6,
                                         style: { cursor: 'pointer' },
-                                        onClick: (event: any, payload: any) => handleTimelineDotClick('avaliacoes', payload?.payload),
+                                        onClick: (_event: any, payload: any) => handleTimelineDotClick('avaliacoes', payload?.payload),
                                     }}
                                 />
                                 <Line
@@ -1046,7 +1048,7 @@ export default function ShadcnDashboard() {
                                     activeDot={{
                                         r: 6,
                                         style: { cursor: 'pointer' },
-                                        onClick: (event: any, payload: any) => handleTimelineDotClick('fiscalizacoes', payload?.payload),
+                                        onClick: (_event: any, payload: any) => handleTimelineDotClick('fiscalizacoes', payload?.payload),
                                     }}
                                 />
                                 <ChartLegend content={<ChartLegendContent />} />

@@ -17,17 +17,32 @@ interface SafePdfButtonProps {
   imovel: Imovel;
   usuario: string;
   lookups: {
-    paises: any[];
-    estados: any[];
-    municipios: any[];
-    unidades: any[];
-    regimes: any[];
+    paises: LookupItem[];
+    estados: LookupItem[];
+    municipios: LookupItem[];
+    unidades: UnidadeLookup[];
+    regimes: RegimeLookup[];
   };
   variant?: 'text' | 'outlined' | 'contained';
   color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
   disabled?: boolean;
   fullWidth?: boolean;
   size?: 'small' | 'medium' | 'large';
+}
+
+interface LookupItem {
+  id: number;
+  nome: string;
+}
+
+interface UnidadeLookup extends LookupItem {
+  codigo?: string;
+}
+
+interface RegimeLookup {
+  id: number;
+  descricao?: string;
+  nome?: string;
 }
 
 const PAGE_MARGIN_TOP = 45;
@@ -76,13 +91,14 @@ function formatArea(valor: string | number | undefined | null): string {
   if (parsed === null) return "0,00 m²";
   return `${parsed.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
 }
-function getLookupName(id: number | undefined, list: any[]): string {
+function getLookupName(id: number | undefined, list: LookupItem[]): string {
   return list?.find(item => item.id === id)?.nome || '';
 }
-function getRegimeDesc(id: number | undefined, regimes: any[]): string {
-  return regimes.find(r => r.id === id)?.descricao || getLookupName(id, regimes);
+function getRegimeDesc(id: number | undefined, regimes: RegimeLookup[]): string {
+  const regime = regimes.find(r => r.id === id);
+  return regime?.descricao || regime?.nome || '';
 }
-function getUnidadeFormatted(id: number | undefined, unidades: any[]): string {
+function getUnidadeFormatted(id: number | undefined, unidades: UnidadeLookup[]): string {
   const u = unidades?.find(item => item.id === id);
   if (!u) return '';
   return u.codigo ? `${u.codigo} - ${u.nome}` : u.nome;
@@ -128,7 +144,9 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     if (brasaoDataUrl) {
       try {
         doc.addImage(brasaoDataUrl, 'PNG', marginX, marginY, imageWidth, imageHeight);
-      } catch { }
+      } catch {
+        // Ignore header image errors and continue generating the PDF.
+      }
     }
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
@@ -236,18 +254,20 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
       
         let imgY = y;
-        let imgHeight = 50; 
-        let imgWidth = 85;
+        const imgHeight = 50;
+        const imgWidth = 85;
         let imgX = 15;
-        let gap = 5;
-        let maxPerRow = 2;
+        const gap = 5;
+        const maxPerRow = 2;
         let count = 0;
-        let totalRows = Math.ceil(imovel.imagens.length / maxPerRow);
+        const totalRows = Math.ceil(imovel.imagens.length / maxPerRow);
 
         for (const img of imovel.imagens.slice(0, 4)) {
           try {
             doc.addImage(img.url, 'JPEG', imgX, imgY, imgWidth, imgHeight);
-          } catch { }
+          } catch {
+            // Ignore invalid image and continue rendering remaining images.
+          }
           count++;
           if (count % maxPerRow === 0) {
             imgX = 15;

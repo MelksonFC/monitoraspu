@@ -25,7 +25,7 @@ export default function RegimeUtilizacaoManagement() {
     try {
       const { data } = await axios.get(API_URL);
       setRegimes(data);
-    } catch (error: unknown) {
+    } catch {
       toast.error("Falha ao carregar regimes de utilização.");
     }
   }, []);
@@ -58,7 +58,7 @@ export default function RegimeUtilizacaoManagement() {
       toast.success("Regime salvo com sucesso!");
       handleCloseDialog();
       fetchData();
-    } catch (error) {
+    } catch {
       toast.error("Falha ao salvar regime.");
     }
   };
@@ -69,7 +69,7 @@ export default function RegimeUtilizacaoManagement() {
         await axios.delete(`${API_URL}/${id}`);
         toast.success("Regime excluído com sucesso!");
         fetchData();
-      } catch (error) {
+      } catch {
         toast.error("Falha ao excluir regime. Verifique se não está em uso.");
       }
     }
