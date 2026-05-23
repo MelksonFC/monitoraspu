@@ -29,6 +29,7 @@ const lookupsRouter = require("./routes/lookups.js");
 const usertablesettingsRouter = require("./routes/usertablesettings.js");
 const userpreferences = require("./routes/userpreferences.js");
 const poligonosterrenoRouter = require("./routes/poligonosterreno.js");
+const parametrosgeraisRouter = require("./routes/parametrosgerais.js");
 
 
 
@@ -116,6 +117,7 @@ app.use('/api/lookups', lookupsRouter);
 app.use("/api/usertablesettings", usertablesettingsRouter);
 app.use("/api/poligonosterreno", poligonosterrenoRouter);
 app.use("/api/userpreferences", userpreferences);
+app.use("/api/parametrosgerais", parametrosgeraisRouter);
 
 // Rota de teste de conexão ao banco
 app.get('/api/ping', async (req, res) => {

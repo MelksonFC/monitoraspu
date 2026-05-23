@@ -170,6 +170,60 @@ function groupActivitiesByMonth(avaliacoes: Avaliacao[], fiscalizacoes: Fiscaliz
     return Object.entries(monthlyMap).map(([key, values]) => ({ month: key, ...values })).sort((a, b) => new Date(a.month + '-01').getTime() - new Date(b.month + '-01').getTime());
 }
 
+function groupActivitiesByMonthWithRelations(
+    avaliacoes: Avaliacao[],
+    fiscalizacoes: Fiscalizacao[],
+    timeRange: string,
+    allowedImovelIds: Set<number>
+) {
+    const { start, end } = getDateRangeFromTimeRange(timeRange);
+    const monthlyMap: Record<string, {
+        avaliacoes: number;
+        fiscalizacoes: number;
+        avaliacaoImovelIds: Set<number>;
+        fiscalizacaoImovelIds: Set<number>;
+    }> = {};
+
+    const processItems = (
+        items: Array<{ idimovel: number; [key: string]: any }>,
+        type: 'avaliacoes' | 'fiscalizacoes',
+        dateField: string,
+        relationField: 'avaliacaoImovelIds' | 'fiscalizacaoImovelIds'
+    ) => {
+        for (const item of items) {
+            if (!item[dateField] || !item.idimovel || !allowedImovelIds.has(item.idimovel)) continue;
+            const date = new Date(item[dateField]);
+            if (date < start || date > end) continue;
+
+            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            if (!monthlyMap[key]) {
+                monthlyMap[key] = {
+                    avaliacoes: 0,
+                    fiscalizacoes: 0,
+                    avaliacaoImovelIds: new Set<number>(),
+                    fiscalizacaoImovelIds: new Set<number>(),
+                };
+            }
+
+            monthlyMap[key][type] += 1;
+            monthlyMap[key][relationField].add(item.idimovel);
+        }
+    };
+
+    processItems(avaliacoes, 'avaliacoes', 'dataavaliacao', 'avaliacaoImovelIds');
+    processItems(fiscalizacoes, 'fiscalizacoes', 'datafiscalizacao', 'fiscalizacaoImovelIds');
+
+    return Object.entries(monthlyMap)
+        .map(([key, values]) => ({
+            month: key,
+            avaliacoes: values.avaliacoes,
+            fiscalizacoes: values.fiscalizacoes,
+            avaliacaoImovelIds: Array.from(values.avaliacaoImovelIds),
+            fiscalizacaoImovelIds: Array.from(values.fiscalizacaoImovelIds),
+        }))
+        .sort((a, b) => new Date(a.month + '-01').getTime() - new Date(b.month + '-01').getTime());
+}
+
 export default function ShadcnDashboard() {
     const { usuario } = useAuth();
     const { theme, setTheme, chartColorScheme, setChartColorScheme, getAvailableThemes } = useTheme();
@@ -189,6 +243,7 @@ export default function ShadcnDashboard() {
     const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null);
     const [selectedRegimeCard, setSelectedRegimeCard] = useState<string | null>(null);
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+    const [timelineDrill, setTimelineDrill] = useState<{ open: boolean; title: string; imoveis: Imovel[] }>({ open: false, title: '', imoveis: [] });
 
     // Filtros globais do dashboard
     const [filterMunicipio, setFilterMunicipio] = useState<string[]>([]);
@@ -286,6 +341,14 @@ export default function ShadcnDashboard() {
     }, [imoveis, filterMunicipio, filterUnidadeGestora, filterRegime, municipioMap, unidadeGestoraMap, regimeMap]);
 
     const hasActiveFilters = !!(filterMunicipio.length || filterUnidadeGestora.length || filterRegime.length);
+
+    const filteredImovelIdSet = React.useMemo(() => {
+        return new Set(
+            imoveisFiltrados
+                .map(i => i.idimovel)
+                .filter((id): id is number => typeof id === 'number')
+        );
+    }, [imoveisFiltrados]);
 
     function clearFilters() {
         setFilterMunicipio([]);
@@ -400,7 +463,29 @@ export default function ShadcnDashboard() {
     const totalEmRegularizacao = dataRegime.find(r => r.name === 'Em Regularização')?.value || 0;
     const totalDestinados = imoveisFiltrados.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao)).length;
     
-    const monthlyTimelineData = React.useMemo(() => groupActivitiesByMonth(avaliacoes, fiscalizacoes, timeRange), [avaliacoes, fiscalizacoes, timeRange]);
+    const monthlyTimelineData = React.useMemo(
+        () => groupActivitiesByMonthWithRelations(avaliacoes, fiscalizacoes, timeRange, filteredImovelIdSet),
+        [avaliacoes, fiscalizacoes, timeRange, filteredImovelIdSet]
+    );
+
+    const handleTimelineDotClick = (type: 'avaliacoes' | 'fiscalizacoes', pointData: any) => {
+        if (!pointData) return;
+        const [year, month] = String(pointData.month || '').split('-');
+        const monthLabel = year && month ? `${month.padStart(2, '0')}/${year}` : String(pointData.month || '');
+
+        const ids = type === 'avaliacoes'
+            ? (pointData.avaliacaoImovelIds || [])
+            : (pointData.fiscalizacaoImovelIds || []);
+
+        const idsSet = new Set<number>(ids);
+        const relatedImoveis = imoveisFiltrados.filter(i => typeof i.idimovel === 'number' && idsSet.has(i.idimovel));
+
+        setTimelineDrill({
+            open: true,
+            title: `${type === 'avaliacoes' ? 'Avaliações' : 'Fiscalizações'} em ${monthLabel}`,
+            imoveis: relatedImoveis,
+        });
+    };
     const chartConfigTimeline = React.useMemo((): ChartConfig => {
         const prefix = chartColorScheme === 'monochromatic' ? '--chart-mono-' : '--chart-color-';
         return {
@@ -887,7 +972,7 @@ export default function ShadcnDashboard() {
                     <div className="grid grid-cols-3 md:gap-8 md:p-8">
                         <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Vago para Uso'); setDrillImoveis(getImoveisPorRegime('Vago para Uso')); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Vago para Uso</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalVago}</p></CardContent></Card>
                         <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Em Regularização'); setDrillImoveis(getImoveisPorRegime('Em Regularização')); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Em Regularização</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalEmRegularizacao}</p></CardContent></Card>
-                        <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Destinados'); setDrillImoveis(imoveis.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao))); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Destinados</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalDestinados}</p></CardContent></Card>
+                        <Card className="bg-gradient-to-br from-zinc-700 to-zinc-500 text-primary-foreground" style={{ cursor: "pointer" }} onClick={() => { setSelectedRegimeCard('Destinados'); setDrillImoveis(imoveisFiltrados.filter(i => regimesDestinadosIds.includes(i.idregimeutilizacao))); }}><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Destinados</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalDestinados}</p></CardContent></Card>
                     </div>
                 </Card>
             </div>
@@ -940,8 +1025,30 @@ export default function ShadcnDashboard() {
                                         indicator="dot"
                                     />}
                                 />
-                                <Line type="monotone" dataKey="avaliacoes" stroke="var(--color-avaliacoes)" strokeWidth={2} dot />
-                                <Line type="monotone" dataKey="fiscalizacoes" stroke="var(--color-fiscalizacoes)" strokeWidth={2} dot />
+                                <Line
+                                    type="monotone"
+                                    dataKey="avaliacoes"
+                                    stroke="var(--color-avaliacoes)"
+                                    strokeWidth={2}
+                                    dot={{ r: 4, style: { cursor: 'pointer' } }}
+                                    activeDot={{
+                                        r: 6,
+                                        style: { cursor: 'pointer' },
+                                        onClick: (event: any, payload: any) => handleTimelineDotClick('avaliacoes', payload?.payload),
+                                    }}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="fiscalizacoes"
+                                    stroke="var(--color-fiscalizacoes)"
+                                    strokeWidth={2}
+                                    dot={{ r: 4, style: { cursor: 'pointer' } }}
+                                    activeDot={{
+                                        r: 6,
+                                        style: { cursor: 'pointer' },
+                                        onClick: (event: any, payload: any) => handleTimelineDotClick('fiscalizacoes', payload?.payload),
+                                    }}
+                                />
                                 <ChartLegend content={<ChartLegendContent />} />
                             </LineChart>
                         </ChartContainer>
@@ -1023,7 +1130,37 @@ export default function ShadcnDashboard() {
                         </ul>
                         </div>
                     </div>
-                    )}      
+                    )}
+
+                    {timelineDrill.open && (
+                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                        <div className="rounded-lg shadow-lg max-w-2xl w-full p-4 relative" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="absolute top-4 right-4"
+                            style={{ transition: 'none', transform: 'none' }}
+                            onClick={() => setTimelineDrill({ open: false, title: '', imoveis: [] })}
+                        >
+                            Fechar
+                        </Button>
+                        <h2 className="text-xl font-bold mb-2 pr-20" style={{ color: 'hsl(var(--card-foreground))' }}>
+                            {timelineDrill.title}
+                        </h2>
+                        <ul className="max-h-[400px] overflow-y-auto">
+                            {timelineDrill.imoveis.length === 0 ? (
+                            <li style={{ color: 'hsl(var(--card-foreground))' }}>Nenhum imóvel encontrado.</li>
+                            ) : (
+                            timelineDrill.imoveis.map(imovel => (
+                                <li key={imovel.idimovel} className="py-2 border-b" style={{ color: 'hsl(var(--card-foreground))', borderColor: 'hsl(var(--border))' }}>
+                                <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
+                                </li>
+                            ))
+                            )}
+                        </ul>
+                        </div>
+                    </div>
+                    )}
                 </div>
             </div>
             </div>{/* fecha conteúdo rolável */}

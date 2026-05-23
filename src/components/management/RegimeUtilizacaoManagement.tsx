@@ -25,7 +25,7 @@ export default function RegimeUtilizacaoManagement() {
     try {
       const { data } = await axios.get(API_URL);
       setRegimes(data);
-    } catch (error) {
+    } catch (error: unknown) {
       toast.error("Falha ao carregar regimes de utilização.");
     }
   }, []);
