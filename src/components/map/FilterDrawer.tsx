@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { 
   Drawer, Box, Typography, Button, TextField, Autocomplete, 
-  CircularProgress, Divider, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio
+  CircularProgress, Divider
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -48,7 +47,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
   const [loadingEstados, setLoadingEstados] = useState(false);
   const [loadingMunicipios, setLoadingMunicipios] = useState(false);
 
-  const handleFiltroChange = (field: keyof FiltrosState, value: any) => {
+  const handleFiltroChange = <K extends keyof FiltrosState>(field: K, value: FiltrosState[K]) => {
     setFiltros(prev => ({ ...prev, [field]: value }));
   };
 
@@ -170,6 +169,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
             <TextField size="small" label="RIP do Imóvel" fullWidth value={filtros.ripImovel} onChange={e => handleFiltroChange('ripImovel', e.target.value)} />
             <TextField size="small" label="RIP de Utilização" fullWidth value={filtros.ripUtilizacao} onChange={e => handleFiltroChange('ripUtilizacao', e.target.value)} />
             <Divider sx={{ my: 1 }} />
+            {/* // DANILO SOLICITOU A REMOÇÃO DO FILTRO DE PERÍODO
             <FormControl component="fieldset">
                 <FormLabel component="legend" sx={{ fontSize: '0.8rem', color: 'hsl(var(--foreground))', '&.Mui-focused': { color: 'hsl(var(--foreground))' } }}>Período por</FormLabel>
                 <RadioGroup row value={filtros.tipoData} onChange={(e) => handleFiltroChange('tipoData', e.target.value)}>
@@ -309,6 +309,7 @@ export default function FilterDrawer({ open, onClose, filtros, setFiltros, onApp
                 }
               }} 
             />
+            */}
         </Box>
         <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
             <Button variant="contained" onClick={handleApply} fullWidth>Aplicar Filtros</Button>

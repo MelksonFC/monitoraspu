@@ -17,17 +17,32 @@ interface SafePdfButtonProps {
   imovel: Imovel;
   usuario: string;
   lookups: {
-    paises: any[];
-    estados: any[];
-    municipios: any[];
-    unidades: any[];
-    regimes: any[];
+    paises: LookupItem[];
+    estados: LookupItem[];
+    municipios: LookupItem[];
+    unidades: UnidadeLookup[];
+    regimes: RegimeLookup[];
   };
   variant?: 'text' | 'outlined' | 'contained';
   color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
   disabled?: boolean;
   fullWidth?: boolean;
   size?: 'small' | 'medium' | 'large';
+}
+
+interface LookupItem {
+  id: number;
+  nome: string;
+}
+
+interface UnidadeLookup extends LookupItem {
+  codigo?: string;
+}
+
+interface RegimeLookup {
+  id: number;
+  descricao?: string;
+  nome?: string;
 }
 
 const PAGE_MARGIN_TOP = 45;
@@ -43,33 +58,47 @@ function formatDateBR(dateStr?: string): string {
     return '';
   }
 }
+
+function parseDecimalLikeInput(valor: string | number | undefined | null): number | null {
+  if (valor === undefined || valor === null || valor === "") return null;
+  if (typeof valor === 'number') return isNaN(valor) ? null : valor;
+
+  const normalized = String(valor).trim();
+  if (!normalized) return null;
+
+  // Values from SafeNumberField are stored as integer cents (digits only)
+  if (/^\d+$/.test(normalized)) {
+    const asInt = Number(normalized);
+    return isNaN(asInt) ? null : asInt / 100;
+  }
+
+  const withDotDecimal = normalized.includes(',')
+    ? normalized.replace(/\./g, '').replace(',', '.')
+    : normalized;
+
+  const parsed = Number(withDotDecimal);
+  return isNaN(parsed) ? null : parsed;
+}
+
 function formatValorBR(valor: string | number | undefined | null): string {
-  if (valor === undefined || valor === null || valor === "") return "R$ 0,00";
-  try {
-    const num = typeof valor === 'string'
-      ? parseFloat(valor.replace(/\./g, "").replace(",", "."))
-      : valor;
-    if (isNaN(num)) return "N/A";
-    return `R$ ${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  } catch { return "N/A"; }
+  const parsed = parseDecimalLikeInput(valor);
+  if (parsed === null) return "R$ 0,00";
+  return `R$ ${parsed.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
+
 function formatArea(valor: string | number | undefined | null): string {
-  if (valor === undefined || valor === null || valor === "") return "0,00 m²";
-  try {
-    const num = typeof valor === 'string'
-      ? parseFloat(valor.replace(/\./g, "").replace(",", "."))
-      : valor;
-    if (isNaN(num)) return "N/A";
-    return `${num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
-  } catch { return "N/A"; }
+  const parsed = parseDecimalLikeInput(valor);
+  if (parsed === null) return "0,00 m²";
+  return `${parsed.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
 }
-function getLookupName(id: number | undefined, list: any[]): string {
+function getLookupName(id: number | undefined, list: LookupItem[]): string {
   return list?.find(item => item.id === id)?.nome || '';
 }
-function getRegimeDesc(id: number | undefined, regimes: any[]): string {
-  return regimes.find(r => r.id === id)?.descricao || getLookupName(id, regimes);
+function getRegimeDesc(id: number | undefined, regimes: RegimeLookup[]): string {
+  const regime = regimes.find(r => r.id === id);
+  return regime?.descricao || regime?.nome || '';
 }
-function getUnidadeFormatted(id: number | undefined, unidades: any[]): string {
+function getUnidadeFormatted(id: number | undefined, unidades: UnidadeLookup[]): string {
   const u = unidades?.find(item => item.id === id);
   if (!u) return '';
   return u.codigo ? `${u.codigo} - ${u.nome}` : u.nome;
@@ -91,15 +120,34 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  function addHeader(doc: jsPDF) {
+  async function loadImageAsDataUrl(url: string): Promise<string | null> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return null;
+      const blob = await response.blob();
+      return await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  function addHeader(doc: jsPDF, brasaoDataUrl?: string | null) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const imageHeight = 18;
     const imageWidth = 18;
     const marginX = 15;
     const marginY = 12;
-    try {
-      doc.addImage('/monitoraspu/assets/brasaooficialcolorido.png', 'PNG', marginX, marginY, imageWidth, imageHeight);
-    } catch { }
+    if (brasaoDataUrl) {
+      try {
+        doc.addImage(brasaoDataUrl, 'PNG', marginX, marginY, imageWidth, imageHeight);
+      } catch {
+        // Ignore header image errors and continue generating the PDF.
+      }
+    }
     doc.setFont('times', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(51, 51, 51);
@@ -130,7 +178,6 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     const bottomMargin = margin;
     if (currentY + requiredSpace + bottomMargin > pageHeight) {
       doc.addPage();
-      addHeader(doc);
       return 50; // início da nova página
     }
     return currentY;
@@ -148,9 +195,10 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
     return y + rectHeight + 2; // novo y
   }
 
-  async function generateStructuredPdf(withImages: boolean) {
+  async function generateStructuredPdf(options: { withImages: boolean; simplified: boolean }) {
     setIsGenerating(true);
     try {
+      const brasaoDataUrl = await loadImageAsDataUrl('/assets/brasaooficialcolorido.png');
       const doc = new jsPDF('p', 'mm', 'a4');
       let y = PAGE_MARGIN_TOP;
 
@@ -187,7 +235,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       y = doc.lastAutoTable.finalY + 4;
 
       // Imagens
-      if (withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
+      if (options.withImages && Array.isArray(imovel.imagens) && imovel.imagens.length > 0) {
       
       y = drawSectionTitle(doc, 'Imagens', y, 2);
         autoTable(doc, {
@@ -206,18 +254,20 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
 
       
         let imgY = y;
-        let imgHeight = 50; 
-        let imgWidth = 85;
+        const imgHeight = 50;
+        const imgWidth = 85;
         let imgX = 15;
-        let gap = 5;
-        let maxPerRow = 2;
+        const gap = 5;
+        const maxPerRow = 2;
         let count = 0;
-        let totalRows = Math.ceil(imovel.imagens.length / maxPerRow);
+        const totalRows = Math.ceil(imovel.imagens.length / maxPerRow);
 
         for (const img of imovel.imagens.slice(0, 4)) {
           try {
             doc.addImage(img.url, 'JPEG', imgX, imgY, imgWidth, imgHeight);
-          } catch { }
+          } catch {
+            // Ignore invalid image and continue rendering remaining images.
+          }
           count++;
           if (count % maxPerRow === 0) {
             imgX = 15;
@@ -345,125 +395,127 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       });
       y = doc.lastAutoTable.finalY + 4;
 
-      // Fiscalizações
-      y = ensureSpace(doc, y, 21);
-      y = drawSectionTitle(doc, 'Fiscalizações', y, 4);
+      if (!options.simplified) {
+        // Fiscalizações
+        y = ensureSpace(doc, y, 21);
+        y = drawSectionTitle(doc, 'Fiscalizações', y, 4);
 
-      autoTable(doc, {
-        startY: y,
-        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
-        theme: 'plain',
-        head: [
-          [
-            { content: 'Data', styles: { fontStyle: 'bold' } },
-            { content: 'Fiscal', styles: { fontStyle: 'bold' } },
-            { content: 'Condições verificadas na fiscalização', styles: { fontStyle: 'bold' } },
-            { content: '', styles: { fontStyle: 'bold' } }
-          ]
-        ],
-        body: (imovel.fiscalizacoes?.length
-          ? imovel.fiscalizacoes.map(f => [
-            formatDateBR(f.datafiscalizacao),
-            String(f.fiscalizador || ''),
-            { content: String(f.condicoes || ''), colSpan: 2 }
-          ])
-          : [[{ content: 'Nenhuma fiscalização encontrada', colSpan: 4 }]]
-        ),
-        bodyStyles: { lineWidth: 0 },
-        styles: { cellPadding: 2 }
-      });
-      y = doc.lastAutoTable.finalY + 4;
+        autoTable(doc, {
+          startY: y,
+          margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
+          theme: 'plain',
+          head: [
+            [
+              { content: 'Data', styles: { fontStyle: 'bold' } },
+              { content: 'Fiscal', styles: { fontStyle: 'bold' } },
+              { content: 'Condições verificadas na fiscalização', styles: { fontStyle: 'bold' } },
+              { content: '', styles: { fontStyle: 'bold' } }
+            ]
+          ],
+          body: (imovel.fiscalizacoes?.length
+            ? imovel.fiscalizacoes.map(f => [
+              formatDateBR(f.datafiscalizacao),
+              String(f.fiscalizador || ''),
+              { content: String(f.condicoes || ''), colSpan: 2 }
+            ])
+            : [[{ content: 'Nenhuma fiscalização encontrada', colSpan: 4 }]]
+          ),
+          bodyStyles: { lineWidth: 0 },
+          styles: { cellPadding: 2 }
+        });
+        y = doc.lastAutoTable.finalY + 4;
 
-      // Avaliações
-      y = ensureSpace(doc, y, 21);
-      y = drawSectionTitle(doc, 'Avaliações', y, 4);
-      
-      autoTable(doc, {
-        startY: y,
-        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
-        theme: 'plain',
-        head: [
-          [
-            { content: 'Data', styles: { fontStyle: 'bold' } },
-            { content: 'Avaliador', styles: { fontStyle: 'bold' } },
-            { content: 'Novo Valor', styles: { fontStyle: 'bold' } },
-            { content: 'Observações', styles: { fontStyle: 'bold' } }
-          ]
-        ],
-        body: (imovel.avaliacoes?.length
-          ? imovel.avaliacoes.map(a => [
-            formatDateBR(a.dataavaliacao),
-            String(a.avaliador || ''),
-            formatValorBR(a.novovalor),
-            String(a.observacoes || '')
-          ])
-          : [[{ content: 'Nenhuma avaliação encontrada', colSpan: 4 }]]
-        ),
-        bodyStyles: { lineWidth: 0 },
-        styles: { cellPadding: 2 }
-      });
-      y = doc.lastAutoTable.finalY + 4;
+        // Avaliações
+        y = ensureSpace(doc, y, 21);
+        y = drawSectionTitle(doc, 'Avaliações', y, 4);
+        
+        autoTable(doc, {
+          startY: y,
+          margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
+          theme: 'plain',
+          head: [
+            [
+              { content: 'Data', styles: { fontStyle: 'bold' } },
+              { content: 'Avaliador', styles: { fontStyle: 'bold' } },
+              { content: 'Novo Valor', styles: { fontStyle: 'bold' } },
+              { content: 'Observações', styles: { fontStyle: 'bold' } }
+            ]
+          ],
+          body: (imovel.avaliacoes?.length
+            ? imovel.avaliacoes.map(a => [
+              formatDateBR(a.dataavaliacao),
+              String(a.avaliador || ''),
+              formatValorBR(a.novovalor),
+              String(a.observacoes || '')
+            ])
+            : [[{ content: 'Nenhuma avaliação encontrada', colSpan: 4 }]]
+          ),
+          bodyStyles: { lineWidth: 0 },
+          styles: { cellPadding: 2 }
+        });
+        y = doc.lastAutoTable.finalY + 4;
 
-      // Histórico Unidade Gestora
-      y = ensureSpace(doc, y, 21);
-      y = drawSectionTitle(doc, 'Histórico de Unidade Gestora', y, 3);
+        // Histórico Unidade Gestora
+        y = ensureSpace(doc, y, 21);
+        y = drawSectionTitle(doc, 'Histórico de Unidade Gestora', y, 3);
 
-      autoTable(doc, {
-        startY: y,
-        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
-        theme: 'plain',
-        head: [
-          [
-            { content: 'Unidade Gestora', styles: { fontStyle: 'bold' } },
-            { content: 'Data Início', styles: { fontStyle: 'bold' } },
-            { content: 'Data Fim', styles: { fontStyle: 'bold' } }
-          ]
-        ],
-        body: (imovel.hstUnidades?.length
-          ? imovel.hstUnidades.map(h => [
-            getUnidadeFormatted(h.idunidadegestora, lookups.unidades),
-            formatDateBR(h.dtinicio),
-            h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
-          ])
-          : [[{ content: 'Nenhuma histórico encontrado', colSpan: 3 }]]
-        ),
-        bodyStyles: { lineWidth: 0 },
-        styles: { cellPadding: 2 }
-      });
-      y = doc.lastAutoTable.finalY + 4;
+        autoTable(doc, {
+          startY: y,
+          margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
+          theme: 'plain',
+          head: [
+            [
+              { content: 'Unidade Gestora', styles: { fontStyle: 'bold' } },
+              { content: 'Data Início', styles: { fontStyle: 'bold' } },
+              { content: 'Data Fim', styles: { fontStyle: 'bold' } }
+            ]
+          ],
+          body: (imovel.hstUnidades?.length
+            ? imovel.hstUnidades.map(h => [
+              getUnidadeFormatted(h.idunidadegestora, lookups.unidades),
+              formatDateBR(h.dtinicio),
+              h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
+            ])
+            : [[{ content: 'Nenhuma histórico encontrado', colSpan: 3 }]]
+          ),
+          bodyStyles: { lineWidth: 0 },
+          styles: { cellPadding: 2 }
+        });
+        y = doc.lastAutoTable.finalY + 4;
 
-      // Histórico Regime de Utilização`
-      y = ensureSpace(doc, y, 21);
-      y = drawSectionTitle(doc, 'Histórico de Regime de Utilização', y, 3);
+        // Histórico Regime de Utilização
+        y = ensureSpace(doc, y, 21);
+        y = drawSectionTitle(doc, 'Histórico de Regime de Utilização', y, 3);
 
-      autoTable(doc, {
-        startY: y,
-        margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
-        theme: 'plain',
-        head: [
-          [
-            { content: 'Regime', styles: { fontStyle: 'bold' } },
-            { content: 'Data Início', styles: { fontStyle: 'bold' } },
-            { content: 'Data Fim', styles: { fontStyle: 'bold' } }
-          ]
-        ],
-        body: (imovel.hstRegimes?.length
-          ? imovel.hstRegimes.map(h => [
-            getRegimeDesc(h.idregimeutilizacao, lookups.regimes),
-            formatDateBR(h.dtinicio),
-            h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
-          ])
-          : [[{ content: 'Nenhuma histórico encontrado', colSpan: 3 }]]
-        ),
-        bodyStyles: { lineWidth: 0 },
-        styles: { cellPadding: 2 }
-      });
+        autoTable(doc, {
+          startY: y,
+          margin: { top: PAGE_MARGIN_TOP, bottom: PAGE_MARGIN_BOTTOM, left: 15, right: 15 },
+          theme: 'plain',
+          head: [
+            [
+              { content: 'Regime', styles: { fontStyle: 'bold' } },
+              { content: 'Data Início', styles: { fontStyle: 'bold' } },
+              { content: 'Data Fim', styles: { fontStyle: 'bold' } }
+            ]
+          ],
+          body: (imovel.hstRegimes?.length
+            ? imovel.hstRegimes.map(h => [
+              getRegimeDesc(h.idregimeutilizacao, lookups.regimes),
+              formatDateBR(h.dtinicio),
+              h.dtfim ? formatDateBR(h.dtfim) : 'Atual'
+            ])
+            : [[{ content: 'Nenhuma histórico encontrado', colSpan: 3 }]]
+          ),
+          bodyStyles: { lineWidth: 0 },
+          styles: { cellPadding: 2 }
+        });
+      }
 
       // Cabeçalho/Rodapé em todas as páginas
       const finalTotalPages = doc.getNumberOfPages();
       for (let i = 1; i <= finalTotalPages; i++) {
         doc.setPage(i);
-        addHeader(doc);
+        addHeader(doc, brasaoDataUrl);
         addFooter(doc, i, finalTotalPages);
       }
 
@@ -508,8 +560,8 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
         {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
       </Button>
       <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
-        <MenuItem onClick={() => { handleClose(); generateStructuredPdf(true); }}>PDF Completo (com imagens)</MenuItem>
-        <MenuItem onClick={() => { handleClose(); generateStructuredPdf(false); }}>PDF Simplificado (sem imagens)</MenuItem>
+        <MenuItem onClick={() => { handleClose(); generateStructuredPdf({ withImages: true, simplified: false }); }}>PDF Completo</MenuItem>
+        <MenuItem onClick={() => { handleClose(); generateStructuredPdf({ withImages: false, simplified: true }); }}>PDF Simplificado</MenuItem>
       </Menu>
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>

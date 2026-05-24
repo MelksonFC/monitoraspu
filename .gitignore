@@ -13,6 +13,7 @@ dist-ssr
 *.local
 .env
 .env.*
+.ai-context
 
 # Editor directories and files
 .vscode/*
@@ -24,3 +25,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# CODE REVIEW GRAPH
+.code-review-graph
+*.md
+!README.md

@@ -3,9 +3,11 @@ import { Box, Typography, Tab, Tabs, Paper } from '@mui/material';
 import LocationManagement from '@/components/management/LocationManagement';
 import UnidadeGestoraManagement from '@/components/management/UnidadeGestoraManagement';
 import RegimeUtilizacaoManagement from '@/components/management/RegimeUtilizacaoManagement';
+import ParametrosGeraisManagement from '@/components/management/ParametrosGeraisManagement';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessIcon from '@mui/icons-material/Business';
 import GavelIcon from '@mui/icons-material/Gavel';
+import TuneIcon from '@mui/icons-material/Tune';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -47,6 +49,7 @@ export default function CadastrosGerais() {
           <Tab icon={<LocationOnIcon />} iconPosition="start" label="Localização" />
           <Tab icon={<BusinessIcon />} iconPosition="start" label="Unidades Gestoras" />
           <Tab icon={<GavelIcon />} iconPosition="start" label="Regimes de Utilização" />
+          <Tab icon={<TuneIcon />} iconPosition="start" label="PARÂMETROS GERAIS" />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -57,6 +60,9 @@ export default function CadastrosGerais() {
       </TabPanel>
       <TabPanel value={value} index={2}>
         <RegimeUtilizacaoManagement />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        <ParametrosGeraisManagement />
       </TabPanel>
     </Paper>
   );

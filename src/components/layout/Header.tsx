@@ -4,19 +4,51 @@ import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/AuthContext";
 import { useTheme } from "@/ThemeContext";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
+import axios from "axios";
 
 //import logoSpuPng from '/public/assets/LogoSPU.png';
+
+type ParametroGeral = {
+  parametro?: string | null;
+  descricao?: string | null;
+  conteudoStr?: string | null;
+};
 
 const Header: React.FC = () => {
   const { usuario, logout } = useAuth();
   const { uiMode, setUiMode } = useTheme();
+  const [manualUrl, setManualUrl] = useState(import.meta.env.VITE_MANUAL_URL);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const fetchManualUrl = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL;
+        const { data } = await axios.get<ParametroGeral[]>(`${apiUrl}/api/parametrosgerais`);
+        const rows = Array.isArray(data) ? data : [];
+
+        const parametroManual =
+          rows.find((p) => ['URLMANUAL', 'LINK_MANUAL_SISTEMA'].includes(String(p.parametro || '').toUpperCase())) ||
+          rows.find((p) => String(p.descricao || '').trim().toLowerCase() === 'url para carregamento manual');
+
+        const urlManual = parametroManual?.conteudoStr?.trim();
+        if (urlManual) {
+          setManualUrl(urlManual);
+        }
+      } catch {
+        // Mantém fallback atual em caso de erro.
+      }
+    };
+
+    fetchManualUrl();
+  }, []);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -35,6 +67,10 @@ const Header: React.FC = () => {
   const handleNavigate = (path: string) => {
     handleClose();
     navigate(path);
+  };
+
+  const handleOpenManual = () => {
+    window.open(manualUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -75,7 +111,18 @@ const Header: React.FC = () => {
         </Box>
 
         {/* Lado Direito: Menu do Usuário */}
-        <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title="Manual do sistema">
+            <IconButton
+              onClick={handleOpenManual}
+              size="large"
+              sx={{ color: 'hsl(var(--foreground))' }}
+              aria-label="Abrir manual do sistema"
+            >
+              <InfoOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Opções do usuário">
             <IconButton
               onClick={handleMenu}

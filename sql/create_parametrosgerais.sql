@@ -1,0 +1,10 @@
+CREATE SCHEMA IF NOT EXISTS dbo;
+
+CREATE TABLE IF NOT EXISTS dbo.parametrosgerais (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    parametro VARCHAR(255) NOT NULL UNIQUE,
+    conteudoStr VARCHAR(225),
+    conteudoInt INTEGER,
+    descricao VARCHAR(225),
+    tipo VARCHAR(100) NOT NULL
+);
