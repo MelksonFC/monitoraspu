@@ -300,6 +300,23 @@ export default function ShadcnDashboard() {
     const regimeMap = new Map(regimes.map((r: any) => [r.id, r.descricao || r.nome]));
     const unidadeGestoraMap = new Map(unidadesGestoras.map((u: any) => [u.id, u.nome]));
 
+    const timelineDrillByMunicipio = React.useMemo(() => {
+        const grouped = new Map<string, Imovel[]>();
+
+        timelineDrill.imoveis.forEach((imovel) => {
+            const municipioNome = imovel.idmunicipio
+                ? (municipioMap.get(imovel.idmunicipio) || 'Não informado')
+                : 'Não informado';
+
+            if (!grouped.has(municipioNome)) {
+                grouped.set(municipioNome, []);
+            }
+            grouped.get(municipioNome)?.push(imovel);
+        });
+
+        return Array.from(grouped.entries()).sort(([a], [b]) => a.localeCompare(b, 'pt-BR'));
+    }, [timelineDrill.imoveis, municipioMap]);
+
     // Lista ordenada de municípios presentes nos imóveis (para o filtro)
     const municipiosDisponiveis = React.useMemo(() => {
         const nomes = new Set(imoveis.map(i => i.idmunicipio ? (municipioMap.get(i.idmunicipio) || '') : '').filter(Boolean));
@@ -1153,10 +1170,27 @@ export default function ShadcnDashboard() {
                             {timelineDrill.imoveis.length === 0 ? (
                             <li style={{ color: 'hsl(var(--card-foreground))' }}>Nenhum imóvel encontrado.</li>
                             ) : (
-                            timelineDrill.imoveis.map(imovel => (
-                                <li key={imovel.idimovel} className="py-2 border-b" style={{ color: 'hsl(var(--card-foreground))', borderColor: 'hsl(var(--border))' }}>
-                                <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
-                                </li>
+                            timelineDrillByMunicipio.map(([municipio, imoveisDoMunicipio]) => (
+                                <React.Fragment key={municipio}>
+                                    <li
+                                        className="py-2 font-semibold border-b"
+                                        style={{
+                                            color: 'hsl(var(--primary))',
+                                            borderColor: 'hsl(var(--border))',
+                                        }}
+                                    >
+                                        Município: {municipio}
+                                    </li>
+                                    {imoveisDoMunicipio.map((imovel) => (
+                                        <li
+                                            key={`${municipio}-${imovel.idimovel ?? imovel.matricula ?? imovel.nome}`}
+                                            className="py-2 border-b pl-6"
+                                            style={{ color: 'hsl(var(--card-foreground))', borderColor: 'hsl(var(--border))' }}
+                                        >
+                                            <strong>{imovel.nome}</strong> - {imovel.matricula} - {imovel.endereco}
+                                        </li>
+                                    ))}
+                                </React.Fragment>
                             ))
                             )}
                         </ul>
