@@ -16,13 +16,11 @@
 
     /* Linting (Boas práticas) */
     "strict": true,
-    "ignoreDeprecations": "6.0",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
     /* Aliases (Seu alias já estava correto) */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
