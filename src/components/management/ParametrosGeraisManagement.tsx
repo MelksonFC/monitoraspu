@@ -131,7 +131,6 @@ export default function ParametrosGeraisManagement() {
                     type={intType ? 'number' : 'text'}
                     onChange={(e) => handleValueChange(parametro.id, e.target.value)}
                     disabled={!isAdmin}
-                    helperText={intType ? 'Tipo: int (conteudoInt)' : 'Tipo: varchar (conteudoStr)'}
                     inputProps={intType ? { step: 1 } : undefined}
                   />
                 );

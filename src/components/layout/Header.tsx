@@ -13,10 +13,16 @@ import axios from "axios";
 
 //import logoSpuPng from '/public/assets/LogoSPU.png';
 
+type ParametroGeral = {
+  parametro?: string | null;
+  descricao?: string | null;
+  conteudoStr?: string | null;
+};
+
 const Header: React.FC = () => {
   const { usuario, logout } = useAuth();
   const { uiMode, setUiMode } = useTheme();
-  const [manualUrl, setManualUrl] = useState(import.meta.env.VITE_MANUAL_URL || "https://drive.google.com/");
+  const [manualUrl, setManualUrl] = useState(import.meta.env.VITE_MANUAL_URL);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
@@ -25,12 +31,16 @@ const Header: React.FC = () => {
     const fetchManualUrl = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL;
-        const { data } = await axios.get(`${apiUrl}/api/parametrosgerais`);
-        const parametroManual = (Array.isArray(data) ? data : []).find(
-          (p: any) => p.parametro === 'LINK_MANUAL_SISTEMA'
-        );
-        if (parametroManual?.conteudoStr) {
-          setManualUrl(parametroManual.conteudoStr);
+        const { data } = await axios.get<ParametroGeral[]>(`${apiUrl}/api/parametrosgerais`);
+        const rows = Array.isArray(data) ? data : [];
+
+        const parametroManual =
+          rows.find((p) => ['URLMANUAL', 'LINK_MANUAL_SISTEMA'].includes(String(p.parametro || '').toUpperCase())) ||
+          rows.find((p) => String(p.descricao || '').trim().toLowerCase() === 'url para carregamento manual');
+
+        const urlManual = parametroManual?.conteudoStr?.trim();
+        if (urlManual) {
+          setManualUrl(urlManual);
         }
       } catch {
         // Mantém fallback atual em caso de erro.
