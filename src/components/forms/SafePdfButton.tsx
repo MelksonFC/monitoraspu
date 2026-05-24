@@ -561,7 +561,7 @@ const SafePdfButton: React.FC<SafePdfButtonProps> = ({
       </Button>
       <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
         <MenuItem onClick={() => { handleClose(); generateStructuredPdf({ withImages: true, simplified: false }); }}>PDF Completo</MenuItem>
-        <MenuItem onClick={() => { handleClose(); generateStructuredPdf({ withImages: false, simplified: true }); }}>PDF Simplificado</MenuItem>
+        <MenuItem onClick={() => { handleClose(); generateStructuredPdf({ withImages: true, simplified: true }); }}>PDF Simplificado</MenuItem>
       </Menu>
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
