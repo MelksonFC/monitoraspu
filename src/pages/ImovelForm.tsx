@@ -1188,15 +1188,96 @@ const ImovelForm = forwardRef<ImovelFormRef, FormProps>(
             }}
           >
             <DialogContent sx={{ p: 1, position: 'relative', width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <IconButton onClick={handleCloseLightbox} sx={{ position: 'absolute', top: 8, right: 8, color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1 }}>
+              <IconButton
+                disableRipple
+                onClick={handleCloseLightbox}
+                sx={{
+                  position: 'absolute !important',
+                  top: 8,
+                  right: 8,
+                  width: 40,
+                  height: 40,
+                  p: 0,
+                  flexShrink: 0,
+                  color: 'white',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  zIndex: 1,
+                  transition: 'none',
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    transform: 'none',
+                    position: 'absolute !important',
+                  },
+                  '&:hover::before': {
+                    content: 'none',
+                  },
+                  '&:active::before': {
+                    content: 'none',
+                  },
+                }}
+              >
                 <CloseIcon />
               </IconButton>
               {imagensOrdenadas.length > 1 && (
-                <IconButton onClick={handlePrevImage} sx={{ position: 'absolute', top: '50%', left: 16, transform: 'translateY(-50%)', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                <IconButton
+                  disableRipple
+                  onClick={handlePrevImage}
+                  sx={{
+                    position: 'absolute !important',
+                    top: '50%',
+                    left: 16,
+                    width: 40,
+                    height: 40,
+                    p: 0,
+                    flexShrink: 0,
+                    transform: 'translateY(-50%)',
+                    color: 'white',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    transition: 'none',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      transform: 'translateY(-50%)',
+                      position: 'absolute !important',
+                    },
+                    '&:hover::before': {
+                      content: 'none',
+                    },
+                    '&:active::before': {
+                      content: 'none',
+                    },
+                  }}
+                >
                   <ArrowBackIosNewIcon />
                 </IconButton>)}
                 {imagensOrdenadas[lightboxState.index]?.url && (<img src={imagensOrdenadas[lightboxState.index].url} alt="Visualização expandida" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />)}{imagensOrdenadas.length > 1 && (
-                  <IconButton onClick={handleNextImage} sx={{ position: 'absolute', top: '50%', right: 16, transform: 'translateY(-50%)', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+                  <IconButton
+                    disableRipple
+                    onClick={handleNextImage}
+                    sx={{
+                      position: 'absolute !important',
+                      top: '50%',
+                      right: 16,
+                      width: 40,
+                      height: 40,
+                      p: 0,
+                      flexShrink: 0,
+                      transform: 'translateY(-50%)',
+                      color: 'white',
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      transition: 'none',
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        transform: 'translateY(-50%)',
+                        position: 'absolute !important',
+                      },
+                      '&:hover::before': {
+                        content: 'none',
+                      },
+                      '&:active::before': {
+                        content: 'none',
+                      },
+                    }}
+                  >
                     <ArrowForwardIosIcon />
                   </IconButton>
                 )}
