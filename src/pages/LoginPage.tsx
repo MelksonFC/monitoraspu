@@ -10,8 +10,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import fundoJpg from '/public/assets/fundo.jpg';
-import logoSpuPng from '/public/assets/LogoSPU.png';
-import logoGovPng from '/public/assets/gov.png';
+import logoUFRR from '/public/assets/LogoUFRR.png';
+/* import logoGovPng from '/public/assets/gov.png'; */
 
 interface LoginPageProps {
   setAutenticado: (auth: boolean) => void;
@@ -237,12 +237,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box
                   component="img"
-                  src={logoSpuPng}
-                  alt="Logo SPU"
-                  sx={{ height: 30 }}
+                  src={logoUFRR}
+                  alt="Logo UFRR"
+                  sx={{ height: 'auto', width: 'auto', maxHeight: 100, maxWidth: 100 }}
                 />
                 <Divider orientation="vertical" flexItem sx={{ height: 'auto', alignSelf: 'stretch' }} />
-                <Box sx={{ textAlign: 'right' }}>
+{/*                 <Box sx={{ textAlign: 'right' }}>
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -279,13 +279,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ setAutenticado }) => {
                   >
                     em Serviços Públicos
                   </Typography>
-                </Box>
-                <Box
+                </Box> */}
+{/*                 <Box
                   component="img"
                   src={logoGovPng}
                   alt="Logo Governo Federal"
                   sx={{ height: 55 }}
-                />
+                /> */}
               </Box>
 
               {/* Logo Governo Federal */}

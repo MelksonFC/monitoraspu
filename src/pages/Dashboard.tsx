@@ -135,7 +135,7 @@ const formatCompactNumber = (num: number, options: { style?: 'currency', currenc
 
 const formatArea = (areaInM2: number) => {
     if (isNaN(areaInM2)) return { value: 0, unit: 'm²' };
-    if (areaInM2 > 1000000) return { value: (areaInM2 / 1000000).toFixed(2), unit: 'km²' };
+    /* if (areaInM2 > 1000000) return { value: (areaInM2 / 1000000).toFixed(2), unit: 'km²' }; */
     return { value: areaInM2.toLocaleString('pt-BR'), unit: 'm²' };
 };
 
